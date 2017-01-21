@@ -96,9 +96,10 @@ or as a mapping from unique keys to collections of values:
 > b -> [3]
 > c -> [5]
 
-In general, the `Multimap` interface is best thought of in terms of the first view, but allows you to view it in either way with the `asMap()` view, which returns a `Map<K, Collection<V>>`.  Most importantly, there is no such thing as a key which maps to an empty collection: a key either maps to at least one value, or it is simply not present in the `Multimap`.  If you do want to be able to distinguish between keys that have no mapped values and keys that are not present, the more appropriate data structure is likely [Graph](https://github.com/google/guava/wiki/GraphsExplained) (which supports isolated nodes).
+一般来说，`Multimap`接口在第一个视图中是最好的，但允许你使用`asMap()`视图查看它，它返回一个`Map<K, Collection<V>>`。 最重要的是，不会有任何键映射到空集合：键映射到至少一个值，或者它根本不存在于`Multimap`中。 如果您希望能够区分没有映射值的键和不存在的键，则更合适的数据结构可能是[Graph](https://github.com/google/guava/wiki/GraphsExplained)（支持隔离节点）。
 
-You rarely use the `Multimap` interface directly, however; more often you'll use `ListMultimap` or `SetMultimap`, which map keys to a `List` or a `Set` respectively.
+然而，您很少直接使用`Multimap`接口; 更多的时候你会使用`ListMultimap`或`SetMultimap`，它们分别将键映射到`List`或`Set`。 
+
 
 ## Modifying
 
@@ -127,8 +128,10 @@ Other ways of modifying the multimap (more directly) include:
 ## Views
 
 `Multimap` also supports a number of powerful views.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#asMap()'><code>asMap</code></a> views any `Multimap<K, V>` as a `Map<K, Collection<V>>`.  The returned map supports `remove`, and changes to the returned collections write through, but the map does not support `put` or `putAll`.  Critically, you can use `asMap().get(key)` when you want `null` on absent keys rather than a fresh, writable empty collection.  (You can and should cast `asMap().get(key)` to the appropriate collection type -- a `Set` for a `SetMultimap`, a `List` for a `ListMultimap` -- but the type system does not allow `ListMultimap` to return `Map<K, List<V>>` here.)
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#entries()'><code>entries</code></a> views the `Collection<Map.Entry<K, V>>` of all entries in the `Multimap`.  (For a `SetMultimap`, this is a `Set`.)
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#asMap()'><code>asMap</code></a> 为 `Multimap<K, V>`提供 `Map<K, Collection<V>>`形式的视图。返回的 `Map `支持 `remove` 操作，并且
+会反映到底层的 `Multimap`，但它不支持 `put `或 `putAll` 操作。更重要的是，当你想为 `Multimap` 中没有的
+键返回 `null`，而不是一个新的、可写的空集合，你就可以使用 `asMap().get(key)`。（并且你应该可以将`asMap().get(key)`转换为适当的集合类型 -比如 `SetMultimap`的`Set`，`ListMultimap`的`List` - 但这里类型系统不允许`ListMultimap`返回`Map<K, List<V>>`。）
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#entries()'><code>entries</code></a> entries 用Multimap中所有entries 的Collection<Map.Entry<K, V>> 。 （对于SetMultimap，这是一个集合。）
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keySet()'><code>keySet</code></a> views the distinct keys in the `Multimap` as a `Set`.
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keys()'><code>keys</code></a> views the keys of the `Multimap` as a `Multiset`, with multiplicity equal to the number of values associated to that key.  Elements can be removed from the `Multiset`, but not added; changes will write through.
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#values()'><code>values()</code></a> views the all the values in the `Multimap` as a "flattened" `Collection<V>`, all as one collection.  This is similar to `Iterables.concat(multimap.asMap().values())`, but returns a full `Collection` instead.
