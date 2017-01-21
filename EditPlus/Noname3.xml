@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8">
+<mr>
+	<books>
+		<book>
+			<tile>Java Web 程序开发典范宝典</tile>
+			<publisher>人民右键出版社</publisher>
+		</book>
+		<book>
+			<tile>Java程序开发典范宝典</tile>
+			<publisher>人民右键出版社</publisher>
+		</book>
+	</books>
+
+</mr>

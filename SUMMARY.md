@@ -12,7 +12,7 @@
     * [Throwables](throwablesexplained.md)
 * [第二章 Collections](第二章-collections.md)
     * [不可变集合](immutablecollectionsexplained.md)
-    * [New collection types](new-collection-types.md)
+    * [新集合类型](new-collection-types.md)
     * [Utility Classes](utility-classes.md)
     * [Extension Utilities](extension-utilities.md)
 * [第三章 Graphs](第三章-graphs.md)
