@@ -46,8 +46,7 @@ Guava的`Multiset` API结合了`Multiset`的两种思考方式，如下：
 | :--------------------------------------- | :--------------------------------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#count(java.lang.Object)'><code>count(E)</code></a> | 给定元素在 Multiset 中的计数。 |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#elementSet()'><code>elementSet()</code></a> | 将`Multiset <E>`的不重复元素视为`Set <E>`。 |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#entrySet()'><code>entrySet()</code></a> | 和 Map 的 `entrySet` 类似，返回 `Set<Multiset.Entry<E>>`，其中包含的 Entry 支
-持 `getElement()`和 `getCount()`方法 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#entrySet()'><code>entrySet()</code></a> | 和 Map 的 `entrySet` 类似，返回 `Set<Multiset.Entry<E>>`，其中包含的 Entry 支持 `getElement()`和 `getCount()`方法 |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#add(java.lang.Object,int)'><code>add(E, int)</code></a> | 添加指定元素的指定出现次数。 |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#remove(java.lang.Object, int)'><code>remove(E, int)</code></a> | 删除指定元素的指定出现次数。 |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#setCount(E, int)'><code>setCount(E, int)</code></a> | 将指定元素的出现次数设置为指定的非负数。 |
