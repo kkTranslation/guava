@@ -1,11 +1,11 @@
 TODO: More examples
 
-Guava introduces a number of new collection types that are not in the JDK, but that we have found to be broadly useful.  These are all designed to coexist happily with the JDK collections framework, without shoehorning things into the JDK collection abstractions.
+Guava引入了一些JDK中没有的，但我们发现非常有用的新集合类型。 这些新类型是为了和 JDK 集合框架共存，而没有往 JDK 集合抽象中硬塞其他概念。
 
-As a general rule, the Guava collection implementations follow JDK interface contracts very precisely.
+作为一般规则，Guava集合实现非常精确地遵循JDK接口契约。
 
 # Multiset
-The traditional Java idiom for e.g. counting how many times a word occurs in a document is something like:
+统计一个词在文档中出现了多少次，传统的做法是这样的：
 
 ```java
 Map<String, Integer> counts = new HashMap<String, Integer>();
@@ -19,70 +19,73 @@ for (String word : words) {
 }
 ```
 
-This is awkward, prone to mistakes, and doesn't support collecting a variety of useful statistics, like the total number of words.  We can do better.
+这种写法很笨拙，也很容易出错，并且不支持同时收集多种统计数据，如总词数。我们可以做的更好。
 
-Guava provides a new collection type, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html'><code>Multiset</code></a>, which supports adding multiples of elements.
-Wikipedia defines a multiset, in mathematics, as “a generalization of the notion of set in which members are allowed to appear more than once...In multisets, as in sets and in contrast to tuples, the order of elements is irrelevant: The multisets {a, a, b} and {a, b, a} are equal.”
+Guava提供了一个新的集合类型<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html'><code>Multiset</code></a>，它支持添加多个元素。 维基百科从数学角度这样定义 Multiset：“集合[set]概念的泛化，它的元素可以重复出现…与集合[set]相同而与元组[tuple]相反的是，Multiset 元素的顺序是无关紧要的：Multiset {a, a, b}和{a, b, a}是相等的。
 
-There are two main ways of looking at this:
+有两种主要的方式来看：
 
-* This is like an `ArrayList<E>` without an ordering constraint: ordering does not matter.
-* This is like a `Map<E, Integer>`, with elements and counts.
+* 没有元素顺序限制的 `ArrayList`：排序并不重要。
+* `Map<E, Integer>`，键为元素，值为计数。
 
-Guava’s `Multiset` API combines both ways of thinking about a `Multiset`, as follows:
-* When treated as a normal `Collection`, `Multiset` behaves much like an unordered `ArrayList`:
-    * Calling `add(E)` adds a single occurrence of the given element.
-    * The `iterator()` of a Multiset iterates over every occurrence of every element.
-    * The `size()` of a Multiset is the total number of all occurrences of all elements.
-* The additional query operations, as well as the performance characteristics, are like what you’d expect from a `Map<E, Integer>`.
-    * `count(Object)` returns the count associated with that element.  For a `HashMultiset`, count is O(1), for a `TreeMultiset`, count is O(log n), etc.
-    * `entrySet()` returns a `Set<Multiset.Entry<E>>` which works analogously to the entrySet of a `Map`.
-    * `elementSet()` returns a `Set<E>` of the distinct elements of the multiset, like `keySet()` would for a `Map`.
-    * The memory consumption of `Multiset` implementations is linear in the number of distinct elements.
+Guava的`Multiset` API结合了`Multiset`的两种思考方式，如下：
+* 当把 `Multiset` 看成普通的 `Collection` 时，它表现得就像无序的 `ArrayList`：
+    * `add(E)`添加单个给定元素
+    * `iterator()`返回一个迭代器，包含 Multiset 的所有元素（包括重复的元素）
+    * `size()`返回所有元素的总个数（包括重复的元素）
+* 当把 `Multiset` 看作 `Map<E, Integer>`时，它也提供了符合性能期望的查询操作：
+    * `count(Object)`返回与该元素相关联的计数。 对于`HashMultiset`，count为O(1)，对于`TreeMultiset`，count为O(log n)等。
+    * `entrySet()`返回一个`Set<Multiset.Entry>`，它类似于`Map`的`entrySet`。
+    * `elementSet()`返回multiset的distinct元素的一个`Set <E>`，类似于`keySet()`。
+    * 所有 `Multiset` 实现的内存消耗随着不重复元素的个数线性增长。
 
-Notably, `Multiset` is fully consistent with the contract of the Collection interface, save in rare cases with precedent in the JDK itself -- specifically, `TreeMultiset`, like `TreeSet`, uses comparison for equality instead of `Object.equals`.  In particular, `Multiset.addAll(Collection)` adds one occurrence of each element in the `Collection` for each time it appears, which is much more convenient than the for loop required by the `Map` approach above.
+值得注意的是，除了极少数情况，`Multiset` 和 JDK 中原有的 Collection 接口契约完全一致——具体来说，`TreeMultiset` 在判断元素是否相等时，与 `TreeSet` 一样用 compare，而不是 `Object.equals`。另外特别注意的是，`Multiset.addAll(Collection)`可以添加 `Collection` 中的所有元素并进行计数，这比用 for 循环往 `Map` 添加元素和计数
+方便多了。
 
-| Method                                   | Description                              |
+| 方法                                   | 描述                              |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#count(java.lang.Object)'><code>count(E)</code></a> | Count the number of occurrences of an element that have been added to this multiset. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#elementSet()'><code>elementSet()</code></a> | View the distinct elements of a `Multiset<E>` as a `Set<E>`. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#entrySet()'><code>entrySet()</code></a> | Similar to `Map.entrySet()`, returns a `Set<Multiset.Entry<E>>`, containing entries supporting `getElement()` and `getCount()`. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#add(java.lang.Object,int)'><code>add(E, int)</code></a> | Adds the specified number of occurrences of the specified element. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#remove(java.lang.Object, int)'><code>remove(E, int)</code></a> | Removes the specified number of occurrences of the specified element. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#setCount(E, int)'><code>setCount(E, int)</code></a> | Sets the occurrence count of the specified element to the specified nonnegative value. |
-| `size()`                                 | Returns the total number of occurrences of all elements in the `Multiset`. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#count(java.lang.Object)'><code>count(E)</code></a> | 给定元素在 Multiset 中的计数。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#elementSet()'><code>elementSet()</code></a> | 将`Multiset <E>`的不重复元素视为`Set <E>`。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#entrySet()'><code>entrySet()</code></a> | 和 Map 的 `entrySet` 类似，返回 `Set<Multiset.Entry<E>>`，其中包含的 Entry 支
+持 `getElement()`和 `getCount()`方法 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#add(java.lang.Object,int)'><code>add(E, int)</code></a> | 添加指定元素的指定出现次数。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#remove(java.lang.Object, int)'><code>remove(E, int)</code></a> | 删除指定元素的指定出现次数。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multiset.html#setCount(E, int)'><code>setCount(E, int)</code></a> | 将指定元素的出现次数设置为指定的非负数。 |
+| `size()`                                 | 返回集合元素的总个数（包括重复的元素） |
 
 ## Multiset Is Not A Map
 
-Note that `Multiset<E>` is _not_ a `Map<E, Integer>`, though that might be part of a `Multiset` implementation.  `Multiset` is a true `Collection` type, and satisfies all of the associated contractual obligations.  Other notable differences include:
+请注意，`Multiset<E>`不是 `Map<E, Integer>`，虽然 Map 可能是某些 `Multiset` 实现的一部分。准确来说 `Multiset`是一种 `Collection` 类型，并履行了 Collection 接口相关的契约。关于 Multiset 和 Map 的显著区别还包括：
 
-* A `Multiset<E>` has elements with positive counts only.  No element can have negative counts, and values with count `0` are considered to not be in the multiset.  They do not appear in the `elementSet()` or `entrySet()` view.
-* `multiset.size()` returns the size of the collection, which is equal to the sum of the counts of all elements.  For the number of distinct elements, use `elementSet().size()`.  (So, for example, `add(E)` increases `multiset.size()` by one.)
-    * `multiset.iterator()` iterates over each occurrence of each element, so the length of the iteration is equal to `multiset.size()`.
-    * `Multiset<E>` supports adding elements, removing elements, or setting the count of elements directly.  `setCount(elem, 0)` is equivalent to removing all occurrences of the element.
-    * `multiset.count(elem)` for an element not in the multiset always returns `0`.
+* `Multiset<E>` 中的元素计数只能是正数。任何元素的计数都不能为负数，也不能是 `0`。也不会出现在`elementSet()`或 
+
+`entrySet()`的视图中。
+* `multiset.size()`返回集合的大小，等同于所有元素计数的总和。对于不重复元素的个数，应使用 `elementSet().size()`方法。（因此，`add(E)`把 `multiset.size()`加 1）
+    * `multiset.iterator()`会遍历每个元素的每次出现，因此迭代长度等于 `multiset.size()`。
+    * `Multiset` 支持直接添加、删除或设置元素的计数。`setCount(elem, 0)`等同于移除所有元素。
+    * 对multiset中没有的元素，`multiset.count(elem)`始终返回 `0`。
 
 ## Implementations
 
-Guava provides many implementations of `Multiset`, which _roughly_ correspond to JDK map implementations.
+Guava 提供了多种 Multiset 的实现，_大致_对应于JDK映射实现。
 
-| Map                 | Corresponding Multiset                   | Supports `null` elements     |
+| Map                 | 对应的Multiset                   | 是否支持`null`元素     |
 | :------------------ | :--------------------------------------- | :--------------------------- |
-| `HashMap`           | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashMultiset.html'><code>HashMultiset</code></a> | Yes                          |
-| `TreeMap`           | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/TreeMultiset.html'><code>TreeMultiset</code></a> | Yes (if the comparator does) |
-| `LinkedHashMap`     | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/LinkedHashMultiset.html'><code>LinkedHashMultiset</code></a> | Yes                          |
-| `ConcurrentHashMap` | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ConcurrentHashMultiset.html'><code>ConcurrentHashMultiset</code></a> | No                           |
-| `ImmutableMap`      | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultiset.html'><code>ImmutableMultiset</code></a> | No                           |
+| `HashMap`           | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashMultiset.html'><code>HashMultiset</code></a> | 是                          |
+| `TreeMap`           | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/TreeMultiset.html'><code>TreeMultiset</code></a> | 是（如果 comparator 支持的话） |
+| `LinkedHashMap`     | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/LinkedHashMultiset.html'><code>LinkedHashMultiset</code></a> | 是                          |
+| `ConcurrentHashMap` | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ConcurrentHashMultiset.html'><code>ConcurrentHashMultiset</code></a> | 否                           |
+| `ImmutableMap`      | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultiset.html'><code>ImmutableMultiset</code></a> | 否                           |
 
 ## SortedMultiset
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/SortedMultiset.html'><code>SortedMultiset</code></a> is a new variation on the `Multiset` interface that supports efficiently taking sub-multisets on specified ranges.  For example, you could use `latencies.subMultiset(0, BoundType.CLOSED, 100, BoundType.OPEN).size()` to determine how many hits to your site had under 100ms latency, and then compare that to `latencies.size()` to determine the overall proportion.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/SortedMultiset.html'><code>SortedMultiset</code></a> 是 `Multiset` 接口的变种，它支持高效地获取指定范围的子集。比方说，你可以用 `latencies.subMultiset(0,BoundType.CLOSED, 100, BoundType.OPEN).size()`来统计你的站点中延迟在 100 毫秒以内的访问，然后把这个值和 `latencies.size()`相比，以获取这个延迟水平在总体访问中的比例。
 
-`TreeMultiset` implements the `SortedMultiset` interface.  At the time of writing, `ImmutableSortedMultiset` is still being tested for GWT compatibility.
+`TreeMultiset`实现了`SortedMultiset`接口。 在撰写本文时，`ImmutableSortedMultiset`仍在测试与GWT的兼容性。
 
 # Multimap
-Every experienced Java programmer has, at one point or another, implemented a `Map<K, List<V>>` or `Map<K, Set<V>>`, and dealt with the awkwardness of that structure.  Guava's [Multimap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html) framework makes it easy to handle a mapping from keys to multiple values.  A `Multimap` is a general way to associate keys with arbitrarily many values.
+每个经验丰富的Java程序员都在某一点上实现了`Map<K, List<V>>`或`Map<K, Set<V>>`，并处理了该结构的尴尬。 Guava的[Multimap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html)框架可以轻松处理从键到多个值的映射。也可以这么说，`Multimap` 是把键映射到任意多个值的一般方式。
 
-There are two ways to think of a Multimap conceptually: as a collection of mappings from single keys to single values:
+可以用两种方式思考 Multimap 的概念：”键-单个值映射”的集合：
 
 > a -> 1
 > a -> 2
@@ -90,7 +93,7 @@ There are two ways to think of a Multimap conceptually: as a collection of mappi
 > b -> 3
 > c -> 5
 
-or as a mapping from unique keys to collections of values:
+或者”键-值集合映射”的映射：
 
 > a -> [1, 2, 4]
 > b -> [3]
