@@ -56,9 +56,7 @@ Guava的`Multiset` API结合了`Multiset`的两种思考方式，如下：
 
 请注意，`Multiset<E>`不是 `Map<E, Integer>`，虽然 Map 可能是某些 `Multiset` 实现的一部分。准确来说 `Multiset`是一种 `Collection` 类型，并履行了 Collection 接口相关的契约。关于 Multiset 和 Map 的显著区别还包括：
 
-* `Multiset<E>` 中的元素计数只能是正数。任何元素的计数都不能为负数，也不能是 `0`。也不会出现在`elementSet()`或 
-
-`entrySet()`的视图中。
+* `Multiset<E>` 中的元素计数只能是正数。任何元素的计数都不能为负数，也不能是 `0`。也不会出现在`elementSet()`或 `entrySet()`的视图中。
 * `multiset.size()`返回集合的大小，等同于所有元素计数的总和。对于不重复元素的个数，应使用 `elementSet().size()`方法。（因此，`add(E)`把 `multiset.size()`加 1）
     * `multiset.iterator()`会遍历每个元素的每次出现，因此迭代长度等于 `multiset.size()`。
     * `Multiset` 支持直接添加、删除或设置元素的计数。`setCount(elem, 0)`等同于移除所有元素。
@@ -105,9 +103,9 @@ Guava 提供了多种 Multiset 的实现，_大致_对应于JDK映射实现。
 
 ## Modifying
 
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#get(K)'><code>Multimap.get(key)</code></a> returns a _view_ of the values associated with the specified key, even if there are none currently.  For a `ListMultimap`, it returns a `List`, for a `SetMultimap`, it returns a `Set`.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#get(K)'><code>Multimap.get(key)</code></a> 返回与指定键相关联的值的视图，即使当前没有值。 `ListMultimap`返回一个`List`，`SetMultimap`返回一个`Set`。
 
-Modifications write through to the underlying `Multimap`.  For example,
+修改并写入到底层的`Multimap`。 例如，
 ```java
 
 Set<Person> aliceChildren = childrenMultimap.get(alice);
@@ -115,17 +113,17 @@ aliceChildren.clear();
 aliceChildren.add(bob);
 aliceChildren.add(carol);
 ```
-writes through to the underlying multimap.
+反映到底层的`multimap`。
 
-Other ways of modifying the multimap (more directly) include:
+其他（更直接地）修改 Multimap 的方法包括：
 
 | Signature                                | Description                              | Equivalent                               |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#put(K, V)'><code>put(K, V)</code></a> | Adds an association from the key to the value | `multimap.get(key).add(value)`           |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#putAll(K, java.lang.Iterable)'><code>putAll(K, Iterable&lt;V&gt;)</code></a> | Adds associations from the key to each of the values in turn | `Iterables.addAll(multimap.get(key), values)` |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#remove(java.lang.Object, java.lang.Object)'><code>remove(K, V)</code></a> | Removes one association from `key` to `value` and returns `true` if the multimap changed. | `multimap.get(key).remove(value)`        |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#removeAll(java.lang.Object)'><code>removeAll(K)</code></a> | Removes and returns all the values associated with the specified key.  The returned collection may or may not be modifiable, but modifying it will not affect the multimap.  (Returns the appropriate collection type.) | `multimap.get(key).clear()`              |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#replaceValues(K, java.lang.Iterable)'><code>replaceValues(K, Iterable&lt;V&gt;)</code></a> | Clears all the values associated with `key` and sets `key` to be associated with each of `values`.  Returns the values that were previously associated with the key. | `multimap.get(key).clear(); Iterables.addAll(multimap.get(key), values)` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#put(K, V)'><code>put(K, V)</code></a> | 添加键到单个值的映射 | `multimap.get(key).add(value)`           |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#putAll(K, java.lang.Iterable)'><code>putAll(K, Iterable&lt;V&gt;)</code></a> | 依次添加键到多个值的映射 | `Iterables.addAll(multimap.get(key), values)` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#remove(java.lang.Object, java.lang.Object)'><code>remove(K, V)</code></a> | 删除一个`key`对应`value`，如果`multimap`改变，返回`true`。 | `multimap.get(key).remove(value)`        |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#removeAll(java.lang.Object)'><code>removeAll(K)</code></a> | 删除并返回与指定键对应的所有值。 返回的集合可以是可修改的，但不会影响multimap。（返回适当的集合类型。） | `multimap.get(key).clear()`              |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#replaceValues(K, java.lang.Iterable)'><code>replaceValues(K, Iterable&lt;V&gt;)</code></a> | 清除所有与`key`对应的值，并设置`key`与每个`values`相关联。返回先前与键相关联的值。 | `multimap.get(key).clear(); Iterables.addAll(multimap.get(key), values)` |
 
 ## Views
 
@@ -133,24 +131,24 @@ Other ways of modifying the multimap (more directly) include:
 * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#asMap()'><code>asMap</code></a> 为 `Multimap<K, V>`提供 `Map<K, Collection<V>>`形式的视图。返回的 `Map `支持 `remove` 操作，并且
 会反映到底层的 `Multimap`，但它不支持 `put `或 `putAll` 操作。更重要的是，当你想为 `Multimap` 中没有的
 键返回 `null`，而不是一个新的、可写的空集合，你就可以使用 `asMap().get(key)`。（并且你应该可以将`asMap().get(key)`转换为适当的集合类型 -比如 `SetMultimap`的`Set`，`ListMultimap`的`List` - 但这里类型系统不允许`ListMultimap`返回`Map<K, List<V>>`。）
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#entries()'><code>entries</code></a> entries 用Multimap中所有entries 的Collection<Map.Entry<K, V>> 。 （对于SetMultimap，这是一个集合。）
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keySet()'><code>keySet</code></a> views the distinct keys in the `Multimap` as a `Set`.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keys()'><code>keys</code></a> views the keys of the `Multimap` as a `Multiset`, with multiplicity equal to the number of values associated to that key.  Elements can be removed from the `Multiset`, but not added; changes will write through.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#values()'><code>values()</code></a> views the all the values in the `Multimap` as a "flattened" `Collection<V>`, all as one collection.  This is similar to `Iterables.concat(multimap.asMap().values())`, but returns a full `Collection` instead.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#entries()'><code>entries</code></a> 返回`Multimap`中所有`entries`的`Collection<Map.Entry<K, V>>`。 （对于`SetMultimap`，这是一个`Set`。）
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keySet()'><code>keySet</code></a> 用 `Set` 表示 `Multimap` 中所有不同的键。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#keys()'><code>keys</code></a> 用 `Multiset` 表示 `Multimap `中的所有键，每个键重复出现的次数等于它映射的值的个数。可以从这个`Multiset` 中移除元素，但不能做添加操作；移除操作会反映到底层的 `Multimap`。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimap.html#values()'><code>values()</code></a> 用一个”扁平”的Collection<V>包含 Multimap 中的所有值，全部为一个集合。这类似于Iterables.concat(multimap.asMap().values())`，但它直接返回了单个 `Collection`，而不像` multimap.asMap().values()`那样是按键区分开的 `Collection`。
 
 ## Multimap Is Not A Map
-A `Multimap<K, V>` is _not_ a `Map<K, Collection<V>>`, though such a map might be used in a `Multimap` implementation.  Notable differences include:
+`Multimap<K, V>`不是 `Map<K, Collection<V>>`，虽然某些 `Multimap` 实现中可能使用了map。它们之间的显著区别包括：
 
-* `Multimap.get(key)` always returns a non-null, possibly empty collection.  This doesn't imply that the multimap spends any memory associated with the key, but instead, the returned collection is a view that allows you to add associations with the key if you like.
-* If you prefer the more `Map`-like behavior of returning `null` for keys that aren't in the multimap, use the `asMap()` view to get a `Map<K, Collection<V>>`.  (Or, to get a `Map<K, `**`List`**`<V>>` from a `ListMultimap`, use <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#asMap%28com.google.common.collect.ListMultimap%29'>the static <code>Multimaps.asMap()</code> method</a>. Similar methods exist for `SetMultimap` and `SortedSetMultimap`.)
-    * `Multimap.containsKey(key)` is true if and only if there are any elements associated with the specified key.  In particular, if a key `k` was previously associated with one or more values which have since been removed from the multimap, `Multimap.containsKey(k)` will return false.
-    * `Multimap.entries()` returns all entries for all keys in the `Multimap`.  If you want all key-collection entries, use `asMap().entrySet()`.
-    * `Multimap.size()` returns the number of entries in the entire multimap, not the number of distinct keys.  Use `Multimap.keySet().size()` instead to get the number of distinct keys.
+* `Multimap.get(key)`总是返回非 null、但是可能为空的集合。这并不意味着`Multimap`为相应的键花费内存创建了集合，而只是提供一个集合视图方便你为键增加映射值
+* 如果你更喜欢像 `Map` 那样，为 `Multimap` 中没有的键返回 `null`，请使用 asMap()视图获取一个 `Map<K, Collection<V>>`。（或者用静态方法 `Multimaps.asMap()` <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#asMap%28com.google.common.collect.ListMultimap%29'>为 `ListMultimap` 返回一个 `Map<K,List<V>>`。对于 `SetMultimap` 和 `SortedSetMultimap`，也有类似的静态方法存在）。
+* 当且仅当有值映射到键时，`Multimap.containsKey(key)`才会返回 `true`。尤其需要注意的是，如果键 k 之前映射过一个或多个值，但它们都被移除后，`Multimap.containsKey(key)`会返回 `false`。
+* `Multimap.entries()`返回 `Multimap `中所有”键-单个值映射”——包括重复键。如果你想要得到所有”键-值集合映射”，请使用 `asMap().entrySet()`。
+* `Multimap.size()`返回所有”键-单个值映射”的数量，而非不同键的数量。使用`Multimap.keySet().size()`来获取不同键的数量。
 
 ## Implementations
-`Multimap` provides a wide variety of implementations.  You can use it in most places you would have used a `Map<K, Collection<V>>`.
+`Multimap` 提供了多种形式的实现。在大多数要使用 `Map<K, Collection<V>>`的地方，你都可以使用它们：
 
-| Implementation                           | Keys behave like... | Values behave like.. |
+| 实现                           | 键行为类似... | 值行为类似.. |
 | :--------------------------------------- | :------------------ | :------------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ArrayListMultimap.html'><code>ArrayListMultimap</code></a> | `HashMap`           | `ArrayList`          |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashMultimap.html'><code>HashMultimap</code></a> | `HashMap`           | `HashSet`            |
@@ -160,15 +158,15 @@ A `Multimap<K, V>` is _not_ a `Map<K, Collection<V>>`, though such a map might b
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableListMultimap.html'><code>ImmutableListMultimap</code></a> | `ImmutableMap`      | `ImmutableList`      |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSetMultimap.html'><code>ImmutableSetMultimap</code></a> | `ImmutableMap`      | `ImmutableSet`       |
 
-Each of these implementations, except the immutable ones, support null keys and values.
+除了两个不可变形式的实现，其他所有实现都支持 null 键和 null 值
 
-`*` `LinkedListMultimap.entries()` preserves iteration order across non-distinct key values.  See the link for details.
+`*` `LinkedListMultimap.entries()`保留了所有键和值的迭代顺序。详情见 doc 链接。
 
-`**` `LinkedHashMultimap` preserves insertion order of entries, as well as the insertion order of keys, and the set of values associated with any one key.
+`**` `LinkedHashMultimap`保留了映射项的插入顺序，包括键插入的顺序，以及键映射的所有值的插入顺序。
 
-Be aware that not all implementations are actually implemented as a `Map<K, Collection<V>>` with the listed implementations!  (In particular, several `Multimap` implementations use custom hash tables to minimize overhead.)
+注意，并不是所有的 `Multimap` 都和上面列出的一样，使用`Map<K, Collection<V>>`来实现（特别是，一些Multimap实现用了自定义的 hashTable，以最小化开销）
 
-If you need more customization, use <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newMultimap(java.util.Map,%20com.google.common.base.Supplier)'><code>Multimaps.newMultimap(Map, Supplier&lt;Collection&gt;)</code></a> or the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newListMultimap(java.util.Map, com.google.common.base.Supplier)'>list</a> and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSetMultimap(java.util.Map, com.google.common.base.Supplier)'>set</a> versions to use a custom collection, list, or set implementation to back your multimap.
+如果你想要更多的定制化，请用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newMultimap(java.util.Map,%20com.google.common.base.Supplier)'><code>Multimaps.newMultimap(Map, Supplier&lt;Collection&gt;)</code></a> 或 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newListMultimap(java.util.Map, com.google.common.base.Supplier)'>`list`</a> 和 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSetMultimap(java.util.Map, com.google.common.base.Supplier)'>`set`</a>  版本，使用自定义的 Collection、List 或 Set 实现 Multimap。
 
 # BiMap
 The traditional way to map values back to keys is to maintain two separate maps and keep them both in sync, but this is bug-prone and can get extremely confusing when a value is already present in the map.  For example:
