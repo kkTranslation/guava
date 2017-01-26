@@ -169,7 +169,7 @@ aliceChildren.add(carol);
 如果你想要更多的定制化，请用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newMultimap(java.util.Map,%20com.google.common.base.Supplier)'><code>Multimaps.newMultimap(Map, Supplier&lt;Collection&gt;)</code></a> 或 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newListMultimap(java.util.Map, com.google.common.base.Supplier)'>`list`</a> 和 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSetMultimap(java.util.Map, com.google.common.base.Supplier)'>`set`</a>  版本，使用自定义的 Collection、List 或 Set 实现 Multimap。
 
 # BiMap
-The traditional way to map values back to keys is to maintain two separate maps and keep them both in sync, but this is bug-prone and can get extremely confusing when a value is already present in the map.  For example:
+实现键值对的双向映射需要维护两个单独的 map，并使它们保持同步。但这种方式很容易出错，并且当值已经存在于map中时会非常混乱。例如：
 
 ```java
 
@@ -178,16 +178,16 @@ Map<Integer, String> idToName = Maps.newHashMap();
 
 nameToId.put("Bob", 42);
 idToName.put(42, "Bob");
-// what happens if "Bob" or 42 are already present?
-// weird bugs can arise if we forget to keep these in sync...
+// 如果"Bob"和42已经在map中了，会发生什么?
+// 如果我们忘了同步两个map，会有诡异的bug发生...
 ```
 
-A <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html'><code>BiMap&lt;K, V&gt;</code></a> is a `Map<K, V>` that
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html'><code>BiMap&lt;K, V&gt;</code></a> 是特殊的 Map：
 
-* allows you to view the "inverse" `BiMap<V, K>` with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#inverse()'><code>inverse()</code></a>
-* ensures that values are unique, making <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#values()'><code>values()</code></a> a `Set`
+* 允许您使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#inverse()'><code>inverse()</code></a>反转BiMap <V，K>的键值映射
+* 确保值是唯一的，使 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#values()'><code>values()</code></a>返回 `Set`
 
-`BiMap.put(key, value)` will throw an `IllegalArgumentException` if you attempt to map a key to an already-present value.  If you wish to delete any preexisting entry with the specified value, use <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#forcePut(java.lang.Object,java.lang.Object)'><code>BiMap.forcePut(key, value)</code></a> instead.
+如果您尝试将键映射到已经存在的值，`BiMap.put(key, value)`将抛出IllegalArgumentException。 如果要删除指定值的任何预先存在的entry ，请改用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BiMap.html#forcePut(java.lang.Object,java.lang.Object)'><code>BiMap.forcePut(key, value)</code></a> 。
 
 ```java
 
@@ -197,16 +197,16 @@ BiMap<String, Integer> userId = HashBiMap.create();
 String userForId = userId.inverse().get(id);
 ```
 
-## Implementations
+## BiMap 的实现
 
-| Key-Value Map Impl | Value-Key Map Impl | Corresponding `BiMap`                    |
+| 键–值实现 | 值–键实现 | 对应的BiMap实现                    |
 | :----------------- | :----------------- | :--------------------------------------- |
 | `HashMap`          | `HashMap`          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashBiMap.html'><code>HashBiMap</code></a> |
 | `ImmutableMap`     | `ImmutableMap`     | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableBiMap.html'><code>ImmutableBiMap</code></a> |
 | `EnumMap`          | `EnumMap`          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/EnumBiMap.html'><code>EnumBiMap</code></a> |
 | `EnumMap`          | `HashMap`          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/EnumHashBiMap.html'><code>EnumHashBiMap</code></a> |
 
-_Note:_ `BiMap` utilities like `synchronizedBiMap` live in `Maps`.
+注：Maps 类中还有一些诸如 synchronizedBiMap 的 BiMap 工具方法.
 
 # Table
 ```java
@@ -220,17 +220,18 @@ records.row(someBirthday); // returns a Map mapping "Schmo" to recordA, "Doe" to
 records.column("Doe"); // returns a Map mapping someBirthday to recordB, otherBirthday to recordC
 ```
 
-Typically, when you are trying to index on more than one key at a time, you will wind up with something like `Map<FirstName, Map<LastName, Person>>`, which is ugly and awkward to use.  Guava provides a new collection type, <a href="http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html"><code>Table</code></a>, which supports this use case for any "row" type and "column" type.  `Table` supports a number of views to let you use the data from any angle, including
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#rowMap()'><code>rowMap()</code></a>, which views a `Table<R, C, V>` as a `Map<R, Map<C, V>>`.  Similarly, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#rowKeySet()'><code>rowKeySet()</code></a> returns a `Set<R>`.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#row(R)'><code>row(r)</code></a> returns a non-null `Map<C, V>`.  Writes to the `Map` will write through to the underlying `Table`.
-    * Analogous column methods are provided: <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#columnMap()'><code>columnMap()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#columnKeySet()'><code>columnKeySet()</code></a>, and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#column(C)'><code>column(c)</code></a>.  (Column-based access is somewhat less efficient than row-based access.)
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#cellSet()'><code>cellSet()</code></a> returns a view of the `Table` as a set of <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.Cell.html'><code>Table.Cell&lt;R, C, V&gt;</code></a>.  `Cell` is much like `Map.Entry`, but distinguishes the row and column keys.
+通常来说，当你想使用多个键做索引的时候，你可能会用类似 `Map<FirstName, Map<LastName, Person>>`的实现，这种方式很难使用。为此，Guava提供了新集合类型  <a href="http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html"><code>Table</code></a>,它有两个支持所有类型
+的键：”行”和”列”。 Table 支持多种视图，以便你从各种角度使用它：
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#rowMap()'><code>rowMap()</code></a>, 用 `Map<R, Map<C, V>>`表现 `Table<R, C, V>`。  同样的, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#rowKeySet()'><code>rowKeySet()</code></a> 返回`Set<R>`.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#row(R)'><code>row(r)</code></a> 返回非空`Map <C，V>`。 对这个 map 进行的写操作也将写入 Table 中。
+    * 提供了类似的列访问方法: <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#columnMap()'><code>columnMap()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#columnKeySet()'><code>columnKeySet()</code></a>, and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#column(C)'><code>column(c)</code></a>.  （基于列的访问比基于行的访问效率稍差。）
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.html#cellSet()'><code>cellSet()</code></a> 返回一个表的视图作为一组<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Table.Cell.html'><code>Table.Cell&lt;R, C, V&gt;</code></a>.  `Cell` 很像`Map.Entry`，但区分行和列键。
 
-Several `Table` implementations are provided, including:
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashBasedTable.html'><code>HashBasedTable</code></a>, which is essentially backed by a `HashMap<R, HashMap<C, V>>` (as of Guava 20.0, it is backed by a `LinkedHashMap<R, LinkedHashMap<C, V>>`).
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/TreeBasedTable.html'><code>TreeBasedTable</code></a>, which is essentially backed by a `TreeMap<R, TreeMap<C, V>>`.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html'><code>ImmutableTable</code></a>, which is essentially backed by an `ImmutableMap<R, ImmutableMap<C, V>>`.  (Note: `ImmutableTable` has optimized implementations for sparser and denser data sets.)
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ArrayTable.html'><code>ArrayTable</code></a>, which requires that the complete universe of rows and columns be specified at construction time, but is backed by a two-dimensional array to improve speed and memory efficiency when the table is dense.  `ArrayTable` works somewhat differently from other implementations; consult the Javadoc for details.
+提供了几个`Table`实现，包括：
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/HashBasedTable.html'><code>HashBasedTable</code></a>, 它基本上由`HashMap <R，HashMap <C，V >>`（从Guava 20.0开始，由`LinkedHashMap <R，LinkedHashMap <C，V >>`支持）支持。
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/TreeBasedTable.html'><code>TreeBasedTable</code></a>, 它基本上由`TreeMap <R，TreeMap <C，V >>`支持。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html'><code>ImmutableTable</code></a>，它基本上由`ImmutableMap <R，ImmutableMap <C，V >>`支持。 （注意：ImmutableTable已经针对更稀疏和更密集的数据集实现了优化。）
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ArrayTable.html'><code>ArrayTable</code></a>, 要求在构造时就指定行和列的大小，本质上由一个二维数组实现，以提升访问速度和密集 Table 的内存利用率。ArrayTable 与其他 Table 的工作原理有点不同，请参见 Javadoc 了解详情。
 
 # ClassToInstanceMap
 Sometimes, your map keys aren't all of the same type: they _are_ types, and you want to map them to values of that type.  Guava provides [ClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html) for this purpose.
