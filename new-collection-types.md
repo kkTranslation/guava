@@ -140,7 +140,7 @@ aliceChildren.add(carol);
 `Multimap<K, V>`不是 `Map<K, Collection<V>>`，虽然某些 `Multimap` 实现中可能使用了map。它们之间的显著区别包括：
 
 * `Multimap.get(key)`总是返回非 null、但是可能为空的集合。这并不意味着`Multimap`为相应的键花费内存创建了集合，而只是提供一个集合视图方便你为键增加映射值
-* 如果你更喜欢像 `Map` 那样，为 `Multimap` 中没有的键返回 `null`，请使用 asMap()视图获取一个 `Map<K, Collection<V>>`。（或者用静态方法 `Multimaps.asMap()` <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#asMap%28com.google.common.collect.ListMultimap%29'>为 `ListMultimap` 返回一个 `Map<K,List<V>>`。对于 `SetMultimap` 和 `SortedSetMultimap`，也有类似的静态方法存在）。
+* 如果你更喜欢像 `Map` 那样，为 `Multimap` 中没有的键返回 `null`，请使用 asMap()视图获取一个 `Map<K, Collection<V>>`。（或者用静态方法 `Multimaps.asMap()` 为 `ListMultimap` 返回一个 `Map<K,List<V>>`。对于 `SetMultimap` 和 `SortedSetMultimap`，也有类似的静态方法存在）。
 * 当且仅当有值映射到键时，`Multimap.containsKey(key)`才会返回 `true`。尤其需要注意的是，如果键 k 之前映射过一个或多个值，但它们都被移除后，`Multimap.containsKey(key)`会返回 `false`。
 * `Multimap.entries()`返回 `Multimap `中所有”键-单个值映射”——包括重复键。如果你想要得到所有”键-值集合映射”，请使用 `asMap().entrySet()`。
 * `Multimap.size()`返回所有”键-单个值映射”的数量，而非不同键的数量。使用`Multimap.keySet().size()`来获取不同键的数量。
@@ -234,11 +234,11 @@ records.column("Doe"); // returns a Map mapping someBirthday to recordB, otherBi
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ArrayTable.html'><code>ArrayTable</code></a>, 要求在构造时就指定行和列的大小，本质上由一个二维数组实现，以提升访问速度和密集 Table 的内存利用率。ArrayTable 与其他 Table 的工作原理有点不同，请参见 Javadoc 了解详情。
 
 # ClassToInstanceMap
-Sometimes, your map keys aren't all of the same type: they _are_ types, and you want to map them to values of that type.  Guava provides [ClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html) for this purpose.
+有时，map的键不是全相同的类型：它们是类型，并且将它们映射到该类型的值。 Guava为此提供了[ClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html) 。
 
-In addition to extending the `Map` interface, `ClassToInstanceMap` provides the methods [T getInstance(Class&lt;T&gt;)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html#getInstance(java.lang.Class)) and [T putInstance(Class&lt;T&gt;, T)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html#putInstance(java.lang.Class,java.lang.Object)), which eliminate the need for unpleasant casting while enforcing type safety.
+除了扩展`Map`接口之外，`ClassToInstanceMap`还提供了方法 [T getInstance(Class&lt;T&gt;)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html#getInstance(java.lang.Class)) 和 [T putInstance(Class&lt;T&gt;, T)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ClassToInstanceMap.html#putInstance(java.lang.Class,java.lang.Object))，避免了在执行类型安全时不必要的强制转换。
 
-`ClassToInstanceMap` has a single type parameter, typically named `B`, representing the upper bound on the types managed by the map.  For example:
+`ClassToInstanceMap` 有唯一的泛型参数，通常称为 `B`，代表 Map 支持的所有类型的上界。例如：
 
 ```java
 
@@ -246,49 +246,47 @@ ClassToInstanceMap<Number> numberDefaults = MutableClassToInstanceMap.create();
 numberDefaults.putInstance(Integer.class, Integer.valueOf(0));
 ```
 
-Technically, `ClassToInstanceMap<B>` implements `Map<Class<? extends B>, B>` -- or in other words, a map from subclasses of B to instances of B.  This can make the generic types involved in `ClassToInstanceMap` mildly confusing, but just remember that `B` is always the upper bound on the types in the map -- usually, `B` is just `Object`.
+从技术上讲，`ClassToInstanceMap<B>`实现`Map<Class<? extends B>, B>` - 或者换句话说，从B的子类到B的实例的映射。这可以使得包含在ClassToInstanceMap中的通用类型有点混淆，但请记住 `B` 始终是 `Map` 所支持类型的上界——通常 `B` 就是 `Object`。
 
-Guava provides implementations helpfully named [MutableClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MutableClassToInstanceMap.html) and [ImmutableClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableClassToInstanceMap.html).
+Guava提供了两种有用的实现：[MutableClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MutableClassToInstanceMap.html) 和 [ImmutableClassToInstanceMap](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableClassToInstanceMap.html)。
 
-**Important**: Like any other `Map<Class, Object>`, a `ClassToInstanceMap` may contain entries for primitive types, and a primitive type and its corresponding wrapper type may map to different values.
-
+**重要**：像任何其他`Map <Class，Object>`一样，`ClassToInstanceMap`可以包含基本类型的entry，基本类型及其对应的包装类型可以映射到不同的值。
 # RangeSet
-A `RangeSet` describes a set of _disconnected, nonempty_ ranges.  When adding a range to a mutable `RangeSet`, any connected ranges are merged together, and empty ranges are ignored.  For example:
+RangeSet描述了一组不相连的、非空的区间。当把一个区间添加到可变的RangeSet时，所有相连的区间会被合并，并将空区间忽略。例如：
 
 ```java
 
    RangeSet<Integer> rangeSet = TreeRangeSet.create();
    rangeSet.add(Range.closed(1, 10)); // {[1, 10]}
-   rangeSet.add(Range.closedOpen(11, 15)); // disconnected range: {[1, 10], [11, 15)}
-   rangeSet.add(Range.closedOpen(15, 20)); // connected range; {[1, 10], [11, 20)}
-   rangeSet.add(Range.openClosed(0, 0)); // empty range; {[1, 10], [11, 20)}
-   rangeSet.remove(Range.open(5, 10)); // splits [1, 10]; {[1, 5], [10, 10], [11, 20)}
+   rangeSet.add(Range.closedOpen(11, 15)); // 不相连区间: {[1, 10], [11, 15)}
+   rangeSet.add(Range.closedOpen(15, 20)); // 相连区间; {[1, 10], [11, 20)}
+   rangeSet.add(Range.openClosed(0, 0)); // 空区间; {[1, 10], [11, 20)}
+   rangeSet.remove(Range.open(5, 10)); // 分割 [1, 10]; {[1, 5], [10, 10], [11, 20)}
 ```
 
-Note that to merge ranges like `Range.closed(1, 10)` and `Range.closedOpen(11, 15)`, you must first preprocess ranges with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#canonical(com.google.common.collect.DiscreteDomain)'><code>Range.canonical(DiscreteDomain)</code></a>, e.g. with `DiscreteDomain.integers()`.
+请注意，要合并 Range.closed(1, 10)和 Range.closedOpen(11, 15)之类的区间，你需要首先用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#canonical(com.google.common.collect.DiscreteDomain)'><code>Range.canonical(DiscreteDomain)</code></a>对区间进行预处理，例如 DiscreteDomain.integers()。
 
-**NOTE**: `RangeSet` is not supported under GWT, nor in the JDK 1.5 backport; `RangeSet` requires full use of the `NavigableMap` features in JDK 1.6.
-
+**注意**：GWT不支持`RangeSet`，JDK 1.5后端也不支持; `RangeSet`需要充分使用JDK 1.6中的`NavigableMap`的特性。
 ## Views
 
-`RangeSet` implementations support an extremely wide range of views, including:
+`RangeSet`实现支持非常广泛的视图，包括：
 
-* `complement()`: views the complement of the `RangeSet`.  `complement` is also a `RangeSet`, as it contains disconnected, nonempty ranges.
-* `subRangeSet(Range<C>)`: returns a view of the intersection of the `RangeSet` with the specified `Range`.  This generalizes the `headSet`, `subSet`, and `tailSet` views of traditional sorted collections.
-    * `asRanges()`: views the `RangeSet` as a `Set<Range<C>>` which can be iterated over.
-    * `asSet(DiscreteDomain<C>)` (`ImmutableRangeSet` only): Views the `RangeSet<C>` as an `ImmutableSortedSet<C>`, viewing the elements in the ranges instead of the ranges themselves.  (This operation is unsupported if the `DiscreteDomain` and the `RangeSet` are both unbounded above or both unbounded below.)
+* `complement()`：返回 `RangeSet` 的补码。`complement` 也是 `RangeSet` 类型,包含了不相连的、非空的区间。
+* `subRangeSet（Range <C>）`：返回`RangeSet`与指定范围的交集的视图。 这扩展了传统排序集合中的headSet，subSet和tailSet操作。
+    * `asRanges()`: 用` Set<Range<C>>`表现 RangeSet，这样可以遍历其中的 Range。
+    * `asSet(DiscreteDomain`)（仅 `ImmutableRangeSet` 支持）：用 `ImmutableSortedSet`表现 `RangeSet`，以区间中所有元素的形式而不是区间本身的形式查看。（这个操作不支持 `DiscreteDomain` 和 `RangeSet` 都没有上边界，或都没有下边界的情况）
 
 ## Queries
 
-In addition to operations on its views, `RangeSet` supports several query operations directly, the most prominent of which are:
+为了方便操作，RangeSet 直接提供了若干查询方法，其中最突出的有:
 
-* `contains(C)`: the most fundamental operation on a `RangeSet`, querying if any range in the `RangeSet` contains the specified element.
-* `rangeContaining(C)`: returns the `Range` which encloses the specified element, or `null` if there is none.
-    * `encloses(Range<C>)`: straightforwardly enough, tests if any `Range` in the `RangeSet` encloses the specified range.
-    * `span()`: returns the minimal `Range` that `encloses` every range in this `RangeSet`.
+* `contains(C)`：`RangeSet` 最基本的操作，判断 `RangeSet` 中是否有任何区间包含给定元素。
+* `rangeContaining(C)`: 返回包含指定元素的`Range`，如果没有，则返回null。
+    * `encloses(Range<C>)`: 简单明了，测试`RangeSet`中的`Range`是否包含指定的区间。
+    * `span()`: 返回包括 `RangeSet `中所有区间的最小区间。
 
 # RangeMap
-`RangeMap` is a collection type describing a mapping from disjoint, nonempty ranges to values.  Unlike `RangeSet`, `RangeMap` never "coalesces" adjacent mappings, even if adjacent ranges are mapped to the same values.  For example:
+`RangeMap` 描述了”不相交的、非空的区间”到特定值的映射。和 `RangeSet` 不同，`RangeMap` 不会合并相邻的映射，即便相邻的区间映射到相同的值。例如：
 
 ```java
 
@@ -300,7 +298,7 @@ rangeMap.remove(Range.closed(5, 11)); // {[1, 3] => "foo", (3, 5) => "bar", (11,
 ```
 
 ## Views
-`RangeMap` provides two views:
+`RangeMap`提供两个视图：
 
-* `asMapOfRanges()`: views the `RangeMap` as a `Map<Range<K>, V>`.  This can be used, for example, to iterate over the `RangeMap`.
-* `subRangeMap(Range<K>)` views the intersection of the `RangeMap` with the specified `Range` as a `RangeMap`.  This generalizes the traditional `headMap`, `subMap`, and `tailMap` operations.
+* `asMapOfRanges()`: 用 `Map<Range<K>, V>`表现 `RangeMap`。这可以用来遍历 `RangeMap`。
+* `subRangeMap(Range<K>)` 用 `RangeMap `类型返回 `RangeMap` 与给定 `Range` 的交集视图。这扩展了传统的 `headMap`、`subMap` 和 `tailMap` 操作。
