@@ -1,12 +1,12 @@
 TODO: Queues, Tables
 
-Any programmer with experience with the JDK Collections Framework knows and loves the utilities available in <a href='http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html'><code>java.util.Collections</code></a>.  Guava provides many more utilities along these lines: static methods applicable to all collections.  These are among the most popular and mature parts of Guava.
+任何具有JDK集合框架经验的程序员都知道并喜欢 <a href='http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html'><code>java.util.Collections</code></a> 中提供的工具方法。 Guava提供了更多的工具方法：适用于所有集合的静态方法。这是 Guava 最流行和成熟的部分之一。
 
-Methods corresponding to a particular interface are grouped in a relatively intuitive manner:
+我们用相对直观的方式把工具类与特定集合接口的对应关系归纳如下：
 
-| Interface    | JDK or Guava?                          | Corresponding Guava utility class        |
+| 集合接口    | JDK 还是 Guava?                          | 对应的Guava工具类        |
 | :----------- | :------------------------------------- | :--------------------------------------- |
-| `Collection` | JDK                                    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Collections2.html'><code>Collections2</code></a> (avoiding conflict with `java.util.Collections`) |
+| `Collection` | JDK                                    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Collections2.html'><code>Collections2</code></a> (不要和 `java.util.Collections`混淆) |
 | `List`       | JDK                                    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html'><code>Lists</code></a> |
 | `Set`        | JDK                                    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html'><code>Sets</code></a> |
 | `SortedSet`  | JDK                                    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html'><code>Sets</code></a> |
@@ -18,29 +18,29 @@ Methods corresponding to a particular interface are grouped in a relatively intu
 | [[BiMap      | NewCollectionTypesExplained#bimap]]    | Guava                                    |
 | [[Table      | NewCollectionTypesExplained#table]]    | Guava                                    |
 
-**_Looking for transform, filter, and the like?  That stuff is [[here|FunctionalExplained]], under functional idioms._**
+**_在找类似转化、过滤的方法？请看第四章，函数式风格。_**
 
-# Static constructors
-Before JDK 7, constructing new generic collections requires unpleasant code duplication:
+# 静态工厂方法
+在 JDK 7之前，构造新的范型集合时要讨厌地重复声明范型：
 ```java
 
 List<TypeThatsTooLongForItsOwnGood> list = new ArrayList<TypeThatsTooLongForItsOwnGood>();
 ```
-I think we can all agree that this is unpleasant.  Guava provides static methods that use generics to infer the type on the right side:
+我想我们都认为这很讨厌。因此 Guava 提供了能够推断范型的静态工厂方法：
 ```java
 
 List<TypeThatsTooLongForItsOwnGood> list = Lists.newArrayList();
 Map<KeyType, LongishValueType> map = Maps.newLinkedHashMap();
 ```
 
-To be sure, the diamond operator in JDK 7 makes this less of a hassle:
+可以肯定的是，JDK7 版本的钻石操作符(<>)没有这样的麻烦：
 
 ```java
 
 List<TypeThatsTooLongForItsOwnGood> list = new ArrayList<>();
 ```
 
-But Guava goes further than this.  With the factory method pattern, we can initialize collections with their starting elements very conveniently.
+但 Guava 的静态工厂方法远不止这么简单。使用工厂方法模式，我们可以非常方便地使用起始元素初始化集合。
 
 ```java
 
@@ -48,7 +48,7 @@ Set<Type> copySet = Sets.newHashSet(elements);
 List<String> theseElements = Lists.newArrayList("alpha", "beta", "gamma");
 ```
 
-Additionally, with the ability to name factory methods (Effective Java item 1), we can improve the readability of initializing collections to sizes:
+此外，通过为工厂方法命名(Effective Java 第一条)，我们可以提高初始化集合到大小的可读性：
 
 ```java
 
@@ -57,9 +57,9 @@ List<Type> approx100 = Lists.newArrayListWithExpectedSize(100);
 Set<Type> approx100Set = Sets.newHashSetWithExpectedSize(100);
 ```
 
-The precise static factory methods provided are listed with their corresponding utility classes below.
+下面列出了提供的精确静态工厂方法及其相应的实用程序类。
 
-_Note:_ New collection types introduced by Guava don't expose raw constructors, or have initializers in the utility classes.  Instead, they expose static factory methods directly, for example:
+注意：Guava 引入的新集合类型没有暴露原始构造器，也没有在工具类中提供初始化方法。而是直接在集合类中提供了静态工厂方法，例如：
 
 ```java
 
@@ -67,40 +67,44 @@ Multiset<String> multiset = HashMultiset.create();
 ```
 
 # Iterables
-Whenever possible, Guava prefers to provide utilities accepting an `Iterable` rather than a `Collection`.  Here at Google, it's not out of the ordinary to encounter a "collection" that isn't actually stored in main memory, but is being gathered from a database, or from another data center, and can't support operations like `size()` without actually grabbing all of the elements.
+在可能的情况下，Guava 提供的工具方法更偏向于接受 `Iterable` 而不是 `Collection` 类型。在 Google，对于不存放在主存的集合——比如从数据库或其他数据中心收集的结果集，因为实际上还没有攫取全部数据，这类结果集都不能支持类似 `size()`的操作 ——通常都不会用 Collection 类型来表示。
 
-As a result, many of the operations you might expect to see supported for all collections can be found in <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html'><code>Iterables</code></a>.  Additionally, most `Iterables` methods have a corresponding version in <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterators.html'><code>Iterators</code></a> that accepts the raw iterator.
+因此，您可能期望看到的所有集合支持的许多操作都可以在 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html'><code>Iterables</code></a>.  中找到。 此外，大多数 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterators.html'><code>Iterators</code></a> 方法在接受原始迭代器的迭代器中有相应的版本。
 
-The overwhelming majority of operations in the `Iterables` class are _lazy_: they only advance the backing iteration when absolutely necessary.  Methods that themselves return `Iterables` return lazily computed views, rather than explicitly constructing a collection in memory.
+Iterables类中绝大多数操作都是惰性的：它们只在绝对必要时才推进支持迭代。 自己返回Iterables的方法返回延迟计算的视图，而不是在内存中显式构造集合。
 
-As of Guava 12, `Iterables` is supplemented by the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/FluentIterable.html'><code>FluentIterable</code></a> class, which wraps an `Iterable` and provides a "fluent" syntax for many of these operations.
+从Guava 1.2开始，Iterables由 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/FluentIterable.html'><code>FluentIterable</code></a> 类补充，该类包装了一个Iterable，并为许多这些操作提供了一个“fluent”（链式调用）语法。
 
-The following is a selection of the most commonly used utilities, although many of the more "functional" methods in `Iterables` are discussed in [[Guava functional idioms|FunctionalExplained]].
+下面列出了一些最常用的工具方法，但更多 Iterables 的函数式方法将在第四章讨论。
 
-### General
+### 常规方法
 | Method                                   | Description                              | See Also                                 |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable)'><code>concat(Iterable&lt;Iterable&gt;)</code></a> | Returns a lazy view of the concatenation of several iterables. | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)'><code>concat(Iterable...)</code></a> |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#frequency(java.lang.Iterable, java.lang.Object)'><code>frequency(Iterable, Object)</code></a> | Returns the number of occurrences of the object. | Compare `Collections.frequency(Collection, Object)`; see [[Multiset |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#partition(java.lang.Iterable, int)'><code>partition(Iterable, int)</code></a> | Returns an unmodifiable view of the iterable partitioned into chunks of the specified size. | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#partition(java.util.List, int)'><code>Lists.partition(List, int)</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#paddedPartition(java.lang.Iterable, int)'><code>paddedPartition(Iterable, int)</code></a> |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getFirst(java.lang.Iterable, T)'><code>getFirst(Iterable, T default)</code></a> | Returns the first element of the iterable, or the default value if empty. | Compare `Iterable.iterator().next()`<br><a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#first()'><code>FluentIterable.first()</code></a> <br>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getLast(java.lang.Iterable)'><code>getLast(Iterable)</code></a> </td><td> Returns the last element of the iterable, or fails fast with a <code>NoSuchElementException</code> if it's empty.  </td><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getLast(java.lang.Iterable, T)'><code>getLast(Iterable, T default)</code></a><br><a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#last()'><code>FluentIterable.last()</code></a> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#elementsEqual(java.lang.Iterable, java.lang.Iterable)'><code>elementsEqual(Iterable, Iterable)</code></a> </td><td> Returns true if the iterables have the same elements in the same order. </td><td> Compare <code>List.equals(Object)</code> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#unmodifiableIterable(java.lang.Iterable)'><code>unmodifiableIterable(Iterable)</code></a> </td><td> Returns an unmodifiable view of the iterable. </td><td> Compare <code>Collections.unmodifiableCollection(Collection)</code> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#limit(java.lang.Iterable, int)'><code>limit(Iterable, int)</code></a> </td><td> Returns an <code>Iterable</code> returning at most the specified number of elements. </td><td> <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#limit(int)'><code>FluentIterable.limit(int)</code></a> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getOnlyElement(java.lang.Iterable)'><code>getOnlyElement(Iterable)</code></a> </td><td> Returns the only element in <code>Iterable</code>.  Fails fast if the iterable is empty or has multiple elements.  </td><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getOnlyElement(java.lang.Iterable, T)'><code>getOnlyElement(Iterable, T default)</code></a> </td></tr></tbody></table>
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable)'><code>concat(Iterable&lt;Iterable&gt;)</code></a> | 串联多个 iterables 的懒视图* | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)'><code>concat(Iterable...)</code></a> |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#frequency(java.lang.Iterable, java.lang.Object)'><code>frequency(Iterable, Object)</code></a> | 返回对象在 iterable 中出现的次数 | 与 Collections.frequency (Collecti
+on, Object)比较； |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#partition(java.lang.Iterable, int)'><code>partition(Iterable, int)</code></a> | 把 iterable 按指定大小分割，得到的子集都不能进行修改操作 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#partition(java.util.List, int)'><code>Lists.partition(List, int)</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#paddedPartition(java.lang.Iterable, int)'><code>paddedPartition(Iterable, int)</code></a> |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getFirst(java.lang.Iterable, T)'><code>getFirst(Iterable, T default)</code></a> | 返回 iterable 的第一个元素，若 iterable 为空则返回默认值| 与I`terable.iterator(). next()`比较;<br><a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#first()'><code>FluentIterable.first()</code></a> <br>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getLast(java.lang.Iterable)'><code>getLast(Iterable)</code></a> </td><td> 返回 iterable 的最后一个元素，若 iterable 为空则抛出NoSuchElementException </td><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getLast(java.lang.Iterable, T)'><code>getLast(Iterable, T default)</code></a><br><a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#last()'><code>FluentIterable.last()</code></a> </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#elementsEqual(java.lang.Iterable, java.lang.Iterable)'><code>elementsEqual(Iterable, Iterable)</code></a> </td><td> 如果两个 iterable 中的所有元素相等
+且顺序一致，返回 true </td><td> 与List.equals(Object)比较</code> </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#unmodifiableIterable(java.lang.Iterable)'><code>unmodifiableIterable(Iterable)</code></a> </td><td> 返回 iterable 的不可变视图 </td><td>  与<code> Collections. unmodifiableColle
+ction(Collection)</code>比较 </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#limit(java.lang.Iterable, int)'><code>limit(Iterable, int)</code></a> </td><td> Returns an <code>Iterable</code> 限制 iterable 的元素个数限制给定值 </td><td> <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#limit(int)'><code>FluentIterable.limit(int)</code></a> </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getOnlyElement(java.lang.Iterable)'><code>getOnlyElement(Iterable)</code></a> </td><td> 获取 <code>Iterable</code> 中唯一的元素，如果 iter
+able 为空或有多个元素，则快速失败</td><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#getOnlyElement(java.lang.Iterable, T)'><code>getOnlyElement(Iterable, T default)</code></a> </td></tr></tbody></table>
 
 ```java
 
 Iterable<Integer> concatenated = Iterables.concat(
   Ints.asList(1, 2, 3),
   Ints.asList(4, 5, 6));
-// concatenated has elements 1, 2, 3, 4, 5, 6
+// concatenated 包括元素 1, 2, 3, 4, 5, 6
 
 String lastAdded = Iterables.getLast(myLinkedHashSet);
 
 String theElement = Iterables.getOnlyElement(thisSetIsDefinitelyASingleton);
-  // if this set isn't a singleton, something is wrong!
+  // 如果set不是单元素集，就会出错了！
 ```
 
 ### Collection-Like
