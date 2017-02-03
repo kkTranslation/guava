@@ -108,11 +108,13 @@ String theElement = Iterables.getOnlyElement(thisSetIsDefinitelyASingleton);
 ```
 
 ### Collection-Like
-Typically, collections support these operations naturally on other collections, but not on iterables.
+通常来说，Collection 的实现天然支持操作其他 Collection，但却不能操作 Iterable。
 
-_Each of these operations delegates to the corresponding `Collection` interface method when the input is actually a `Collection`._  For example, if `Iterables.size` is passed a `Collection`, it will call the `Collection.size` method instead of walking through the iterator.
+下面的方法中，如果传入的 Iterable 是一个 `Collection`实例，则实际操作将会委托给相应的 `Collection` 接口方
+法。例如，往 `Iterables.size` 方法传入是一个 `Collection` 实例，它不会真的遍历 iterator 获取大小，而是直接调
+用 `Collection.size`。
 
-| Method                                   | Analogous `Collection` method      | `FluentIterable` equivalent              |
+| 方法                                   | 类似的 Collection 方法      | 等价的 FluentIterable 方法              |
 | :--------------------------------------- | :--------------------------------- | :--------------------------------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#addAll(java.util.Collection, java.lang.Iterable)'><code>addAll(Collection addTo, Iterable toAdd)</code></a> | `Collection.addAll(Collection)`    |                                          |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#contains(java.lang.Iterable, java.lang.Object)'><code>contains(Iterable, Object)</code></a> | `Collection.contains(Object)`      | <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#contains(java.lang.Object)'><code>FluentIterable.contains(Object)</code></a> |
@@ -125,19 +127,19 @@ _Each of these operations delegates to the corresponding `Collection` interface 
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#toString(java.lang.Iterable)'><code>toString(Iterable)</code></a> | `Collection.toString()`            | <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#toString()'><code>FluentIterable.toString()</code></a> |
 
 ### `FluentIterable`
-Besides the methods covered above and in the functional idioms [[article|FunctionalExplained]], `FluentIterable` has a few convenient methods for copying into an immutable collection:
+除了上面和第四章提到的方法，`FluentIterable`有一些方便的方法复制到不可变集合：
 
 | `ImmutableList` | <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#toImmutableList()>`toImmutableList()`</a'> <br>
 <tr><td> <code>ImmutableSet</code> </td><td> <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#toImmutableSet()'><code>toImmutableSet()</code></a> </td></tr>
 <tr><td> <code>ImmutableSortedSet</code> </td><td> <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/FluentIterable.html#toImmutableSortedSet(java.util.Comparator)'><code>toImmutableSortedSet(Comparator)</code></a> </td></tr></tbody></table>
 
 ### Lists
-In addition to static constructor methods and functional programming methods, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html'><code>Lists</code></a> provides a number of valuable utility methods on `List` objects.
+除了静态工厂方法和函数式编程方法外， <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html'><code>Lists</code></a> 还为List对象提供了许多有价值的实用方法。
 
-| Method                                   | Description                              |
+| 方法                                   | 描述                              |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#partition(java.util.List, int)'><code>partition(List, int)</code></a> | Returns a view of the underlying list, partitioned into chunks of the specified size. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#reverse(java.util.List)'><code>reverse(List)</code></a> | Returns a reversed view of the specified list.  _Note_: if the list is immutable, consider <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableList.html#reverse()'><code>ImmutableList.reverse()</code></a> instead. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#partition(java.util.List, int)'><code>partition(List, int)</code></a> | 返回基础列表的视图，分区为指定大小的块。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#reverse(java.util.List)'><code>reverse(List)</code></a> | 返回给定 List 的反转视图。注: 如果 List 是不可变的，考虑改用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableList.html#reverse()'><code>ImmutableList.reverse()</code></a> |
 
 ```java
 
@@ -148,30 +150,30 @@ List<List<Integer>> parts = Lists.partition(countUp, 2); // {{1, 2}, {3, 4}, {5}
 ```
 
 ### Static Factories
-`Lists` provides the following static factory methods:
+`Lists`提供以下静态工厂方法：
 
-| Implementation | Factories                                |
+| 具体实现类型 | 工厂方法                               |
 | :------------- | :--------------------------------------- |
 | `ArrayList`    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayList()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayList(E...)'>with elements</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayList(java.lang.Iterable)'>from <code>Iterable</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayListWithCapacity(int)'>with exact capacity</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayListWithExpectedSize(int)'>with expected size</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newArrayList(java.util.Iterator)'>from <code>Iterator</code></a> |
 | `LinkedList`   | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newLinkedList()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Lists.html#newLinkedList(java.lang.Iterable)'>from <code>Iterable</code></a> |
 
 # Sets
-The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html'><code>Sets</code></a> utility class includes a number of spicy methods.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html'><code>Sets</code></a> 工具类包含了若干好用的方法。
 
 ### Set-Theoretic Operations
-We provide a number of standard set-theoretic operations, implemented as views over the argument sets.  These return a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html'><code>SetView</code></a>, which can be used:
-* as a `Set` directly, since it implements the `Set` interface
-* by copying it into another mutable collection with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html#copyInto(S)'><code>copyInto(Set)</code></a> 
-    * by making an immutable copy with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html#immutableCopy()'><code>immutableCopy()</code></a>
+我们提供了许多标准的集合理论操作，作为参数集的视图实现并返回一个 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html'><code>SetView</code></a>，可以使用：
+* 直接当作 `Set` 使用，因为它实现了Set接口
+* 通过将其复制到另一个可变的集合与 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html#copyInto(S)'><code>copyInto(Set)</code></a> 
+    * 通过使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.SetView.html#immutableCopy()'><code>immutableCopy()</code></a>
 
-| Method                                   |
+| 方法                                   |
 | :--------------------------------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#union(java.util.Set, java.util.Set)'><code>union(Set, Set)</code></a> |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#intersection(java.util.Set, java.util.Set)'><code>intersection(Set, Set)</code></a> |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#difference(java.util.Set, java.util.Set)'><code>difference(Set, Set)</code></a> |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#symmetricDifference(java.util.Set, java.util.Set)'><code>symmetricDifference(Set, Set)</code></a> |
 
-For example:
+例如：
 
 ```java
 
@@ -179,15 +181,15 @@ Set<String> wordsWithPrimeLength = ImmutableSet.of("one", "two", "three", "six",
 Set<String> primes = ImmutableSet.of("two", "three", "five", "seven");
 
 SetView<String> intersection = Sets.intersection(primes, wordsWithPrimeLength); // contains "two", "three", "seven"
-// I can use intersection as a Set directly, but copying it can be more efficient if I use it a lot.
+// 可以使用交集，但不可变拷贝的读取效率更高
 return intersection.immutableCopy();
 ```
 
-### Other Set Utilities
-| Method                                   | Description                              | See Also                                 |
+### 其他 Set 工具方法
+| 方法                                   | 描述                              | 另请参见                                 |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#cartesianProduct(java.util.List)'><code>cartesianProduct(List&lt;Set&gt;)</code></a> | Returns every possible list that can be obtained by choosing one element from each set. | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#cartesianProduct(java.util.Set...)'><code>cartesianProduct(Set...)</code></a> |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#powerSet(java.util.Set)'><code>powerSet(Set)</code></a> | Returns the set of subsets of the specified set. |                                          |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#cartesianProduct(java.util.List)'><code>cartesianProduct(List&lt;Set&gt;)</code></a> | 返回通过从每个集合中选择一个元素可以获得的每个可能的list。 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#cartesianProduct(java.util.Set...)'><code>cartesianProduct(Set...)</code></a> |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#powerSet(java.util.Set)'><code>powerSet(Set)</code></a> | 返回指定集合的所有子集。 |                                          |
 
 ```java
 
@@ -203,21 +205,21 @@ Set<Set<String>> animalSets = Sets.powerSet(animals);
 ```
 
 ### Static Factories
-`Sets` provides the following static factory methods:
+`Sets` 提供以下静态工厂方法：
 
-| Implementation  | Factories                                |
+| 具体实现类型  | 工厂方法                                |
 | :-------------- | :--------------------------------------- |
 | `HashSet`       | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newHashSet()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newHashSet(E...)'>with elements</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newHashSet(java.lang.Iterable)'>from <code>Iterable</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newHashSetWithExpectedSize(int)'>with expected size</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newHashSet(java.util.Iterator)'>from <code>Iterator</code></a> |
 | `LinkedHashSet` | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newLinkedHashSet()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newLinkedHashSet(java.lang.Iterable)'>from <code>Iterable</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newLinkedHashSetWithExpectedSize(int)'>with expected size</a> |
 | `TreeSet`       | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newTreeSet()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newTreeSet(java.util.Comparator)'>with <code>Comparator</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Sets.html#newTreeSet(java.lang.Iterable)'>from <code>Iterable</code></a> |
 
 # Maps
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html'><code>Maps</code></a> has a number of cool utilities that deserve individual explanation.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html'><code>Maps</code></a> 类有若干值得单独说明的、很酷的方法。
 
 ### `uniqueIndex`
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#uniqueIndex(java.lang.Iterable, com.google.common.base.Function)'><code>Maps.uniqueIndex(Iterable, Function)</code></a> addresses the common case of having a bunch of objects that each have some unique attribute, and wanting to be able to look up those objects based on that attribute.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#uniqueIndex(java.lang.Iterable, com.google.common.base.Function)'><code>Maps.uniqueIndex(Iterable, Function)</code></a> 针对一组对象，它们在某个属性上分别有独一无二的值，并希望能够查找基于属性的这些对象的常见情况。
 
-Let's say we have a bunch of strings that we know have unique lengths, and we want to be able to look up the string with some particular length.
+比方说，我们有一堆字符串，这些字符串的长度都是独一无二的，而我们希望能够按照特定长度查找字符串：
 
 ```java
 
@@ -228,7 +230,7 @@ ImmutableMap<Integer, String> stringsByIndex = Maps.uniqueIndex(strings, new Fun
   });
 ```
 
-If indices are _not_ unique, see `Multimaps.index` below.
+如果索引不是唯一的，请参阅下面的Multimaps.index。
 
 ### `difference`
 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#difference(java.util.Map, java.util.Map)'><code>Maps.difference(Map, Map)</code></a> allows you to compare all the differences between two maps.  It returns a `MapDifference` object, which breaks down the Venn diagram into:
