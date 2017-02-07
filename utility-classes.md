@@ -233,13 +233,14 @@ ImmutableMap<Integer, String> stringsByIndex = Maps.uniqueIndex(strings, new Fun
 如果索引不是唯一的，请参阅下面的Multimaps.index。
 
 ### `difference`
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#difference(java.util.Map, java.util.Map)'><code>Maps.difference(Map, Map)</code></a> allows you to compare all the differences between two maps.  It returns a `MapDifference` object, which breaks down the Venn diagram into:
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#difference(java.util.Map, java.util.Map)'><code>Maps.difference(Map, Map)</code></a> 用来比较两个 Map 以获取所有不同点。该方法返回`MapDifference`对
+象，把不同点的Venn分解为：
 
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesInCommon()'><code>entriesInCommon()</code></a> | The entries which are in both maps, with both matching keys and values. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesInCommon()'><code>entriesInCommon()</code></a> | 两个Map中都有的映射项，包括匹配的键与值 |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesDiffering()'><code>entriesDiffering()</code></a> | The entries with the same keys, but differing values.  The values in this map are of type <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.ValueDifference.html'><code>MapDifference.ValueDifference</code></a>, which lets you look at the left and right values. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesOnlyOnLeft()'><code>entriesOnlyOnLeft()</code></a> | Returns the entries whose keys are in the left but not in the right map. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesOnlyOnRight()'><code>entriesOnlyOnRight()</code></a> | Returns the entries whose keys are in the right but not in the left map. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesDiffering()'><code>entriesDiffering()</code></a> | 键相同但是值不同值映射项。返回的 Map 的值类型为<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.ValueDifference.html'><code>MapDifference.ValueDifference</code></a>，以表示左右两个不同的值 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesOnlyOnLeft()'><code>entriesOnlyOnLeft()</code></a> | 键只存在于左边 Map 的映射项 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/MapDifference.html#entriesOnlyOnRight()'><code>entriesOnlyOnRight()</code></a> | 键只存在于右边 Map 的映射项 |
 
 ```java
 
@@ -253,36 +254,36 @@ diff.entriesOnlyOnLeft(); // {"a" => 1}
 diff.entriesOnlyOnRight(); // {"d" => 5}
 ```
 
-### `BiMap` utilities
-The Guava utilities on `BiMap` live in the `Maps` class, since a `BiMap`
-is also a `Map`.
+### `BiMap` 工具方法
+Guava 中处理 `BiMap` 的工具方法在 `Maps` 类中，因为 `BiMap` 也是一种 `Map` 实现。
 
-| `BiMap` utility | Corresponding `Map` utility |
+| `BiMap` 工具方法 | 相应的 `Map` 工具方法 |
 |:----------------|:----------------------------|
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#synchronizedBiMap(com.google.common.collect.BiMap)'><code>synchronizedBiMap(BiMap)</code> <table><thead><th> <code>Collections.synchronizedMap(Map)</code></a> </th></thead><tbody>
 <tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#unmodifiableBiMap(com.google.common.collect.BiMap)'><code>unmodifiableBiMap(BiMap)</code> </td><td> <code>Collections.unmodifiableMap(Map)</code></a> </td></tr></tbody></table>
 
-### Static Factories
-`Maps` provides the following static factory methods.
+### 静态工厂方法
+`Maps`提供了以下静态工厂方法。
 
-| Implementation                           | Factories                                |
+| 具体实现类型                           | 工厂方法                                |
 | :--------------------------------------- | :--------------------------------------- |
 | `HashMap`                                | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newHashMap()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newHashMap(java.util.Map)'>from <code>Map</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newHashMapWithExpectedSize(int)'>with expected size</a> |
 | `LinkedHashMap`                          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newLinkedHashMap()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newLinkedHashMap(java.util.Map)'>from <code>Map</code></a> |
 | `TreeMap`                                | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newTreeMap()'>basic</a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newTreeMap(java.util.Comparator)'>from <code>Comparator</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newTreeMap(java.util.SortedMap)'>from <code>SortedMap</code></a> |
 | `EnumMap`                                | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newEnumMap(java.lang.Class)'>from <code>Class</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newEnumMap(java.util.Map)'>from <code>Map</code></a> |
-| `ConcurrentMap` (supporting all operations) | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newConcurrentMap()'>basic</a> |
+| `ConcurrentMap` (支持所有操作) | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newConcurrentMap()'>basic</a> |
 | `IdentityHashMap`                        | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Maps.html#newIdentityHashMap()'>basic</a> |
 
 # Multisets
-Standard `Collection` operations, such as `containsAll`, ignore the count of elements in the multiset, and only care about whether elements are in the multiset at all, or not.  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html'><code>Multisets</code></a> provides a number of operations that take into account element multiplicities in multisets.
+标准的 `Collection` 操作会忽略 `Multiset` 重复元素的个数，而只关心元素是否存在于 `Multiset` 中，如 `containsAll`
+方法。为此，  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html'><code>Multisets</code></a> 提供了若干方法，以顾及 `Multiset` 元素的重复性：
 
-| Method                                   | Explanation                              | Difference from `Collection` method      |
+| 方法                                   | 说明                              | 和 `Collection` 方法的区别      |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#containsOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>containsOccurrences(Multiset sup, Multiset sub)</code></a> | Returns `true` if `sub.count(o) <= super.count(o)` for all `o`. | `Collection.containsAll` ignores counts, and only tests whether elements are contained at all. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#removeOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>removeOccurrences(Multiset removeFrom, Multiset toRemove)</code></a> | Removes one occurrence in `removeFrom` for each occurrence of an element in `toRemove`. | `Collection.removeAll` removes all occurences of any element that occurs even once in `toRemove`. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#retainOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>retainOccurrences(Multiset removeFrom, Multiset toRetain)</code></a> | Guarantees that `removeFrom.count(o) <= toRetain.count(o)` for all `o`. | `Collection.retainAll` keeps all occurrences of elements that occur even once in `toRetain`. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#intersection(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>intersection(Multiset, Multiset)</code></a> | Returns a view of the intersection of two multisets; a nondestructive alternative to `retainOccurrences`. | Has no analogue                          |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#containsOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>containsOccurrences(Multiset sup, Multiset sub)</code></a> | 对任意 `o`，如果 sub.count(o)<=super.count(o)，返回`true` | `Collection.containsAll` 忽略个数，而只关心 sub 的元素是否都在 super 中 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#removeOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>removeOccurrences(Multiset removeFrom, Multiset toRemove)</code></a> | 对 toRemove 中的重复元素，仅在 removeFrom 中删除相同个数。| `Collection.removeAll` 移除所有出现在 `toRemove` 的元素 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#retainOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>retainOccurrences(Multiset removeFrom, Multiset toRetain)</code></a> | 修改 `removeFrom`，以保证任意`o`都符合 `removeFrom.count(o) <= toRetain.count(o)` . | `Collection.retainAll` 保留所有出现在 `toRetain` 的元素 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#intersection(com.google.common.collect.Multiset, com.google.common.collect.Multiset)'><code>intersection(Multiset, Multiset)</code></a> | 返回两个 `multiset` 的交集; 非破坏性的替代`retainOccurrences`。 | 没有类似方法                         |
 
 ```java
 
@@ -292,22 +293,23 @@ multiset1.add("a", 2);
 Multiset<String> multiset2 = HashMultiset.create();
 multiset2.add("a", 5);
 
-multiset1.containsAll(multiset2); // returns true: all unique elements are contained, 
-  // even though multiset1.count("a") == 2 < multiset2.count("a") == 5
+multiset1.containsAll(multiset2); // 返回true；因为包含了所有不重复元素，
+  // 虽然multiset1实际上包含2个"a"，而multiset2包含5个"a"
 Multisets.containsOccurrences(multiset1, multiset2); // returns false
 
 multiset2.removeOccurrences(multiset1); // multiset2 now contains 3 occurrences of "a"
 
-multiset2.removeAll(multiset1); // removes all occurrences of "a" from multiset2, even though multiset1.count("a") == 2
+multiset2.removeAll(multiset1); // multiset2移除所有"a"，虽然multiset1只有2个"a"
 multiset2.isEmpty(); // returns true
 ```
 
-Other utilities in `Multisets` include:
+`Multisets` 中的其他工具方法还包括：
 
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#copyHighestCountFirst(com.google.common.collect.Multiset)'><code>copyHighestCountFirst(Multiset)</code></a> | Returns an immutable copy of the multiset that iterates over elements in descending frequency order. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#copyHighestCountFirst(com.google.common.collect.Multiset)'><code>copyHighestCountFirst(Multiset)</code></a> | 返回 Multiset 的不可变拷贝，并将元素按重复
+出现的次数做降序排列 |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#unmodifiableMultiset(com.google.common.collect.Multiset)'><code>unmodifiableMultiset(Multiset)</code></a> | Returns an unmodifiable view of the multiset. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#unmodifiableSortedMultiset(com.google.common.collect.SortedMultiset)'><code>unmodifiableSortedMultiset(SortedMultiset)</code></a> | Returns an unmodifiable view of the sorted multiset. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#unmodifiableMultiset(com.google.common.collect.Multiset)'><code>unmodifiableMultiset(Multiset)</code></a> | 返回 Multiset 的只读视图|
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multisets.html#unmodifiableSortedMultiset(com.google.common.collect.SortedMultiset)'><code>unmodifiableSortedMultiset(SortedMultiset)</code></a> | 返回 SortedMultiset 的只读视图 |
 
 ```java
 
@@ -318,7 +320,7 @@ multiset.add("c", 1);
 
 ImmutableMultiset<String> highestCountFirst = Multisets.copyHighestCountFirst(multiset);
 
-// highestCountFirst, like its entrySet and elementSet, iterates over the elements in order {"b", "a", "c"}
+// highestCountFirst，包括它的entrySet和elementSet，按{"b", "a", "c"}排列元素
 ```
 
 # Multimaps
