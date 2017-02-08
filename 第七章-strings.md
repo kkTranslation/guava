@@ -45,23 +45,24 @@ Splitter.on(',')
 | :--------------------------------------- | :---------- | :----------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(char)'><code>Splitter.on(char)</code></a> | 按单个字符拆分     | `Splitter.on(';')` |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(com.google.common.base.CharMatcher)'><code>Splitter.on(CharMatcher)</code></a> |  按字符匹配器拆分 | `Splitter.on(CharMatcher.BREAKING_WHITESPACE)`<br><code>Splitter.on(CharMatcher.anyOf(";,."))</code>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.lang.String)'><code>Splitter.on(String)</code></a> </td><td> Split on a literal <code>String</code>. </td><td> <code>Splitter.on(", ")</code> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.util.regex.Pattern)'><code>Splitter.on(Pattern)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#onPattern(java.lang.String)'><code>Splitter.onPattern(String)</code></a> </td><td> Split on a regular expression. </td><td> <code>Splitter.onPattern("\r?\n")</code> </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#fixedLength(int)'><code>Splitter.fixedLength(int)</code></a> </td><td> Splits strings into substrings of the specified fixed length.  The last piece can be smaller than <code>length</code>, but will never be empty. </td><td> <code>Splitter.fixedLength(3)</code> </td></tr></tbody></table>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.lang.String)'><code>Splitter.on(String)</code></a> </td><td> 按照字符串拆分. </td><td> <code>Splitter.on(", ")</code> </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.util.regex.Pattern)'><code>Splitter.on(Pattern)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#onPattern(java.lang.String)'><code>Splitter.onPattern(String)</code></a> </td><td>按照正则表达式拆分. </td><td> <code>Splitter.onPattern("\r?\n")</code> </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#fixedLength(int)'><code>Splitter.fixedLength(int)</code></a> </td><td>  按固定长度拆分；最后一段
+可能比给定长度短，但不会为空. </td><td> <code>Splitter.fixedLength(3)</code> </td></tr></tbody></table>
 
-### Modifiers
+### 拆分器修饰符
 | Method                                   | Description                              | Example                                  |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#omitEmptyStrings()'><code>omitEmptyStrings()</code></a> | Automatically omits empty strings from the result. | `Splitter.on(',').omitEmptyStrings().split("a,,c,d")` returns `"a", "c", "d"` |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#trimResults()'><code>trimResults()</code></a> | Trims whitespace from the results; equivalent to `trimResults(CharMatcher.WHITESPACE)`. | `Splitter.on(',').trimResults().split("a, b, c, d")` returns `"a", "b", "c", "d"` |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#trimResults(com.google.common.base.CharMatcher)'><code>trimResults(CharMatcher)</code></a> | Trims characters matching the specified `CharMatcher` from results. | `Splitter.on(',').trimResults(CharMatcher.is('_')).split("_a ,_b_ ,c__")` returns `"a ", "b_ ", "c"`. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#limit(int)'><code>limit(int)</code></a> | Stops splitting after the specified number of strings have been returned. | `Splitter.on(',').limit(3).split("a,b,c,d")` returns `"a", "b", "c,d"` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#omitEmptyStrings()'><code>omitEmptyStrings()</code></a> | 从结果中自动忽略空字符串                             | `Splitter.on(',').omitEmptyStrings().split("a,,c,d")` returns `"a", "c", "d"` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#trimResults()'><code>trimResults()</code></a> | 移除结果字符串的前导空白和尾部空白 等价于trimResults(CharMatcher.WHITESPACE)`. | `Splitter.on(',').trimResults().split("a, b, c, d")` returns `"a", "b", "c", "d"` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#trimResults(com.google.common.base.CharMatcher)'><code>trimResults(CharMatcher)</code></a> | 给定匹配器，移除结果字符串的前导匹配字符和尾部匹配字符              | `Splitter.on(',').trimResults(CharMatcher.is('_')).split("_a ,_b_ ,c__")` returns `"a ", "b_ ", "c"`. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#limit(int)'><code>limit(int)</code></a> | 限制拆分出的字符串数量，到达数量自动停止拆分                   | `Splitter.on(',').limit(3).split("a,b,c,d")` returns `"a", "b", "c,d"` |
 
 TODO: Map splitters
 
-If you wish to get a `List`, just use `Lists.newArrayList(splitter.split(string))` or the like.
+如果你想要拆分器返回`List`,只要使用 `Lists.newArrayList(splitter.split(string))` 或类似方法。
 
-**Warning:** splitter instances are always immutable.  The splitter configuration methods will always return a new `Splitter`, which you must use to get the desired semantics.  This makes any `Splitter` thread safe, and usable as a `static final` constant.
+**警告: **`Splitter`实例总是不可变的。用来定义 `Splitter`目标语义的配置方法总会返回一个新的 `Splitter`实例。这使得 `Splitter`实例都是线程安全的，你可以将其定义为 `static final` 常量。
 
 <!--
 <a href='Hidden comment: 
@@ -72,9 +73,8 @@ All escapers in Guava extend the [http://google.github.io/guava/releases/snapsho
 '></a>
 -->
 
-# CharMatcher
-In olden times, our `StringUtil` class grew unchecked, and had
-many methods like these:
+# 字符匹配器[CharMatcher]
+在以前的 Guava 版本中，`StringUtil`类疯狂地膨胀，其拥有很多处理字符串的方法:
 
 |                  |                  |                        |                      |                |
 | :--------------- | :--------------- | :--------------------- | :------------------- | :------------- |
@@ -82,16 +82,17 @@ many methods like these:
 | `lastIndexNotOf` | `numSharedChars` | `removeChars`          | `removeCrLf`         | `replaceChars` |
 | `retainAllChars` | `strip`          | `stripAndCollapse`     | `stripNonDigits`     |                |
 
-They represent a partial cross product of two notions:
+所有这些方法指向两个概念上的问题:
 
-  1. what constitutes a "matching" character?
-  2. what to do with those "matching" characters?
+  1. 怎么才算匹配字符？
+  2. 如何处理这些匹配字符？
 
-To simplify this morass, we developed `CharMatcher`.
+为了收拾这个泥潭，我们开发了  `CharMatcher`。
 
-Intuitively, you can think of a `CharMatcher` as representing a particular class of characters, like digits or whitespace.  Practically speaking, a `CharMatcher` is just a boolean predicate on characters -- indeed, `CharMatcher` implements [[Predicate&lt;Character&gt;|FunctionalExplained#predicate]] -- but because it is so common to refer to "all whitespace characters" or "all lowercase letters," Guava provides this specialized syntax and API for characters.
-
-But the utility of a `CharMatcher` is in the _operations_ it lets you perform on occurrences of the specified class of characters: trimming, collapsing, removing, retaining, and much more.  An object of type `CharMatcher` represents notion 1: what constitutes a matching character?  It then provides many operations answering notion 2: what to do with those matching characters?  The result is that API complexity increases linearly for quadratically increasing flexibility and power.  Yay!
+直观上，你可以认为一个  `CharMatcher`实例代表着某一类字符，如数字或空白字符。事实上来说， `CharMatcher` 实例就是对字符的布尔判断——CharMatcher 确实也实现了 [[Predicate<Character>|FunctionalExplained#predicate]]  -- 但类似”所有空白字符”或”所
+有小写字母”的需求太普遍了，Guava 因此创建了这一 API。
+然而使用 `CharMatcher` 的好处更在于它提供了一系列方法，让你对字符作特定类型的操作：修剪[trim]、折叠[collapse]、移除[remove]、保留[retain]等等。`CharMatcher` 实例首先表达了概念 1：怎么才算匹配字符？然后它还提供了很多操作回答了概念 2：如何处理这些匹配字符？这样的设计使得 API 复杂度的线性增加可以带来灵活性和功
+能两方面的增长。
 
 ```
 String noControl = CharMatcher.JAVA_ISO_CONTROL.removeFrom(string); // remove control characters
@@ -105,8 +106,10 @@ String lowerAndDigit = CharMatcher.JAVA_DIGIT.or(CharMatcher.JAVA_LOWER_CASE).re
 
 **Note:** `CharMatcher` deals only with `char` values; it does not understand supplementary Unicode code points in the range 0x10000 to 0x10FFFF. Such logical characters are encoded into a `String` using surrogate pairs, and a `CharMatcher` treats these just as two separate characters.
 
-## Obtaining CharMatchers
-Many needs can be satisfied by the provided `CharMatcher` constants:
+**注:** `CharMatcher` 只处理 `char` 类型代表的字符；它不能理解 0x10000 到 0x10FFFF 的 Unicode 增补字符。这些逻辑字符以代理对[surrogate pairs]的形式编码进字符串，而 `CharMatcher` 只能将这种逻辑字符看待成两个独立的字符。
+
+## 获取字符匹配器
+通过提供的`CharMatcher` 常量 很多需求能够被满足：
 
 |                                          |                                          |                                          |                                          |                                          |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
@@ -114,32 +117,33 @@ Many needs can be satisfied by the provided `CharMatcher` constants:
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#DIGIT'><code>DIGIT</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_LETTER'><code>JAVA_LETTER</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_DIGIT'><code>JAVA_DIGIT</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_LETTER_OR_DIGIT'><code>JAVA_LETTER_OR_DIGIT</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_ISO_CONTROL'><code>JAVA_ISO_CONTROL</code></a> |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_LOWER_CASE'><code>JAVA_LOWER_CASE</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#JAVA_UPPER_CASE'><code>JAVA_UPPER_CASE</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#ASCII'><code>ASCII</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#SINGLE_WIDTH'><code>SINGLE_WIDTH</code></a> |                                          |
 
-Other common ways to obtain a `CharMatcher` include:
+其他获取字符匹配器`CharMatcher` 的常见方法包括：
 
 | Method                                   | Description                              |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#anyOf(java.lang.CharSequence)'><code>anyOf(CharSequence)</code></a> | Specify all the characters you wish matched.  For example, `CharMatcher.anyOf("aeiou")` matches lowercase English vowels. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#is(char)'><code>is(char)</code></a> | Specify exactly one character to match.  |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#inRange(char, char)'><code>inRange(char, char)</code></a> | Specify a range of characters to match, e.g. `CharMatcher.inRange('a', 'z')`. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#anyOf(java.lang.CharSequence)'><code>anyOf(CharSequence)</code></a> | 明确了所有你希望匹配的字符，例如, `CharMatcher.anyOf("aeiou")匹配给定的小写元音字符 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#is(char)'><code>is(char)</code></a> | 给定单一字符匹配                                 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#inRange(char, char)'><code>inRange(char, char)</code></a> | 给定字符范围匹配，如`CharMatcher.inRange('a', 'z')`. |
 
-Additionally, `CharMatcher` has <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#negate()'><code>negate()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#and(com.google.common.base.CharMatcher)'><code>and(CharMatcher)</code></a>, and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#or(com.google.common.base.CharMatcher)'><code>or(CharMatcher)</code></a>.  These provide simple boolean operations on `CharMatcher`.
+此外, `CharMatcher` 还有 <code>negate()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#and(com.google.common.base.CharMatcher)'><code>and(CharMatcher)</code></a>, and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#or(com.google.common.base.CharMatcher)'><code>or(CharMatcher)</code></a>.  这些在 `CharMatcher`上的简单布尔操作.
 
-## Using CharMatchers
-`CharMatcher` provides a [wide variety](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#method_summary) of methods to operate on occurrences of the specified characters in any `CharSequence`.  There are more methods provided than we can list here, but some of the most commonly used are:
+## 使用字符匹配器
+
+`CharMatcher` 提供了多种多样的方法操作 `CharSequence`中的特定字符.  提供的方法远不止这些, 其中最常用的罗列如下：:
 
 | Method                                   | Description                              |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#collapseFrom(java.lang.CharSequence, char)'><code>collapseFrom(CharSequence, char)</code></a> | Replace each group of consecutive matched characters with the specified character.  For example, `WHITESPACE.collapseFrom(string, ' ')` collapses whitespaces down to a single space. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#matchesAllOf(java.lang.CharSequence)'><code>matchesAllOf(CharSequence)</code></a> | Test if this matcher matches all characters in the sequence.  For example, `ASCII.matchesAllOf(string)` tests if all characters in the string are ASCII. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#removeFrom(java.lang.CharSequence)'><code>removeFrom(CharSequence)</code></a> | Removes matching characters from the sequence. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#retainFrom(java.lang.CharSequence)'><code>retainFrom(CharSequence)</code></a> | Removes all non-matching characters from the sequence. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#trimFrom(java.lang.CharSequence)'><code>trimFrom(CharSequence)</code></a> | Removes leading and trailing matching characters. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#replaceFrom(java.lang.CharSequence, java.lang.CharSequence)'><code>replaceFrom(CharSequence, CharSequence)</code></a> | Replace matching characters with a given sequence. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#collapseFrom(java.lang.CharSequence, char)'><code>collapseFrom(CharSequence, char)</code></a> | 把每组连续的匹配字符替换为特定字符。如`WHITESPACE.collapseFrom(string, ' ')`  把字符串中的连续空白字符替换为单个空格。 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#matchesAllOf(java.lang.CharSequence)'><code>matchesAllOf(CharSequence)</code></a> | 测试是否字符序列中的所有字符都匹配。例如， `ASCII.matchesAllOf(string)` 测试是否所有字符串中的字符都在ASCII中 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#removeFrom(java.lang.CharSequence)'><code>removeFrom(CharSequence)</code></a> | 从字符序列中移除所有匹配字符。                          |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#retainFrom(java.lang.CharSequence)'><code>retainFrom(CharSequence)</code></a> | 在字符序列中保留匹配字符，移除其他字符。                     |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#trimFrom(java.lang.CharSequence)'><code>trimFrom(CharSequence)</code></a> | 移除字符序列的前导匹配字符和尾部匹配字符。                    |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CharMatcher.html#replaceFrom(java.lang.CharSequence, java.lang.CharSequence)'><code>replaceFrom(CharSequence, CharSequence)</code></a> | 用特定字符序列替代匹配字符。                           |
 
-(Note: all of these methods return a `String`, except for `matchesAllOf`, which returns a `boolean`.)
+所有这些方法返回  `String`，除了 `matchesAllOf`返回的是 `boolean`。 
 
-# Charsets
-Don't do this:
+# 字符集[Charsets]
+不要这样进行字符集处理：
 
 ```java
 
@@ -151,21 +155,21 @@ try {
 }
 ```
 
-Do this instead:
+试试这样
 
 ```java
 
 bytes = string.getBytes(Charsets.UTF_8);
 ```
 
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Charsets.html'><code>Charsets</code></a> provides constant references to the six standard `Charset` implementations guaranteed to be supported by all Java platform implementations.  Use them instead of referring to charsets by their names.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Charsets.html'><code>Charsets</code></a> 针对所有 Java 平台都要保证支持的六种字符集提供了常量引用。尝试使用这些常量，而不是通过名称获取字符集实例 
 
 TODO: an explanation of charsets and when to use them
 
-(Note: If you're using JDK7, you should use the constants in <a href='http://docs.oracle.com/javase/7/docs/api/java/nio/charset/StandardCharsets.html'><code>StandardCharsets</code></a> instead!)
+(注: 如果你在使用JDK7, 你要使用的常量在 <a href='http://docs.oracle.com/javase/7/docs/api/java/nio/charset/StandardCharsets.html'><code>StandardCharsets</code></a> !)
 
-# CaseFormat
-`CaseFormat` is a handy little class for converting between ASCII case conventions -- like, for example, naming conventions for programming languages.  Supported formats include:
+# 大小写格式[CaseFormat]
+`CaseFormat` 被用来方便地在各种 ASCII 大小写规范间转换字符串——比如，编程语言的命名规范。`CaseFormat` 支持的格式如下： 
 
 | Format                                   | Example            |
 | :--------------------------------------- | :----------------- |
@@ -175,10 +179,12 @@ TODO: an explanation of charsets and when to use them
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CaseFormat.html#UPPER_CAMEL'><code>UPPER_CAMEL</code></a> | `UpperCamel`       |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/CaseFormat.html#UPPER_UNDERSCORE'><code>UPPER_UNDERSCORE</code></a> | `UPPER_UNDERSCORE` |
 
-Using it is relatively straightforward:
+直接的用法：
 
 ```java
 CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "CONSTANT_NAME")); // returns "constantName"
 ```
 
 We find this especially useful, for example, when writing programs that generate other programs.
+
+我们发现特别有用，例如当我们编写代码生成器的时候。
