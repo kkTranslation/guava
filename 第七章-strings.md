@@ -1,35 +1,35 @@
 # Joiner
-Joining together a sequence of strings with a separator can be unnecessarily tricky -- but it shouldn't be.  If your sequence contains nulls, it can be even harder.  The fluent style of <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Joiner.html'><code>Joiner</code></a> makes it simple.
+用分隔符把字符串序列连接起来也可能会遇上不必要的麻烦。如果字符串序列中含有 null，那连接操作会更难。Fluent 风格的  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Joiner.html'><code>Joiner</code></a> 让连接字符串更简单。
 
 ```java
 
 Joiner joiner = Joiner.on("; ").skipNulls();
 return joiner.join("Harry", null, "Ron", "Hermione");
 ```
-returns the string "Harry; Ron; Hermione".  Alternately, instead of using `skipNulls`, you may specify a string to use instead of null with `useForNull(String)`.
+上述代码返回 "Harry; Ron; Hermione".  另外， 而不是像 `skipNulls`那样直接忽略null。  `useForNull(String)`方法可以给某个字符串来替换null。
 
-You may also use `Joiner` on objects, which will be converted using their `toString()` and then joined.
+ `Joiner`也可以用来连接对象类型，在这种情况下，它会把对象的  `toString()` 值连接起来。
 
 ```java
 
 Joiner.on(",").join(Arrays.asList(1, 5, 7)); // returns "1,5,7"
 ```
 
-**Warning:** joiner instances are always immutable.  The joiner configuration methods will always return a new `Joiner`, which you must use to get the desired semantics.  This makes any `Joiner` thread safe, and usable as a `static final` constant.
+**警告:**joiner 实例总是不可变的。用来定义 `Joiner`目标语义的配置方法总会返回一个新的 `Joiner`实例。这使得 `Joiner` 实例都是线程安全的，你可以将其定义为`static final`常量。
 
-# Splitter
-The built in Java utilities for splitting strings can have some quirky behaviors.  For example, `String.split` silently discards trailing separators, and `StringTokenizer` respects exactly five whitespace characters and nothing else.
+# 拆分器[Splitter]
+JDK 内建的字符串拆分工具有一些古怪的特性。比如，String.split 悄悄丢弃了尾部的分隔符。 问
 
-Quiz: `",a,,b,".split(",")` returns...
+题: `",a,,b,".split(",")` 返回？
   1. `"", "a", "", "b", ""`
   2. `null, "a", null, "b", null`
   3. `"a", null, "b"`
   4. `"a", "b"`
   5. None of the above
 
-The correct answer is none of the above: `"", "a", "", "b"`.  Only trailing empty strings are skipped.  What is this I don't even.
+正确答案是 5: `"", "a", "", "b"`. 只有尾部的空字符串被忽略了.  What is this I don't even.
 
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html'><code>Splitter</code></a> allows complete control over all this confusing behavior using a reassuringly straightforward fluent pattern.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html'><code>Splitter</code></a> 使用令人放心的、直白的流畅 API 模式对这些混乱的特性作了完全的掌控。
 
 ```java
 
@@ -38,13 +38,13 @@ Splitter.on(',')
        .omitEmptyStrings()
        .split("foo,bar,,   qux");
 ```
-returns an `Iterable<String>` containing "foo", "bar", "qux".  A `Splitter` may be set to split on any `Pattern`, `char`, `String`, or `CharMatcher`.
+上述代码返回`Iterable<String>` 其中包含 "foo", "bar", "qux".   `Splitter` 可以被设置为按照任何模式、字符、字符串或字符匹配器拆分。
 
-### Base Factories
-| Method                                   | Description                              | Example            |
-| :--------------------------------------- | :--------------------------------------- | :----------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(char)'><code>Splitter.on(char)</code></a> | Split on occurrences of a specific, individual character. | `Splitter.on(';')` |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(com.google.common.base.CharMatcher)'><code>Splitter.on(CharMatcher)</code></a> | Split on occurrences of any character in some category. | `Splitter.on(CharMatcher.BREAKING_WHITESPACE)`<br><code>Splitter.on(CharMatcher.anyOf(";,."))</code>
+### 拆分器工厂
+| Method                                   | Description | Example            |
+| :--------------------------------------- | :---------- | :----------------- |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(char)'><code>Splitter.on(char)</code></a> | 按单个字符拆分     | `Splitter.on(';')` |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(com.google.common.base.CharMatcher)'><code>Splitter.on(CharMatcher)</code></a> |  按字符匹配器拆分 | `Splitter.on(CharMatcher.BREAKING_WHITESPACE)`<br><code>Splitter.on(CharMatcher.anyOf(";,."))</code>
 <tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.lang.String)'><code>Splitter.on(String)</code></a> </td><td> Split on a literal <code>String</code>. </td><td> <code>Splitter.on(", ")</code> </td></tr>
 <tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#on(java.util.regex.Pattern)'><code>Splitter.on(Pattern)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#onPattern(java.lang.String)'><code>Splitter.onPattern(String)</code></a> </td><td> Split on a regular expression. </td><td> <code>Splitter.onPattern("\r?\n")</code> </td></tr>
 <tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Splitter.html#fixedLength(int)'><code>Splitter.fixedLength(int)</code></a> </td><td> Splits strings into substrings of the specified fixed length.  The last piece can be smaller than <code>length</code>, but will never be empty. </td><td> <code>Splitter.fixedLength(3)</code> </td></tr></tbody></table>
