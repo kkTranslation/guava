@@ -324,12 +324,12 @@ ImmutableMultiset<String> highestCountFirst = Multisets.copyHighestCountFirst(mu
 ```
 
 # Multimaps
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html'><code>Multimaps</code></a> provides a number of general utility operations that deserve individual explanation.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html'><code>Multimaps</code></a> 提供了若干值得单独说明的通用工具方法
 
 ### `index`
-The cousin to `Maps.uniqueIndex`, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#index(java.lang.Iterable, com.google.common.base.Function)'><code>Multimaps.index(Iterable, Function)</code></a> answers the case when you want to be able to look up all objects with some particular attribute in common, which is not necessarily unique.
+作为 `Maps.uniqueIndex` 的兄弟方法， <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#index(java.lang.Iterable, com.google.common.base.Function)'><code>Multimaps.index(Iterable, Function)</code></a> 通常针对的场景是：有一组对象，它们有共同的特定属性，我们希望按照这个属性的值查询对象，但属性值不一定是独一无二的。
 
-Let's say we want to group strings based on their length.
+假设我们要根据字符串的长度对字符串进行分组。
 
 ```java
 
@@ -350,9 +350,9 @@ ImmutableListMultimap<Integer, String> digitsByLength = Multimaps.index(digits, 
 ```
 
 ### `invertFrom`
-Since `Multimap` can map many keys to one value, and one key to many values, it can be useful to invert a `Multimap`.  Guava provides <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#invertFrom(com.google.common.collect.Multimap, M)'><code>invertFrom(Multimap toInvert, Multimap dest)</code></a> to let you do this, without choosing an implementation for you.
+由于`Multimap`可以将多个键映射到一个值，并将一个键映射到多个值，因此反转`Multimap`可能很有用。 Guava提供了 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#invertFrom(com.google.common.collect.Multimap, M)'><code>invertFrom(Multimap toInvert, Multimap dest)</code></a> 做这个操作，并且你可以自由选择反转后的 `Multimap` 实现。
 
-_NOTE:_ If you are using an `ImmutableMultimap`, consider <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultimap.html#inverse()'><code>ImmutableMultimap.inverse()</code></a> instead.
+注意：如果您使用`ImmutableMultimap`，请考虑使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultimap.html#inverse()'><code>ImmutableMultimap.inverse()</code></a> 。
 
 ```java
 
@@ -375,7 +375,7 @@ TreeMultimap<Integer, String> inverse = Multimaps.invertFrom(multimap, TreeMulti
 ```
 
 ### `forMap`
-Need to use a `Multimap` method on a `Map`?  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#forMap(java.util.Map)'><code>forMap(Map)</code></a> views a `Map` as a `SetMultimap`.  This is particularly useful, for example, in combination with `Multimaps.invertFrom`.
+想在 Map 对象上使用 `Multimap` 的方法吗？<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#forMap(java.util.Map)'><code>forMap(Map)</code></a> 把 Map 包装成 `SetMultimap`。这个方法特别有用，例如，与 `Multimaps.invertFrom` 结合使用，可以把多对一的 Map 反转为一对多的 `Multimap`。
 
 ```java
 
@@ -386,23 +386,23 @@ Multimap<Integer, String> inverse = Multimaps.invertFrom(multimap, HashMultimap.
 // inverse maps [1 => {"a", "b"}, 2 => {"c"}]
 ```
 
-### Wrappers
-`Multimaps` provides the traditional wrapper methods, as well as tools to get custom `Multimap` implementations based on `Map` and `Collection` implementations of your choice.
+### 包装器
+`Multimaps` 提供了传统的包装方法，以及让你选择 `Map` 和 `Collection` 类型以自定义 `Multimap` 实现的工具方法。
 
-| Unmodifiable          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableMultimap(com.google.common.collect.Multimap)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableListMultimap(com.google.common.collect.ListMultimap)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableSetMultimap(com.google.common.collect.SetMultimap)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableSortedSetMultimap(com.google.common.collect.SortedSetMultimap)'><code>SortedSetMultimap</code></a> |
+| 只读包装          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableMultimap(com.google.common.collect.Multimap)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableListMultimap(com.google.common.collect.ListMultimap)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableSetMultimap(com.google.common.collect.SetMultimap)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#unmodifiableSortedSetMultimap(com.google.common.collect.SortedSetMultimap)'><code>SortedSetMultimap</code></a> |
 | :-------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| Synchronized          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedMultimap(com.google.common.collect.Multimap)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedListMultimap(com.google.common.collect.ListMultimap)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedSetMultimap(com.google.common.collect.SetMultimap)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedSortedSetMultimap(com.google.common.collect.SortedSetMultimap)'><code>SortedSetMultimap</code></a> |
-| Custom Implementation | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newMultimap(java.util.Map, com.google.common.base.Supplier)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newListMultimap(java.util.Map, com.google.common.base.Supplier)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSetMultimap(java.util.Map, com.google.common.base.Supplier)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSortedSetMultimap(java.util.Map, com.google.common.base.Supplier)'><code>SortedSetMultimap</code></a> |
+| 同步包装          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedMultimap(com.google.common.collect.Multimap)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedListMultimap(com.google.common.collect.ListMultimap)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedSetMultimap(com.google.common.collect.SetMultimap)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#synchronizedSortedSetMultimap(com.google.common.collect.SortedSetMultimap)'><code>SortedSetMultimap</code></a> |
+| 自定义实现  | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newMultimap(java.util.Map, com.google.common.base.Supplier)'><code>Multimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newListMultimap(java.util.Map, com.google.common.base.Supplier)'><code>ListMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSetMultimap(java.util.Map, com.google.common.base.Supplier)'><code>SetMultimap</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Multimaps.html#newSortedSetMultimap(java.util.Map, com.google.common.base.Supplier)'><code>SortedSetMultimap</code></a> |
 
-The custom `Multimap` implementations let you specify a particular implementation that should be used in the returned `Multimap`.  Caveats include:
+自定义 `Multimap` 的方法允许你指定 `Multimap` 中的特定实现。但要注意的是：
 
-* The multimap assumes complete ownership over of map and the lists returned by factory. Those objects should not be manually updated, they should be empty when provided, and they should not use soft, weak, or phantom references.
-* **No guarantees are made** on what the contents of the `Map` will look like after you modify the `Multimap`.
-    * The multimap is not threadsafe when any concurrent operations update the multimap, even if map and the instances generated by factory are. Concurrent read operations will work correctly, though.  Work around this with the `synchronized` wrappers if necessary.
-    * The multimap is serializable if map, factory, the lists generated by factory, and the multimap contents are all serializable.
-    * The collections returned by `Multimap.get(key)` are _not_ of the same type as the collections returned by your `Supplier`, though if you supplier returns `RandomAccess` lists, the lists returned by `Multimap.get(key)` will also be random access.
+* Multimap 假设对 Map 和 Supplier 产生的集合对象有完全所有权。这些自定义对象应避免手动更新，并且在提供给 Multimap 时应该是空的，此外还不应该使用软引用、弱引用或虚引用。
+* 无法保证修改了 Multimap 以后，底层 Map 的内容是什么样的。
+    * 当任何并发操作更新multimap时，multimap不是线程安全的，即使map和工厂生成的实例也是如此。 并发读操作将正常工作，但如果需要，使用`synchronized` 包装解决此问题。
+    * 如果map，factory，factory生成的lists和multimap内容都是可序列化的，multimap是可序列化的。
+    * `Multimap.get(key)`返回的集合与Supplier返回的集合的类型不同，但是如果Supplier返回RandomAccess列表，`Multimap.get(key)`返回的列表也将是随机访问。
 
-Note that the custom `Multimap` methods expect a `Supplier` argument to generate fresh new collections.  Here is an example of writing a `ListMultimap` backed by a `TreeMap` mapping to `LinkedList`.
+请注意，用来自定义 `Multimap` 的方法需要一个 `Supplier` 参数，以创建崭新的集合。下面有个实现 `ListMultimap` 的例子——用 `TreeMap` 做映射，而每个键对应的多个值用 `LinkedList` 存储。
 
 ```java
 
@@ -416,10 +416,10 @@ ListMultimap<String, Integer> myMultimap = Multimaps.newListMultimap(
 ```
 
 # Tables
-The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html'><code>Tables</code></a> class provides a few handy utilities.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html'><code>Tables</code></a> 类提供了若干称手的工具方法。
 
 ### `customTable`
-Comparable to the `Multimaps.newXXXMultimap(Map, Supplier)` utilities, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#newCustomTable(java.util.Map, com.google.common.base.Supplier)'><code>Tables.newCustomTable(Map, Supplier&lt;Map&gt;)</code></a> allows you to specify a `Table` implementation using whatever row or column map you like.
+相比`Multimaps.newXXXMultimap(Map, Supplier)`工具方法，<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#newCustomTable(java.util.Map, com.google.common.base.Supplier)'><code>Tables.newCustomTable(Map, Supplier&lt;Map&gt;)</code></a> 允许你指定 Table 用什么样的 map 实现行和列。
 
 ```java
 // use LinkedHashMaps instead of HashMaps
@@ -433,10 +433,10 @@ Table<String, Character, Integer> table = Tables.newCustomTable(
 ```
 
 ### `transpose`
-The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#transpose(com.google.common.collect.Table)'><code>transpose(Table&lt;R, C, V&gt;)</code></a> method allows you to view a `Table<R, C, V>` as a `Table<C, R, V>`.
+ <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#transpose(com.google.common.collect.Table)'><code>transpose(Table&lt;R, C, V&gt;)</code></a> 方法允许你把`Table<R, C, V>`转置成`Table<C, R, V>`。例如，如果你在用 Table 构建加权有向图，这个方法就可以把有向图反转。
 
-### Wrappers
-These are the familiar unmodifiability wrappers you know and love.  Consider, however, using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html'><code>ImmutableTable</code></a> instead in most cases.
+### 包装器
+还有很多你熟悉和喜欢的 Table 包装类。然而，在大多数情况下还请使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html'><code>ImmutableTable</code></a> 。
 
 | Unmodifiable | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#unmodifiableTable(com.google.common.collect.Table)'><code>Table</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Tables.html#unmodifiableRowSortedTable(com.google.common.collect.RowSortedTable)'><code>RowSortedTable</code></a> |
 |:-------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

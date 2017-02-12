@@ -1,20 +1,18 @@
 # Introduction
-Sometimes you need to write your own collection extensions.  Perhaps you want to add special behavior when elements are added to a list, or you want to write an `Iterable` that's actually backed by a database query.  Guava provides a number of utilities to make these tasks easier for you, and for us.  (We _are_, after all, in the business of extending the collections framework ourselves.)
+有时候你需要实现自己的集合扩展。也许你想要在元素被添加到列表时增加特定的行为，或者你想实现一个 `Iterable`，其底层实际上是遍历数据库查询的结果集。Guava 为你，也为我们自己提供了若干工具方法，以便让类似的工作变得更简单。（毕竟，我们自己也要用这些工具扩展集合框架。）
 
-# Forwarding Decorators
-For all the various collection interfaces, Guava provides `Forwarding` abstract classes to simplify using the <a href='http://en.wikipedia.org/wiki/Decorator_pattern'>decorator pattern</a>.
+# Forwarding装饰器
+针对所有类型的集合接口，Guava 都提供了 Forwarding 抽象类以简化 <a href='http://en.wikipedia.org/wiki/Decorator_pattern'>decorator pattern</a>的使用。
 
-The `Forwarding` classes define one abstract method, `delegate()`, which you should override to return the decorated object.  Each of the other methods delegate directly to the delegate: so, for example, `ForwardingList.get(int)` is simply implemented as `delegate().get(int)`.
+Forwarding 抽象类定义了一个抽象方法：`delegate()`，你可以覆盖这个方法来返回被装饰对象。所有其他方法都会直接委托给 `delegate()`。例如说：`ForwardingList.get(int)`实际上执行了 `delegate().get(int)`。
 
-By subclassing `ForwardingXXX` and implementing the `delegate()` method, you can override only selected methods in the targeted class, adding decorated functionality without having to delegate every method yourself.
+通过创建 `ForwardingXXX` 的子类并实现 `delegate()`方法，可以选择性地覆盖子类的方法来增加装饰功能，而不需要自己委托每个方法——译者注：因为所有方法都默认委托给 `delegate()`返回的对象，你可以只覆盖需要装饰的方法。
 
-Additionally, many methods have a `standardMethod` implementation which you can use to recover expected behavior, providing some of the same benefits as e.g. extending `AbstractList` or the other skeleton classes in the JDK.
+此外，许多方法都有一个`standardMethod`实现，可以用来恢复被装饰对象的默认行为，以提供相同的优点。扩展`AbstractList`或JDK中的其他框架类。
 
-Let's do an example.  Suppose you wanted to decorate a `List` so that it logged all elements added to it.  Of course, we want to log elements no matter which method is used to add them -- `add(int, E)`, `add(E)`, or `addAll(Collection)` -- so we have to override all of these methods.
+让我们看看这个例子。假定你想装饰一个 List，让其记录所有添加进来的元素。当然，无论元素是用什么方法——`add(int, E)`, `add(E)`, 或 `addAll(Collection)`——添加进来的，我们都希望进行记录，因此我们需要覆盖所有这些方法。
 
 ```java
-
-
 class AddLoggingList<E> extends ForwardingList<E> {
   final List<E> delegate; // backing list
   @Override protected List<E> delegate() {
@@ -25,21 +23,21 @@ class AddLoggingList<E> extends ForwardingList<E> {
     super.add(index, elem);
   }
   @Override public boolean add(E elem) {
-    return standardAdd(elem); // implements in terms of add(int, E)
+    return standardAdd(elem); // 用add(int, E)实现
   }
   @Override public boolean addAll(Collection<? extends E> c) {
-    return standardAddAll(c); // implements in terms of add
+    return standardAddAll(c); // 用add实现
   }
 }
 ```
 
-Remember, by default, all methods forward directly to the delegate, so overriding `ForwardingMap.put` will not change the behavior of `ForwardingMap.putAll`.  Be careful to override every method whose behavior must be changed, and make sure that your decorated collection satisfies its contract.
+记住，默认情况下，所有方法都直接转发到被代理对象，因此覆盖 `ForwardingMap.put` 并不会改变 `ForwardingMap.putAll` 的行为。小心覆盖所有需要改变行为的方法，并且确保装饰后的集合满足接口契约。
 
-Generally, most methods provided by the abstract collection skeletons like `AbstractList` are also provided as `standard` implementations in the `Forwarding` decorators.
+通常，抽象集合框架提供的大多数方法（如`AbstractList`）也作为`Forwarding`装饰器中的标准实现提供。
 
-Interfaces that provide special views sometimes provide `Standard` implementations of those views.  For example, `ForwardingMap` provides `StandardKeySet`, `StandardValues`, and `StandardEntrySet` classes, each of which delegate their methods to the decorated map whenever possible, or otherwise, they leave methods that can't be delegated as abstract.
+对提供特定视图的接口，`Forwarding` 装饰器也为这些视图提供了相应的”标准方法”实现。例如，`ForwardingMap` 提供 `StandardKeySet`、`StandardValues` 和 `StandardEntrySet` 类，它们在可以的情况下都会把自己的方法委托给被装饰的 `Map`，把不能委托的声明为抽象方法。
 
-| Interface       | Forwarding Decorator                     |
+| 接口       | 反转装饰                    |
 | :-------------- | :--------------------------------------- |
 | `Collection`    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ForwardingCollection.html'><code>ForwardingCollection</code></a> |
 | `List`          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ForwardingList.html'><code>ForwardingList</code></a> |
