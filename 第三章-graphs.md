@@ -1,181 +1,117 @@
-# Graphs, Explained
+# 图
 
-Guava's `common.graph` is a library for modeling  
-[graph](https://en.wikipedia.org/wiki/Graph_\(discrete_mathematics\)\)-structured  
-data, that is, entities and the relationships between them. Examples include  
-webpages and hyperlinks; scientists and the papers that they write; airports and  
-the routes between them; and people and their family ties \(family trees\). Its  
-purpose is to provide a common and extensible language for working with such  
-data.
+Guava的`common.graph`是一个建模图结构的函数库，也即它们之间的实体关系， 例如包括网页和超链接； 科学家和他们的论文 ；飞机场之间的路线；家庭之间的关系树。目的就是提供一个通用的可扩展性的语言来处理这些数据。
 
-## Definitions
+## 定义
 
-A graph consists of a set of **nodes** \(also called vertices\) and a set of  
-**edges** \(also called links, or arcs\); each edge connects nodes to each other.  
-The nodes incident to an edge are called its **endpoints**.
+一个图包含一组结点集合（也叫做顶点集合） 和一个边集合；任意两顶点由两条边相互连接。入射到一条边的结点叫做端点。
 
-\(While we introduce an interface called `Graph` below, we will use "graph"  
-\(lower case "g"\) as a general term referring to this type of data structure.  
-When we want to refer to a specific type in this library, we capitalize it.\)
+（当我们介绍下面的`Graph` 接口时， 我们使用“graph” 小写字母g 来表达这种数据结构， 当我们涉及库中某一具体的类型， 我们才用`Graph` ）
 
-An edge is **directed** if it has a defined start \(its **source**\) and end \(its  
-**target**, also called its destination\). Otherwise, it is **undirected**.  
-Directed edges are suitable for modeling asymmetric relations \("descended from",  
-"links to", "authored by"\), while undirected edges are suitable for modeling  
-symmetric relations \("coauthored a paper with", "distance between", "sibling  
-of"\).
+如果一个边有定义的开始和结束， 那么是有向边， 否则是无向边。 有向边适合建立非对称关系（“祖先于”， “链接到”， “作者为”）， 然而无向边适合建立对称关系（“和谁协作发论文”， “两者之间距离”， “兄弟姊妹关系”）。
 
-A graph is directed if each of its edges are directed, and undirected if each of  
-its edges are undirected. \(`common.graph` does not support graphs that have both  
-directed and undirected edges.\)
+如果一个图的所有边都是有向的，此图为有向图，如果每条边都是无向的， 此图为无向图。（`common.graph` 不支持同时存在有向图和无向图）。
 
-Given this example:
+示例：
 
 ```java
 graph.addEdge(nodeU, nodeV, edgeUV);
 ```
 
-* `nodeU` and `nodeV` are mutually **adjacent**
-* `edgeUV` is **incident** to each of `nodeU` and `nodeV`
+* `nodeU` 和`nodeV` 相互连接
+* `edgeUV` 入射到 `nodeU` 和 `nodeV`
 
-If `graph` is directed, then:
+如果 `graph` 是有向的， 那么：
 
-* `nodeU` is a **predecessor** of `nodeV`
-* `nodeV` is a **successor** of `nodeU`
-* `edgeUV` is an **outgoing** edge of `nodeU`
-* `edgeUV` is an **incoming** edge of `nodeV`
-* `nodeU` is a **source** of `edgeUV`
-* `nodeV` is a **target** of `edgeUV`
+* `nodeU` 是 `nodeV` 结点的前置结点
+* `nodeV` 是 `nodeU` 的后置结点
+* `edgeUV` 是 `nodeU` 的出边
+* `edgeUV` 是 `nodeV` 的入边
+* `nodeU` 是 `edgeUV` 源点
+* `nodeV` 是 `edgeUV` 终点
 
-If `graph` is undirected, then:
+如果`graph` 是无向的：
 
-* `nodeU` is a predecessor and a successor of `nodeV`
-* `nodeV` is a predecessor and a successor of `nodeU`
-* `edgeUV` is both an incoming and an outgoing edge of `nodeU`
-* `edgeUV` is both an incoming and an outgoing edge of `nodeV`
+* `nodeU` 既是`	nodeV` 的前置结点也是后置结点
+* `nodeV` 既是 `nodeU`的前置结点也是后置结点
+* `edgeUV` 既是 `nodeU` 的入边也是出边
+* `edgeUV`  既是 `nodeV`的入边也是出边
 
-All of these relationships are with respect to `graph`.
+以上是关于 `graph` 的所有关系。
 
-A **self-loop** is an edge that connects a node to itself; equivalently, it is  
-an edge whose endpoints are the same node. If a self-loop is directed, it is  
-both an outgoing and incoming edge of its incident node, and its incident node  
-is both a source and a target of the self-loop edge.
+一个自环是一条 连接结点自身的边； 等价的， 它是一种端点都为同一结点的边。 如果自环是有向的， 那么它的入射结点既是入边也是出边， 且入射结点既是源点也是终点。
 
-## Capabilities
+## 功能
 
-`common.graph` is focused on providing interfaces and classes to support working  
-with graphs. It does not provide functionality such as I/O or visualization  
-support, and it has a very limited selection of utilities. See the [FAQ](#faq)  
-for more on this topic.
+`common.graph` 关注于提供支持处理图形的接口和类。它不提供I/O 或可视化的功能支持。它有着有限的功能选择。对这个问题的更多讨论请看`FAQ`
+总之， `common.graph`  支持下面这些图形类型：
 
-As a whole, `common.graph` supports graphs of the following varieties:
+- 有向图
+- 无向图
+- 带边权图
+- 不允许自环的图
+- 不允许有重边的图（带重边图有时候叫做多重图）
+- 图的结点或边是否是有序插入，或无序
 
-* directed graphs
-* undirected graphs
-* nodes and/or edges with associated values \(weights, labels, etc.\)
-* graphs that do/don't allow self-loops
-* graphs that do/don't allow parallel edges \(graphs with parallel edges are
-    sometimes called multigraphs\)
-* graphs whose nodes/edges are insertion-ordered, sorted, or unordered
+这些在javadoc中被确定的类型的图被特定的`common.graph` 类型 所支持。这些图被每种graph类型的内置实现所支持  。在这个库中的实现（尤其是第三方实现），并不要求支持所有的这些图形类型（javadoc定义的）， 并且可能额外支持其它类型
 
-The kinds of graphs supported by a particular `common.graph` type are specified  
-in its Javadoc. The kinds of graphs supported by the built-in implementations of  
-each graph type are specified in the Javadoc for its associated `Builder` type.  
-Specific _implementations_ of the types in this library \(especially third-party  
-implementations\) are not required to support all of these varieties, and may  
-support others in addition.
+这个库对于底层数据结构的选择是不可知的：
+图关系可能被存储为矩阵， 邻接表， 邻接map等等， 取决于实现者想优化什么样的用例。
 
-The library is agnostic as to the choice of underlying data structures:  
-relationships can be stored as matrices, adjacency lists, adjacency maps, etc.  
-depending on what use cases the implementor wants to optimize for.
+`common.graph`  目前不包括对下面图类型的显示的支持， 虽然它们能够使用已经存在的图类型进行建模：
 
-`common.graph` does not \(at this time\) include _explicit_ support for the  
-following graph variants, although they can be modeled using the existing types:
+- 树， 森林
 
-* trees, forests
 * graphs with elements of the same kind \(nodes or edges\) that have different
     types \(for example: bipartite/k-partite graphs, multimodal graphs\)
-* hypergraphs
 
-`common.graph` does not allow graphs with both directed and undirected edges.
+* 超图
 
-The [`Graphs`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graphs.html) class provides some basic utilities \(for example, copying and  
-comparing graphs\).
+  `common.graph` 不允许图同时存在单向边和双向边
 
-## Graph Types
+  `Graphs` 提供了一些基本的工具（例如: 复制和比较图）
+
+## 图类型
 
 ### Graph
 
-[`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html) is the simplest and most fundamental graph type. It defines the  
-low-level operators for dealing with node-to-node relationships, such as  
-`successors(node)`, `adjacentNodes(node)`, and `inDegree(node)`. Its nodes are  
-first-class unique objects; you can think of them as analogous to `Map` keys  
-into the `Graph` internal data structures.
+`Graph` 是最简单最基本的图类型，它定义了最基本的操作来处理节点之间的关系， 例如：
 
-Example use case: `Graph<BuildTarget>`, that represents the dependencies between  
-`BuildTarget` entities.
+`successors(node)` , `adjacentNodes(node)` , `inDegree(node)`  , 结点node是独一无二的对象， 你可以把它看作是映射到内部数据结构中的键。
 
-是最简单最基本的图类型，它定义了最基本的处理
+例如：`Graph<BuildTarget>`  代表了`BuildTarget` 实体间的依赖关系
 
 ### ValueGraph
 
-[`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html) is a subtype of [`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html) that associates arbitrary values with  
-edges, similar to the values in a `Map`. Edge values are _not_ required to be  
-unique \(as nodes are\).
+ `ValueGraph`  是一个`Graph` 的子接口， 把任意值和边相关联， 类似于`Map`  中的值， 边值并不要求是独一无二的（结点要求）
 
-Example use case: `ValueGraph<Airport, TransitTime>`, a directed graph whose  
-`TransitTime` objects each represent the time required to travel from a source  
-`Airport` to a destination `Airport`. Since the transit times between two  
-different pairs of airports can be equal, this makes `ValueGraph` a better fit  
-than a `Network` would be.
+例如：`ValueGraph<Airport, TransitTime>`  是一个有向图，每个`TransitTime`  对象   代表从源`Airport` 到 目的 `Airport` 所要求的时间。因为两个不同对飞机场之间的传输时间可能相同，这就使得 `ValueGraph` 比`Network` 有更好的适应性。
 
 ### Network
 
-[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) is an independent graph type \(neither a subtype nor a supertype of  
-`Graph`\) that has all the node-related methods that `Graph` does, but also has  
-first-class \(unique\) edge objects. The uniqueness constraint for edges allows  
-[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) to natively support parallel edges, as well as methods to work with  
-edges and node-to-edge relationships, such as `outEdges(node)`,  
-`incidentNodes(edge)`, and `edgesConnecting(nodeU, nodeV)`.
+[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) 是一个独立的图类型（既不是`Graph` 的子类也不是它的超类），有着所有`Graph`  拥有的节点相关的方法， 还有着独一无二的边对象， 这个唯一约束允许`Network`很 自然的支持平行边和一些处理边与边，结点与边之间关系的方法， 譬如：`outEdges(node)`, `incidentNodes(edge)` ,`edgesConnecting(nodeU, nodeV)` 
 
-[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) provides an `asGraph()` method which returns a `Graph` view of the  
-`Network`. This allows methods which operate on `Graph` instances to function  
-for `Network` instances as well.
+[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html)提供了一个`asGraph()` 方法， 它返回一个`Network` 的`Graph` 视图， 这允许操作`Graph` 实例的方法对[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) 同样有效。
 
-Example use case: `Network<Webpage, Link>`, that represents the relationships  
-between web pages as mediated by specific hyperlinks.
+例如：`Network<Webpage, Link>` , 表示通过超链接作为媒介的网页之间的关系
 
-### Choosing the right graph type
+### 选择合适的图类型
 
-The essential distinction between the three graph types is in their  
-representation of edges.
+三种图类型的本质的区别就是它们在边的表示上。
 
-[`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html) has edges which are anonymous connections between nodes, with no  
-identity or properties of their own. You should use `Graph` if each pair of  
-nodes is connected by at most one edge, and you don't need to associate any  
-information with edges.
+[`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html)  的边是通过节点之间匿名的连接， 没有自身的标志或属性。，如果每对节点间最多有一条边， 并且不需要去和边关联任何的信息，那么你应该使用`Graph`  。
 
-[`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html) has edges which have values \(e.g., edge weights or labels\) that  
-may or may not be unique. You should use `ValueGraph` if each pair of nodes is  
-connected by at most one edge, and you need to associate information with edges  
-that may be the same for different edges \(for example, edge weights\).
+[`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html) 有着带权值的边， 且边权不一定是唯一的。 如果每对结点最多有一条边， 并且你需要在边上关联一些信息，并且对于不同的边，信息可能相同， 那么你应该使用`ValueGraph` 。
 
-[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) has edges which are first-class unique objects, just as nodes are.  
-You should use `Network` if your edge objects are unique, and you want to be  
-able to issue queries that reference them. \(Note that this uniqueness allows  
-`Network` to support parallel edges.\)
+[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html)  有独一无二的边对象，这点像结点。如果你的边对象是唯一的， 并且你想引用它们， 那么你应该使用`Network` 。（注意这个独一无二允许`Network` 支持平行边）
 
-## Building graph instances
 
-The implementation classes that `common.graph` provides are not public, by  
-design. This reduces the number of public types that users need to know about,  
-and makes it easier to navigate the various capabilities that the  
-built-implementations provide, without overwhelming users that just want to  
-create a graph.
 
-To create an instance of one of the built-in implementations of a graph type,  
-use the corresponding `Builder` class: [`GraphBuilder`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/GraphBuilder.html), [`ValueGraphBuilder`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraphBuilder.html),  
-or [`NetworkBuilder`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/NetworkBuilder.html). Examples:
+## 构建图实例
+
+`common.graph` 提供的实现类不是public的， 故意地， 这减少了用户需要知道的public类型的数目， 并且使得更加容易的驾驭内置实现提供的各种各样的功能， 而没有吓到仅仅想创建一个图的用户。
+
+为了创建一个graph类型的内置实现的实例， 使用相应的`Builder` 类： [`GraphBuilder`](#), [`ValueGraphBuilder`](#), or [`NetworkBuilder`](#).
 
 ```java
 MutableGraph<Integer> graph = GraphBuilder.undirected().build();
@@ -190,53 +126,39 @@ MutableNetwork<Webpage, Link> webSnapshot = NetworkBuilder.directed()
     .build();
 ```
 
-* You can get an instance of a graph `Builder` in one of two ways:
-  * calling the static methods `directed()` or `undirected()`. Each Graph
-    instance that the `Builder` provides will be directed or undirected.
-  * calling the static method `from()`, which gives you a `Builder` based on
-      an existing graph instance.
-* After you've created your `Builder` instance, you can optionally specify
-    other characteristics and capabilities.
-* You can call `build()` on the same `Builder` instance multiple times to
-    build multiple graph instances.
-* You don't need to specify the node and edge types on the `Builder`;
-    specifying them on the graph type itself is sufficient.
-* The `build()` method returns a `Mutable` subtype of the associated graph
-    type, which provides mutation methods; more on this in \["`Mutable` and
-    `Immutable` graphs"\]\(\#mutable-and-immutable-graphs\), below.
+* 你可以用下面两种方法之一来得到一个图的`Builder`实例：
+  * 调用静态方法`directed()` 或 `undirected()`. `Builder`提供的每个图实例将会是有向的或着无向的。
+  * 调用静态方法`from()`  ， 会基于一个已经存在的图实例返回一个`Builder`。
+* 在你创建了你的`Builder`实例之后， 你能够进一步选择性的明确其它的特性和功能。
+* 你可以在一个相同的`Builder`实例上调用`build()` 多次， 来构建多个图实例。
+* 你不需要在`Builder`上明确结点和边的类型， 在图类型自身明确它们就足够了。
+* `Builder`方法返回一个相关图类型的`Mutable`子类型， 提供了突变方法；更多信息，下面有解释。
 
 ### Builder constraints vs. optimization hints
 
-The `Builder` types generally provide two types of options: constraints and  
-optimization hints.
+`Builder` 类型正常产生两种类型的选择：约束 和 优化提示。
 
-Constraints specify behaviors and properties that graphs created by a given  
-`Builder` instance must satisfy, such as:
+约束明确了由一个给定的`Builder`实例来创建的图所必须满足的行为和属性， 比如：
 
-* whether the graph is directed
-* whether this graph allows self-loops
-* whether this graph's edges are sorted
+- 图是否是无向的
+- 图是否允许自环
+- 图的边是否被排序
 
-and so forth.
+等等。。。
 
-Optimization hints may optionally be used by the implementation class to  
-increase efficiency, for example, to determine the type or initial size of  
-internal data structures. They are not guaranteed to have any effect.
+优化提示被实现类选择性的用来提升性能， 例如， 确定内部数据结构的类型和初始化大小， 但它不对效果做保证。
 
-Each graph type provides accessors corresponding to its `Builder`-specified  
-constraints, but does not provide accessors for optimization hints.
+每种图类型都对有特定constraints的`Builder`提供了响应的访问器（accessors ），但是对optimization hints 没有提供访问器
 
-## `Mutable` and `Immutable` graphs
+## `Mutable` 和`Immutable` 图
 
 ### `Mutable*` types
 
-Each graph type has a corresponding `Mutable*` subtype: [`MutableGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/MutableGraph.html),  
-[`MutableValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/MutableValueGraph.html), and [`MutableNetwork`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/MutableNetwork.html). These subtypes define the  
-mutation methods:
+每个图类型都有一个相应的`Mutable*` 子类型：: [`MutableGraph`](#), [`MutableValueGraph`](#), 和[`MutableNetwork`](#)。  这些子类型定义了突变方法：
 
-* methods for adding and removing nodes:
-  * `addNode(node)` and `removeNode(node)`
-* methods for adding and removing edges:
+* 添加和移除结点的方法：
+  * `addNode(node)` 和removeNode(node)`
+* 添加和移除边的方法：:
   * [`MutableGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/MutableGraph.html)
     * `putEdge(nodeU, nodeV)`
     * `removeEdge(nodeU, nodeV)`
@@ -247,80 +169,52 @@ mutation methods:
     * `addEdge(nodeU, nodeV, edge)`
     * `removeEdge(edge)`
 
-This is a departure from the way that the Java Collections Framework--and  
-Guava's new collection types--have historically worked; each of those types  
-includes signatures for \(optional\) mutation methods. We chose to break out the  
-mutable methods into subtypes in part to encourage defensive programming:  
-generally speaking, if your code only examines or traverses a graph and does not  
-mutate it, its input should be specified as on [`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html), [`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html), or  
-[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) rather than their mutable subtypes. On the other hand, if your code  
-does need to mutate an object, it's helpful for your code to have to call  
-attention to that fact by working with a type that labels itself "Mutable".
+这是对java集合框架和Guava的新集合类型历史工作的违背， 每个类型都包含突变方法的签名. 我们选择分离出突变方法到子类型是去鼓励防御性编程。 通常来说， 如果你的代码仅仅是检查或遍历一个图，且不去改变它， 它的输入应该在[`Graph`](#), [`ValueGraph`](#), or [`Network`](#) 上被指定， 而不是他们的突变子类型。 另一方面， 如果你的代码需要改变一个对象。那么你的代码就不得不和标有“Mutable”的类型。
 
-Since [`Graph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graph.html), etc. are interfaces, even though they don't include mutation  
-methods, providing an instance of this interface to a caller _does not  
-guarantee_ that it will not be mutated by the caller, as \(if it is in fact a  
-`Mutable*` subtype\) the caller could cast it to that subtype. If you want to  
-provide a contractual guarantee that a graph which is a method parameter or  
-return value cannot be modified, you should use the `Immutable` implementations;  
-more on this below.
+因为Graph 等是接口， 尽管它们不包含突变方法，提供一个这个接口的实例给调用者并不能保证将不会被调用者所改变， 因为（如果事实上是一个Mutable*子类型）调用者能够强转到这个子类型。如果你想提供一个保证， 一个图的方法参数和返回类型不能够被修改， 你应该使用Immutable实现。
 
 ### `Immutable*` implementations
 
-Each graph type also has a corresponding `Immutable` implementation. These  
-classes are analogous to Guava's `ImmutableSet`, `ImmutableList`,  
-`ImmutableMap`, etc.: once constructed, they cannot be modified, and they use  
-efficient immutable data structures internally.
+每个图都有相应的 `Immutable` implementation. 实现 。这些类和Guava's `ImmutableSet`, `ImmutableList`,  
+`ImmutableMap`,等等相似: 一旦被构建， 便不能被修改， 且它们内部使用不可突变的数据结构。
 
-Unlike the other Guava `Immutable` types, however, these implementations do not  
-have any method signatures for mutation methods, so they don't need to throw  
-`UnsupportedOperationException` for attempted mutates.
+不像其它 Guava `Immutable` 类型,然而， 这些实现没有任何突变方法， 所以它们对试图修改不需要抛出
+`UnsupportedOperationException` 。
 
-You create an instance of an `ImmutableGraph`, etc. by calling its static  
-`copyOf()` method:
+你能够通过他的静态方法`copyOf()` 来创建一个 `ImmutableGraph`实例：
 
 ```java
 ImmutableGraph<Integer> immutableGraph = ImmutableGraph.copyOf(graph);
 ```
 
-#### Guarantees
+#### 保证
 
-Each `Immutable*` type makes the following guarantees:
+每个`Immutable*`类型做出如下保证：
 
-* **shallow immutability**: elements can never be added, removed or replaced
-  \(these classes do not implement the `Mutable*` interfaces\)
-* **deterministic iteration**: the iteration orders are always the same as
-    those of the input graph
-* [**thread safety**](#synchronization): it is safe to access this graph
-    concurrently from multiple threads
-* **integrity**: this type cannot be subclassed outside this package \(which
-    would allow these guarantees to be violated\)
+- 不变性：元素不能被添加、删除或替换（这些类没有实现`Mutable*`接口）
+- 确定性的迭代： 迭代顺序和图输入顺序相同
+- [**线程安全**](#synchronization): ：多个线程并发访问图是线程安全的
+- 完整性：此类型在外部package中不能产生子类（使得这些保证被孤立）
 
-#### Treat these classes as "interfaces", not implementations
 
-Each of the `Immutable*` classes is a type offering meaningful behavioral  
-guarantees -- not merely a specific implementation. You should treat them as  
-interfaces in every important sense of the word.
 
-Fields and method return values that store an `Immutable*` instance \(such as  
-`ImmutableGraph`\) should be declared to be of the `Immutable*` type rather than  
-the corresponding interface type \(such as `Graph`\). This communicates to callers  
-all of the semantic guarantees listed above, which is almost always very useful  
-information.
+### 把这些类当作“接口”而不是实现
 
-On the other hand, a parameter type of `ImmutableGraph` is generally a nuisance  
-to callers. Instead, accept `Graph`.
+每个`Immutable*`类都是一个提供了有意义的行为保证的类型， 不仅仅是一个特定的实现， 你更应该像接口一样对待它们。
 
-**Warning**: as noted [elsewhere](#graph-elements-nodes-and-edges), it is almost  
-always a bad idea to modify an element \(in a way that affects its `equals()`  
-behavior\) while it is contained in a collection. Undefined behavior and bugs  
-will result. It's generally best to avoid using mutable objects as elements of  
-an `Immutable*` instance at all, as many users may expect your "immutable"  
-object to be deeply immutable.
+字段和方法返回值存储在一个`Immutable*`实例（比如`ImmutableGraph`）中，　应该被声明为 `Immutable*` 类型之一，　而不是相应的接口类型（比如 `Graph`）。　这向调用者表达了上面列举的所有语义保证。
 
-## Graph elements \(nodes and edges\)
+另一方面，　一个`ImmutableGraph`类型的参数通常对调用者来说是一种厌恶。相反，　接受`Graph`.
 
-**Nodes \(and, in **`Network`**, edges\) must be useable as **`Map`** keys**. That is:
+警告：　就像 [到处](#graph-elements-nodes-and-edges)标注的一样，　当修改一个存在集合中的元素（用一种影响它的 `equals()`行为的方式）总是一个坏主意。将会导致未知的行为和bug。通常最好避免使用突变对象作为一个`Immutable*`实例的元素，且很多使用者期望`Immutable*`对象是绝不可变的。
+
+
+
+## 图元素（结点和边）
+
+****
+
+**`Network`**中的结点就像**`Map`**中的key一样被使用。 即：
 
 * 它们在图中必须是独一无二的`nodeA` and `nodeB` 被认为是不同的
   如果  `nodeA.equals(nodeB) == false`.
@@ -333,26 +227,22 @@ object to be deeply immutable.
 
 * 突变状态不能被反射在`equals()/hashCode()` 方法上
   \(这在`Map` 文档中被详细讨论\)
-* 不要构建多个相同的元素并期望它们是可互换的. In particular, when adding such elements to a
-    graph, you should create them once and store the reference if you will need
-    to refer to those elements more than once during creation \(rather than
-    passing `new MyMutableNode(id)` to each `add*()` call\).
 
-If you need to store mutable per-element state, one option is to use immutable  
-elements and store the mutable state in a separate data structure \(e.g. an  
-element-to-state map\).
+* 不要构建多个相同的元素并期望它们是可互换的. 特别的， 当向一个图中添加一些元素， 你应该创建元素一次， 并应该存储它们的引用， 免得在创建过程中多次引用到此元素（而不是每次都传递`new MyMutableNode(id)`到每个`add*()` 调用中）
 
-Graph elements must be non-null.
+  ​
 
-## Library contracts and behaviors
+如果你需要保存每个可突变元素的状态， 一个选择就是使用不可突变元素在一个独立的数据结构中保存突变状态。
 
-This section discusses behaviors of the built-in implementations of the  
-`common.graph` types.
+图类型元素必须非null
 
-### Mutation
+## 函数库约定以及行为
 
-You can add an edge whose incident nodes have not previously been added to the  
-graph. If they're not already present, they're silently added to the graph:
+这部分章节讨论`common.graph`类型的一些内置实现的行为。
+
+### 突变
+
+你能够添加一条边，即使它的结点之前还没有被添加到图中， 如果之前结点不存在， 结点会“默默地”被加入图中
 
 ```java
 Graph<Integer> graph = GraphBuilder.directed().build();  // graph is empty
@@ -363,23 +253,15 @@ if (graph.nodes().contains(1)) {  // evaluates to "true"
 }
 ```
 
-### `equals()`, `hashCode()`, and graph equivalence
+### `equals()`, `hashCode()`, 和图等价
 
-`common.graph`'s graph implementations define `equals()` in terms of reference  
-equality: that is, two graphs are considered equal if they are the same object.  
-While this is the default behavior for `Object.equals()`, it's unusual for  
-collection-type classes. However, since we have different potential criteria for  
-comparing graphs \(for example: should we consider edge objects/values, or just  
-consider the graph's topology?\), we decided to decouple the behavior of  
-`equals()` from the comparison of the graphs' contents.
+`common.graph`的图实现定义`equals()` 依据引用相等： 也就是说， 如果两个图是同一个对象， 两个图会被看作等价。虽然这是`Object.equals()`的默认行为， 在集合类型上通常不这样。 然而既然我们有不同的潜在的规则来比较图（例如： 是否考虑边对象/值， 或着仅仅考虑图的拓扑？），我们决定从图内容的比较上分离`equals()`的行为。
 
-Similarly, `hashCode()` is defined in our implementations to be the output of  
-`System.identityHashCode(this)`, i.e., the default behavior for  
-`Object.hashCode()`.
+相似的， `hashCode()` 被定义在我们的实现中，作为`System.identityHashCode(this)` 的输出。默认的`Object.hashCode()`的行为。
 
-If you want to compare two graphs based on their structural properties, use the  
-[`Graphs`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graphs.html)`.equivalent()` utilities; there are overloads for `Graph`,  
-`ValueGraph`, and `Network` arguments.
+如果你想基于它们的结构属性来比较两个图， 使用[`Graphs`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Graphs.html)`.equivalent()`  工具； 在`ValueGraph`, 和`Network`  中均有重载。
+
+`ValueGraph`, 和`Network` 作为参数.
 
 ```java
 Graph<Integer> graph1, graph2;
@@ -398,123 +280,92 @@ if (Graphs.equivalent(valueGraph1, valueGraph2)) { ... }
 if (Graphs.equivalent(network1, network2)) { ... }
 ```
 
-### Accessor methods
+### 访问器方法
 
-Accessors which return collections:
+返回集合的访问器:
 
-* may return views of the graph; modifications to the graph which affect a
-  view \(for example, calling `addNode(n)` or `removeNode(n)` while iterating
-  through `nodes()`\) are not supported and may result in throwing
-  `ConcurrentModificationException`.
-* will return empty collections if their inputs are valid but no elements
-    satisfy the request \(for example: `adjacentNodes(node)` will return an empty
-    collection if `node` has no adjacent nodes\).
+* 可能返回graph的视图， 对会影响视图的图修改不被支持，并可能会抛出`ConcurrentModificationException`。（例如：在通过`nodes()`进行遍历图时调用`addNode(n)` 或`removeNode(n)` 方法）
+* 如果输入有效，但是没有元素满足这个请求（例如：`adjacentNodes(node)` ）将会返回一个空的集合, 如果`node` 结点没有邻接点。
 
-Accessors will throw `IllegalArgumentException` if passed an element that is not  
-in the graph.
+访问器将会抛出 `IllegalArgumentException` 异常， 如果传递一个并不在图中的结点元素。
 
-Accessors take `Object` parameters rather than generic type specifiers to match  
-the pattern established by the Java Collections Framework.
+访问器采用 `Object`参数而不是Java集合框架建立的泛型来匹配模式（ match  
+the pattern ）。
 
-### Synchronization
+### 同步
 
-It is up to each graph implementation to determine its own synchronization  
-policy. By default, undefined behavior may result from the invocation of any  
-method on a graph that is being mutated by another thread.
+这取决于每个图的实现来决定它本身的同步策略。默认地， 未定义的行为可能导致被另一个线程对任一方法的调用。
 
-Generally speaking, the built-in mutable implementations provide no  
-synchronization guarantees, but the `Immutable*` classes \(by virtue of being  
-immutable\) are thread-safe.
+通常来说，内置的突变实现提供非同步的保证， 但是`Immutable*` 类是线程安全的。
 
-### Element objects
+### 元素对象
 
-The node, edge, and value objects that you add to your graphs are irrelevant to  
-the built-in implementations; they're just used as keys to internal data  
-structures. This means that nodes/edges may be shared among graph instances.
+你所添加到图中的结点， 边， 值对象是和内置的类实现是无关的； 它们仅仅用于内部数据结构的key。 这意味着结点、边可能在多个图实例之间共享。
 
-By default, node and edge objects are insertion-ordered \(that is, are visited  
-by the `Iterator`s for `nodes()` and `edges()` in the order in which they were  
-added to the graph, as with `LinkedHashSet`\).
+默认的， 结点和边对象是插入有序的（也就是说，用 `Iterator`来对`nodes()` 和`edges()` 来访问，是按照它们所添加到图中的顺序， 就像`LinkedHashSet`）。
 
 ## Notes for implementors
 
 ### Storage models
 
-`common.graph` supports multiple mechanisms for storing the topology of a graph,  
-including:
+`common.graph` 提供了多种机制来存储图的拓扑，包括：
 
-* the graph implementation stores the topology \(for example, by storing a
-  `Map<N, Set<N>>` that maps nodes onto their adjacent nodes\); this implies
-  that the nodes are just keys, and can be shared among graphs
-* the nodes store the topology \(for example, by storing a `List<E>` of
-    adjacent nodes\); this \(usually\) implies that nodes are graph-specific
-* a separate data repository \(for example, a database\) stores the topology
+* 图的实现存储拓扑（例如，通过存储`Map<N, Set<N>>`， 映射结点到它们的邻接点）；这暗示结点仅仅是key， 可以在多图间共享。
+* 结点存储拓扑（例如， 通过存储 邻接点到`List<E>` ）； 这意味着结点是graph-specific
+* 一个分离的数据仓库（例如， 一个数据库）来存储拓扑
 
-Note: `Multimap`s are not sufficient internal data structures for Graph  
-implementations that support isolated nodes \(nodes that have no incident edges\),  
-due to their restriction that a key either maps to at least one value, or is not  
-present in the `Multimap`.
+注意： `Multimap`是一个不充分的数据结构，对于图的可以支持孤立结点的实现。由于它的限制（`Multimap`）， 一个key要不映射到至少一个值， 要不不出现在`Multimap`中。
 
-### Accessor behavior
+### 访问器行为
 
-For accessors that return a collection, there are several options for the  
-semantics, including:
+对于返回一个集合的访问器， 对于此语义有一些选择：
 
-1. Collection is an immutable copy \(e.g. `ImmutableSet`\): attempts to modify
-   the collection in any way will throw an exception, and modifications to the
-   graph will **not** be reflected in the collection.
-2. Collection is an unmodifiable view \(e.g. `Collections.unmodifiableSet()`\):
-    attempts to modify the collection in any way will throw an exception, and
-    modifications to the graph will be reflected in the collection.
-3. Collection is a mutable copy: it may be modified, but modifications to the
-    collection will **not** be reflected in the graph, and vice versa.
-4. Collection is a modifiable view: it may be modified, and modifications to
-    the collection will be reflected in the graph, and vice versa.
+1、集合是不可变的拷贝（`ImmutableSet`等）：尝试用任何方法来修改集合都会抛出异常， 对图的修改将不会反应在集合中
+
+2、集合是不可修改的视图（`Collections.unmodifiableSet()`等）：尝试用任何方法来修改集合都会抛出异常， 对图的修改将会反应在集合中
+
+3、集合是可变的拷贝， 它可能被修改， 但是对于集合的修改并不会反应在图中， 反之亦然。
+
+4、集合是可变的视图， 它可能被修改， 但是对于集合的修改并不会反应在图中， 反之亦然。
+
+
 
 \(In theory one could return a collection which passes through writes in one  
 direction but not the other \(collection-to-graph or vice-versa\), but this is  
 basically never going to be useful or clear, so please don't. :\) \)
 
-\(1\) and \(2\) are generally preferred; as of this writing, the built-in  
-implementations generally use \(2\).
+\(1\) 和(2\) 通常是较倾向的选择; 内置实现通常使用 \(2\).
 
-\(3\) is a workable option, but may be confusing to users if they expect that  
-modifications will affect the graph, or that modifications to the graph would be  
-reflected in the set.
+(3) 是一个可工作的选择， 但是会对使用者造成迷惑， 如果他们期望修改将会影响视图， 或着对图的修改将会反应在集合中。
 
-\(4\) is a hazardous design choice and should be used only with extreme caution,  
-because keeping the internal data structures consistent can be tricky.
+\(4\)是一个冒险的设计选择， 并且应该非常谨慎的使用，因为保持内部数据结构的一致性不容易。
 
-### `Abstract*` classes
+### `Abstract*` 类
 
-Each graph type has a corresponding `Abstract` class: `AbstractGraph`, etc.
+每个图类型都有相应的 `Abstract` 类: `AbstractGraph`, 等.
 
-Implementors of the graph interfaces should, if possible, extend the appropriate  
-abstract class rather than implementing the interface directly. The abstract  
-classes provide implementations of several key methods that can be tricky to do  
-correctly, or for which it's helpful to have consistent implementations, such  
-as:
+图接口的实现者应该， 如果可能的话， 继承合适的抽象类而不是直接实现接口。抽象类提供了一些关键方法的实现，或着可以让子类有一致的某些方法的实现，例如：
 
 * `*degree()`
 * `toString()`
 * `Graph.edges()`
 * `Network.asGraph()`
 
-## Code examples
+## 代码示例
 
-### Is `node` in the graph?
+### 此 `node` 在图中？
 
 ```java
 graph.nodes().contains(node);
 ```
 
-### Is there an edge between nodes `u` and `v` \(that are known to be in the graph\)?
+### 在结点 `u` 和`v` 之间是否有边\(根据现图中已知)?
 
 ```java
 graph.successors(u).contains(v);
 ```
 
-### Basic `Graph` example
+### 基本的`Graph` 示例
 
 ```java
 MutableGraph<Integer> graph = GraphBuilder.directed().build();
@@ -526,7 +377,7 @@ Set<Integer> successorsOfTwo = graph.successors(2); // returns {3}
 graph.putEdge(2, 3);  // no effect; Graph does not support parallel edges
 ```
 
-### Basic [`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html) example
+### 基本的 [`ValueGraph`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/ValueGraph.html) 示例
 
 ```java
 MutableValueGraph<Integer, Double> weightedGraph = ValueGraphBuilder.directed().build();
@@ -537,7 +388,7 @@ weightedGraph.putEdgeValue(3, 5, 1.5);  // edge values (like Map values) need no
 weightedGraph.putEdgeValue(2, 3, 2.0);  // updates the value for (2,3) to 2.0
 ```
 
-### Basic [`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) example
+### 基本的[`Network`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/graph/Network.html) 示例
 
 ```java
 MutableNetwork<Integer, String> network = NetworkBuilder.directed().build();
@@ -555,7 +406,7 @@ network.addEdge("2->3", 2, 3);  // no effect; this edge is already present
 Set<String> inEdgesOfFour = network.inEdges(4); // throws; node not in graph
 ```
 
-### Traversing an undirected graph node-wise
+### 遍历无向图
 
 ```java
 // Return all nodes reachable by traversing 2 edges starting from "node"
@@ -570,7 +421,7 @@ Set<N> getTwoHopNeighbors(Graph<N> graph, N node) {
 }
 ```
 
-### Traversing a directed graph edge-wise
+### 遍历有向图
 
 ```java
 // Update the shortest-path weighted distances of the successors to "node"
@@ -591,7 +442,7 @@ void updateDistancesFrom(Network<N, E> network, N node) {
 
 ## FAQ
 
-### Why did Guava introduce `common.graph`?
+### 为什么Guava引入 `common.graph`?
 
 The same arguments apply to graphs as to many other things that Guava does:
 
@@ -612,7 +463,7 @@ This is answered in the ["Capabilities"](#capabilities) section, above.
 ### `common.graph` doesn’t have feature/algorithm X, can you add it?
 
 Maybe. You can email us at `guava-discuss@googlegroups.com` or [open an issue on  
-GitHub](https://github.com/google/guava/issues).
+GitHub](https://github.com/google/guava/issues). 
 
 Our philosophy is that something should only be part of Guava if \(a\) it fits in  
 with Guava’s core mission and \(b\) there is good reason to expect that it will be  

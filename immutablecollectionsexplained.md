@@ -23,7 +23,7 @@ class Foo {
 
 * 安全使用不受信任的libraries。
 
-* 线程安全：不可变对象被多个线程调用时，不存在竞态条件问题
+* 线程安全：不可变对象被多个线程调用时，不存在竞争条件问题
 
 * 不需要支持突变，并可以节省时间和空间。 所有不可变的集合都比它们的可变形式有更好的内存利用率（分析和测试细节）
 
@@ -109,23 +109,23 @@ void thingamajig(Collection<String> collection) {
 
 ## 细节：关联可变集合和不可变集合
 
-| Interface | JDK or Guava? | Immutable Version |
-| :---: | :---: | :---: |
-| Collection | JDK | [`ImmutableCollection`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableCollection.html) |
-| List | JDK | [`ImmutableList`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableList.html) |
-| Set | JDK | [`ImmutableSet`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSet.html) |
-| SortedSet/NavigableSet | JDK | [`ImmutableSortedSet`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSortedSet.html) |
-| Map | JDK | [`ImmutableMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMap.html) |
-| SortedMap | JDK | [`ImmutableSortedMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSortedMap.html) |
-| [Multiset](https://github.com/google/guava/wiki/NewCollectionTypesExplained#multiset) | Guava | [`ImmutableMultiset`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultiset.html) |
-| SortedMultiset | Guava | [`ImmutableSortedMultiset`](http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/ImmutableSortedMultiset.html) |
-| [Multimap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#multimap) | Guava | [`ImmutableMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultimap.html) |
-| ListMultimap | Guava | [`ImmutableListMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableListMultimap.html) |
-| SetMultimap | Guava | [`ImmutableSetMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSetMultimap.html) |
-| [BiMap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#bimap) | Guava | [`ImmutableBiMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableBiMap.html) |
-| [ClassToInstanceMap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#classtoinstancemap) | Guava | [`ImmutableClassToInstanceMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableClassToInstanceMap.html) |
-| [Table](https://github.com/google/guava/wiki/NewCollectionTypesExplained#table) | Guava | [`ImmutableTable`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html) |
-|  |  |  |
+|                Interface                 | JDK or Guava? |            Immutable Version             |
+| :--------------------------------------: | :-----------: | :--------------------------------------: |
+|                Collection                |      JDK      | [`ImmutableCollection`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableCollection.html) |
+|                   List                   |      JDK      | [`ImmutableList`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableList.html) |
+|                   Set                    |      JDK      | [`ImmutableSet`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSet.html) |
+|          SortedSet/NavigableSet          |      JDK      | [`ImmutableSortedSet`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSortedSet.html) |
+|                   Map                    |      JDK      | [`ImmutableMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMap.html) |
+|                SortedMap                 |      JDK      | [`ImmutableSortedMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSortedMap.html) |
+| [Multiset](https://github.com/google/guava/wiki/NewCollectionTypesExplained#multiset) |     Guava     | [`ImmutableMultiset`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultiset.html) |
+|              SortedMultiset              |     Guava     | [`ImmutableSortedMultiset`](http://google.github.io/guava/releases/12.0/api/docs/com/google/common/collect/ImmutableSortedMultiset.html) |
+| [Multimap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#multimap) |     Guava     | [`ImmutableMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableMultimap.html) |
+|               ListMultimap               |     Guava     | [`ImmutableListMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableListMultimap.html) |
+|               SetMultimap                |     Guava     | [`ImmutableSetMultimap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableSetMultimap.html) |
+| [BiMap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#bimap) |     Guava     | [`ImmutableBiMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableBiMap.html) |
+| [ClassToInstanceMap](https://github.com/google/guava/wiki/NewCollectionTypesExplained#classtoinstancemap) |     Guava     | [`ImmutableClassToInstanceMap`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableClassToInstanceMap.html) |
+| [Table](https://github.com/google/guava/wiki/NewCollectionTypesExplained#table) |     Guava     | [`ImmutableTable`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ImmutableTable.html) |
+|                                          |               |                                          |
 
 
 
