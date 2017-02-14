@@ -14,18 +14,24 @@ Forwarding 抽象类定义了一个抽象方法：`delegate()`，你可以覆盖
 
 ```java
 class AddLoggingList<E> extends ForwardingList<E> {
+
   final List<E> delegate; // backing list
-  @Override protected List<E> delegate() {
+  
+  @Override 
+  protected List<E> delegate() {
     return delegate;
   }
-  @Override public void add(int index, E elem) {
+  @Override 
+  public void add(int index, E elem) {
     log(index, elem);
     super.add(index, elem);
   }
-  @Override public boolean add(E elem) {
+  @Override 
+  public boolean add(E elem) {
     return standardAdd(elem); // 用add(int, E)实现
   }
-  @Override public boolean addAll(Collection<? extends E> c) {
+  @Override 
+  public boolean addAll(Collection<? extends E> c) {
     return standardAddAll(c); // 用add实现
   }
 }
@@ -56,38 +62,35 @@ class AddLoggingList<E> extends ForwardingList<E> {
 | `SetMultimap`   | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ForwardingSetMultimap.html'><code>ForwardingSetMultimap</code></a> |
 
 # PeekingIterator
-Sometimes, the normal `Iterator` interface isn't enough.
+有时，普通的 `Iterator` 接口还不够。
 
-`Iterators` supports the method <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterators.html#peekingIterator(java.util.Iterator)'><code>Iterators.peekingIterator(Iterator)</code></a>, which wraps an `Iterator` and returns a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/PeekingIterator.html'><code>PeekingIterator</code></a>, a subtype of `Iterator` that lets you <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/PeekingIterator.html#peek()'><code>peek()</code></a> at the element that will be returned by the next call to `next()`.
+`Iterators` 提供一个 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterators.html#peekingIterator(java.util.Iterator)'><code>Iterators.peekingIterator(Iterator)</code></a>, 方法，来把 `Iterator` 包装为 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/PeekingIterator.html'><code>PeekingIterator</code></a>这是 `Iterator` 的子类，它能让你事先窥视 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/PeekingIterator.html#peek()'><code>peek()</code></a> 到下一次调用 `next()`返回的元素。
 
-_Note:_ the `PeekingIterator` returned by `Iterators.peekingIterator` does not support `remove()` calls after a `peek()`.
+注意：`Iterators.peekingIterator`返回的`PeekingIterator`不支持`peek()`之后的`remove()`调用。
 
-Let's do an example: copying a `List` while eliminating consecutive duplicate elements.
+举个例子：复制一个 `List`，并去除连续的重复元素。
 ```java
-
 
 List<E> result = Lists.newArrayList();
 PeekingIterator<E> iter = Iterators.peekingIterator(source.iterator());
 while (iter.hasNext()) {
   E current = iter.next();
   while (iter.hasNext() && iter.peek().equals(current)) {
-    // skip this duplicate element
+    // 跳过重复的元素
     iter.next();
   }
   result.add(current);
 }
 ```
 
-The traditional way to do this involves keeping track of the previous element, and falling back under certain conditions, but that's a tricky and bug-prone business.  `PeekingIterator` is comparatively straightforward to understand and use.
+传统的实现方式需要记录上一个元素，并在特定情况下后退，但这很难处理且容易出错。相较而言，`PeekingIterator`是比较直接的理解和使用。
 
 # AbstractIterator
-Implementing your own `Iterator`?  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractIterator.html'><code>AbstractIterator</code></a> can make your life easier.
+实现你自己的 `Iterator`?  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractIterator.html'><code>AbstractIterator</code></a> 让生活更轻松。
 
-It's easiest to explain with an example.  Let's say we wanted to wrap an iterator so as to skip null values.
+用一个例子来解释 `AbstractIterator` 最简单。比方说，我们要包装一个 `iterator` 以便跳过空值。
 
 ```java
-
-
 public static Iterator<String> skipNulls(final Iterator<String> in) {
   return new AbstractIterator<String>() {
     protected String computeNext() {
@@ -103,22 +106,20 @@ public static Iterator<String> skipNulls(final Iterator<String> in) {
 }
 ```
 
-You implement one method, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractIterator.html#computeNext()'><code>computeNext()</code></a>, that just computes the next value.  When the sequence is done, just return `endOfData()` to mark the end of the iteration.
+你实现了<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractIterator.html#computeNext()'><code>computeNext()</code></a>, 来计算下一个值。如果循环结束了也没有找到下一个值，请返回`endOfData()`表明已经到达迭代的末尾。
 
-_Note:_ `AbstractIterator` extends `UnmodifiableIterator`, which forbids the implementation of `remove()`.  If you need an iterator that supports `remove()`, you should not extend `AbstractIterator`.
+注意：`AbstractIterator` 继承了 `UnmodifiableIterator`，所以禁止实现 `remove()`方法。如果你需要支持 `remove()`的迭代器，就不应该继承 `AbstractIterator`。
 
 ## AbstractSequentialIterator
-Some iterators are more easily expressed in other ways.  <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractSequentialIterator.html'><code>AbstractSequentialIterator</code></a> provides another way of expressing an iteration.
-
+一些迭代器更容易以其他方式表达。 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractSequentialIterator.html'><code>AbstractSequentialIterator</code></a> 提供了另一种表达迭代的方法。
 ```java
-
-   Iterator<Integer> powersOfTwo = new AbstractSequentialIterator<Integer>(1) { // note the initial value!
+   Iterator<Integer> powersOfTwo = new AbstractSequentialIterator<Integer>(1) { // 注意初始值1!
      protected Integer computeNext(Integer previous) {
        return (previous == 1 << 30) ? null : previous * 2;
      }
    };
 ```
 
-Here, we implement the method <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractSequentialIterator.html#computeNext(T)'><code>computeNext(T)</code></a>, which accepts the previous value as an argument.
+这里，我们实现方法<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/AbstractSequentialIterator.html#computeNext(T)'><code>computeNext(T)</code></a>，它能接受前一个值作为参数。
 
-Note that you must additionally pass an initial value, or `null` if the iterator should end immediately.  Note that `computeNext` assumes that a `null` value implies the end of iteration -- `AbstractSequentialIterator` cannot be used to implement an iterator which may return `null`.
+注意，你必须额外传入一个初始值，或者传入 `null` 让迭代立即结束。因为 `computeNext(T)`假定 `null` 值意味着迭代的末尾——`AbstractSequentialIterator` 不能用来实现可能返回 `null` 的迭代器。
