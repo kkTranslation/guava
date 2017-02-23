@@ -1,9 +1,9 @@
-# Overview
-The Guava <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html'><code>Service</code></a> interface represents an object with an operational state, with methods to start and stop.  For example, webservers, RPC servers, and timers can implement the `Service` interface.  Managing the state of services like these, which require proper startup and shutdown management, can be nontrivial, especially if multiple threads or scheduling is involved.  Guava provides some skeletons to manage the state logic and synchronization details for you.
+# 概述
+Guava <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html'><code>Service</code></a>接口表示具有操作状态的对象，具有start和stop的方法。 例如，Web服务器，RPC服务器和计时器可以实现`Service`接口。 管理这些需要适当启动和关闭管理的服务的状态可以是不重要的，特别是如果涉及多线程或调度时。 Guava提供了一些框架来管理状态逻辑和同步细节。
 
-# Using a Service
+# 使用一个服务
 
-The normal lifecycle of a `Service` is
+`Service`的正常生命周期是
 
 * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#NEW'><code>Service.State.NEW</code></a> to
 * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#STARTING'><code>Service.State.STARTING</code></a> to
@@ -11,34 +11,33 @@ The normal lifecycle of a `Service` is
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#STOPPING'><code>Service.State.STOPPING</code></a> to
     * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#TERMINATED'><code>Service.State.TERMINATED</code></a>
 
-A stopped service may not be restarted.  If the service fails where starting, running, or stopping, it goes into state <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#FAILED'><code>Service.State.FAILED</code></a>.
+停止的服务可能无法重新启动。 如果服务在启动，运行或停止时失败，它将进入状态<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#FAILED'><code>Service.State.FAILED</code></a>。
 
-A service can be started _asynchronously_ using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>startAsync()</code></a>, which returns `this` to enable method chaining.  It is only valid to call `startAsync()` if the service is <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#NEW'><code>NEW</code></a>.  So you should structure your application to have a unique place where each service is started.
+可以使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>startAsync()</code></a>异步启动服务，它返回此值以启用方法链。 它只有在服务为<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#NEW'><code>NEW</code></a>时调用`startAsync()`才有效。 因此，你应该将应用程序结构化，以便在每个服务启动时都有一个唯一的位置。 
 
-Stopping the service is analogous, using the _asynchronous_ <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#stopAsync()'><code>stopAsync()</code></a> method.  But unlike <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>startAsync()</code></a>, it is safe to call this method multiple times.  This is to make it possible to handle races that may occur when shutting down services.
+停止服务类似，使用异步<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#stopAsync()'><code>stopAsync()</code></a> 方法。 但不同于<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>startAsync()</code></a>，可以安全地多次调用此方法。 这是为了可以处理在关闭服务时可能发生的竞赛。
 
-Service also provides several methods to wait for service transitions to complete.
-* _asynchronously_ using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#addListener()'><code>addListener()</code></a>.  `addListener()` allows you to add a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.Listener.html'><code>Service.Listener</code></a> that will be invoked on every state transition of the service.  N.B. if a service is not <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#NEW'><code>NEW</code></a> when the listener is added, then any state transitions that have already occurred will _not_ be replayed on the listener.
-* _synchronously_ using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#awaitRunning()'><code>awaitRunning()</code></a>.  This is uninterruptible, throws no checked exceptions, and returns once the service has finished starting.  If the service fails to start, this throws an `IllegalStateException`.  Similarly, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#awaitTerminated()'><code>awaitTerminated()</code></a> waits for the service to reach a terminal state (<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#TERMINATED'><code>TERMINATED</code></a> or <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#FAILED'><code>FAILED</code></a>).  Both methods also have overloads that allow timeouts to be specified.
+Service还提供了几种方法来等待服务转换完成。
+* 异步的使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#addListener()'><code>addListener()</code></a>。`addListener()`允许你添加将在服务的每个状态转换上调用的Service.Listener <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.Listener.html'><code>Service.Listener</code></a>。 N.B.如果在添加侦听器时服务不是<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#NEW'><code>NEW</code></a>，则已经发生的任何状态转换将不会在侦听器上重播。
+* 同步使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#awaitRunning()'><code>awaitRunning()</code></a>。 这是不可中断的，不抛出异常，并在服务完成启动后返回。 如果服务无法启动，则会抛出`IllegalStateException`。 类似地，<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#awaitTerminated()'><code>awaitTerminated()</code></a>等待服务到达终端状态(<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#TERMINATED'><code>TERMINATED</code></a>或<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.State.html#FAILED'><code>FAILED</code></a>)。 这两种方法都有重载，允许指定超时。 
 
-The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html'><code>Service</code></a> interface is subtle and complicated.  _We do not recommend implementing it directly_.  Instead please use one of the abstract base classes in guava as the base for your implementation.  Each base class supports a specific threading model.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html'><code>Service</code></a> 接口是微妙和复杂的。 我们不建议直接实现它。 相反，请使用guava中的一个抽象基类作为你的实现的基础。 每个基类支持特定的线程模型。
 
 # Implementations
 ## AbstractIdleService
-The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html'><code>AbstractIdleService</code></a> skeleton implements a `Service` which does not need to perform any action while in the "running" state -- and therefore does not need a thread while running -- but has startup and shutdown actions to perform.  Implementing such a service is as easy as extending `AbstractIdleService` and implementing the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html#startUp()'><code>startUp()</code></a> and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html#shutDown()'><code>shutDown()</code></a> methods.
+The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html'><code>AbstractIdleService</code></a> 框架实现一个Service，它不需要在“running”状态下执行任何操作，因此在运行时不需要线程 - 但是具有要执行的startup和shutdown操作。 实现这样的服务就像扩展`AbstractIdleService`和实现<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html#startUp()'><code>startUp()</code></a> 和 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractIdleService.html#shutDown()'><code>shutDown()</code></a>方法一样简单。 
 
 ```java
-
 protected void startUp() {
   servlets.add(new GcStatsServlet());
 }
 protected void shutDown() {}
 ```
 
-Note that any queries to the `GcStatsServlet` already have a thread to run in.  We don't need this service to perform any operations on its own while the service is running.
+注意，对`GcStatsServlet`的任何查询都已经有一个线程运行。我们不需要这个服务在服务运行时自己执行任何操作。
 
 ## AbstractExecutionThreadService
-An <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html'><code>AbstractExecutionThreadService</code></a> performs startup, running, and shutdown actions in a single thread.  You must override the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html#run()'><code>run()</code></a> method, and it must respond to stop requests.  For example, you might perform actions in a work loop:
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html'><code>AbstractExecutionThreadService</code></a> 在单个线程中执行启动，运行和关闭操作。 你必须覆盖<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html#run()'><code>run()</code></a> 方法，并且它必须响应停止请求。 例如，你可以在工作循环中执行操作：
 
 ```java
 public void run() {
@@ -48,9 +47,9 @@ public void run() {
 }
 ```
 
-Alternately, you may override <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html#triggerShutdown()'><code>triggerShutdown()</code></a> in any way that causes `run()` to return.
+或者，你可以以任何导致`run()`返回的方式覆盖<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractExecutionThreadService.html#triggerShutdown()'><code>triggerShutdown()</code></a>。
 
-Overriding `startUp()` and `shutDown()` is optional, but the service state will be managed for you.
+覆盖`startUp()`和`shutDown()`是可选的，但将为你管理服务状态。
 
 ```java
 protected void startUp() {
@@ -68,35 +67,35 @@ protected void triggerShutdown() {
 }
 ```
 
-Note that `start()` calls your `startUp()` method, creates a thread for you, and invokes `run()` in that thread.  `stop()` calls `triggerShutdown()` and waits for the thread to die.
+注意，`start()`调用你的`startUp()`方法，为你创建一个线程，并在该线程中调用`run()`。 `stop()`调用`triggerShutdown()`并等待线程死亡。
 
 ## AbstractScheduledService
-An <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html'><code>AbstractScheduledService</code></a> performs some periodic task while running.  Subclasses implement <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html#runOneIteration()'><code>runOneIteration()</code></a> to specify one iteration of the task, as well as the familiar `startUp` and `shutDown()` methods.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html'><code>AbstractScheduledService</code></a> 在运行时执行一些周期性任务。 子类实现<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html#runOneIteration()'><code>runOneIteration()</code></a> 以遍历一个指定任务，以及熟悉的startUp和`shutDown()`方法。
 
-To describe the execution schedule, you must implement the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html#scheduler()'><code>scheduler()</code></a> method.  Typically, you will use one of the provided schedules from <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html'><code>AbstractScheduledService.Scheduler</code></a>, either <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html#newFixedRateSchedule(long, long, java.util.concurrent.TimeUnit)'><code>newFixedRateSchedule(initialDelay, delay, TimeUnit)</code></a> or <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html#newFixedDelaySchedule(long, long, java.util.concurrent.TimeUnit)'><code>newFixedDelaySchedule(initialDelay, delay, TimeUnit)</code></a>, corresponding to the familiar methods in `ScheduledExecutorService`.  Custom schedules can be implemented using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.CustomScheduler.html'><code>CustomScheduler</code></a>; see the Javadoc for details.
+要描述执行计划，必须实现<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.html#scheduler()'><code>scheduler()</code></a> 方法。 通常，你将使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html'><code>AbstractScheduledService.Scheduler</code></a>提供的计划之一，即<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html#newFixedRateSchedule(long, long, java.util.concurrent.TimeUnit)'><code>newFixedRateSchedule(initialDelay, delay, TimeUnit)</code></a> 或 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.Scheduler.html#newFixedDelaySchedule(long, long, java.util.concurrent.TimeUnit)'><code>newFixedDelaySchedule(initialDelay, delay, TimeUnit)</code></a>，对应于`ScheduledExecutorService`中熟悉的方法。 自定义计划可以使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractScheduledService.CustomScheduler.html'><code>CustomScheduler</code></a>实现; 有关详细信息，请参阅Javadoc。
 
 ## AbstractService
-When you need to do your own manual thread management, override <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html'><code>AbstractService</code></a> directly. Typically, you should be well served by one of the above implementations, but implementing `AbstractService` is recommended when, for example, you are modeling something that provides its own threading semantics as a `Service`, you have your own specific threading requirements.
+当你需要做自己的手工线程管理时，直接覆盖<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html'><code>AbstractService</code></a> 。 通常，你应该很好地服务于上面的实现，但是推荐实现`AbstractService`，例如，当你正在建模一些提供自己的线程语义作为一个`Service`，你有自己的特定线程需求。 
 
-To implement `AbstractService` you must implement 2 methods.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#doStart()'><code>doStart()</code></a>:  `doStart()` is called directly by the first call to `startAsync()`, your `doStart()` method should perform all initialization and then eventually call <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyStarted()'><code>notifyStarted()</code></a> if start up succeeded or <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyFailed(java.lang.Throwable)'><code>notifyFailed()</code></a> if start up failed.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#doStop()'><code>doStop()</code></a>:  `doStop()` is called directly by the first call to `stopAsync()`, your `doStop()` method should shut down your service and then eventually call <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyStopped()'><code>notifyStopped()</code></a> if shutdown succeeded or <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyFailed(java.lang.Throwable)'><code>notifyFailed()</code></a> if shutdown failed.
+要实现`AbstractService`，你必须实现2种方法。
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#doStart()'><code>doStart()</code></a>: ` doStart()`被第一次调用`startAsync()`直接调用，你的`doStart()`方法应该执行所有初始化，然后最终调用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyStarted()'><code>notifyStarted()</code></a> 如果启动成功或<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyFailed(java.lang.Throwable)'><code>notifyFailed()</code></a> 如果启动失败。
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#doStop()'><code>doStop()</code></a>:  `doStop()` 被第一次调用`stopAsync()`直接调用，你的`doStop()`方法应该关闭你的服务，然后最终调用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyStopped()'><code>notifyStopped()</code></a> 如果关闭成功或<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/AbstractService.html#notifyFailed(java.lang.Throwable)'><code>notifyFailed()</code></a> 如果关闭失败。
 
-Your `doStart` and `doStop`, methods should be _fast_.  If you need to do expensive initialization, such as reading files, opening network connections, or any operation that might block, you should consider moving that work to another thread.
+你的`doStar`t和`doStop`，方法应该快。 如果你需要做昂贵的初始化，例如读取文件，打开网络连接或任何可能阻塞的操作，你应该考虑将该工作移动到另一个线程。
 
-# Using ServiceManager
+# 使用ServiceManager
 
-In addition to the `Service` skeleton implementations, Guava provides a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html'><code>ServiceManager</code></a> class that makes certain operations involving multiple `Service` implementations easier.  Create a new `ServiceManager` with a collection of `Services`.  Then you can manage them:
+除了服务框架实现，Guava提供了一个<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html'><code>ServiceManager</code></a> 类，使得涉及多个服务实现的某些操作更容易。 使用服务集合创建一个新的`ServiceManager`。 然后你可以管理他们：
 
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#startAsync()'><code>startAsync()</code></a> will start all the services under management. Much like <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>Service#startAsync()</code></a> you can only call this method once, if all services are `NEW`.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#stopAsync()'><code>stopAsync()</code></a> will stop all the services under management.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#addListener(com.google.common.util.concurrent.ServiceManager.Listener, java.util.concurrent.Executor)'><code>addListener</code></a> will add a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.Listener.html'><code>ServiceManager.Listener</code></a> that will be called on major state transitions.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#awaitHealthy()'><code>awaitHealthy()</code></a> will wait for all services to reach the `RUNNING` state.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#awaitStopped()'><code>awaitStopped()</code></a> will wait for all services to reach a terminal state.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#startAsync()'><code>startAsync()</code></a> 将启动所有正在管理的服务。 很像<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/Service.html#startAsync()'><code>Service#startAsync()</code></a> ，如果所有的服务都是`NEW`，你只能调用这个方法一次。
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#stopAsync()'><code>stopAsync()</code></a> 将停止所有正在管理的服务。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#addListener(com.google.common.util.concurrent.ServiceManager.Listener, java.util.concurrent.Executor)'><code>addListener</code></a>将添加一个<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.Listener.html'><code>ServiceManager.Listener</code></a> ，它将在主要状态转换时被调用。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#awaitHealthy()'><code>awaitHealthy()</code></a> 将等待所有服务达到`RUNNING`状态。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#awaitStopped()'><code>awaitStopped()</code></a> 将等待所有服务达到终端状态。
 
-Or inspect them:
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#isHealthy()'><code>isHealthy()</code></a> returns `true` if all services are `RUNNING`.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#servicesByState()'><code>servicesByState()</code></a> returns a _consistent_ snapshot of all the services indexed by their state.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#startupTimes()'><code>startupTimes()</code></a> returns a map from `Service` under management to how long it took for that service to start in milliseconds.  The returned map is guaranteed to be ordered by startup time.
+或检查他们：
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#isHealthy()'><code>isHealthy()</code></a>如果所有服务都为`RUNNING`，则返回`true`。
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#servicesByState()'><code>servicesByState()</code></a> 返回由其状态索引的所有服务的一致性快照。
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/util/concurrent/ServiceManager.html#startupTimes()'><code>startupTimes()</code></a> 将从管理下的`Service`返回一个map到该服务以毫秒为单位启动所需的时间。 返回的map保证按启动时间排序。
 
-While it is recommended that service lifecycles be managed via `ServiceManager`, state transitions initiated via other mechanisms **do not impact the correctness** of its methods. For example, if the services are started by some mechanism besides `startAsync()`, the listeners will be invoked when appropriate and `awaitHealthy()` will still work as expected.  The only requirement that `ServiceManager` enforces is that all `Services` must be `NEW` when `ServiceManager is constructed.
+虽然建议通过`ServiceManager`管理服务生命周期，但通过其他机制发起的状态转换**不会影响其方法的正确性**。 例如，如果服务由`startAsync()`之外的某种机制启动，则监听器将在适当时被调用，并且`awaitHealthy()`仍将按预期工作。 `ServiceManager`强制执行的唯一要求是，在构建`ServiceManager`时，所有服务都必须为新。
