@@ -1,15 +1,15 @@
 # Overview
-The _primitive_ types of Java are the basic types:
+Java 的原生类型就是指基本类型：
 
 | `byte`  | `short`  | `int`  | `long`    |
 | :------ | :------- | :----- | :-------- |
 | `float` | `double` | `char` | `boolean` |
 
-**_Before searching Guava for a method, you should check if it is in [Arrays](http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Arrays.html) or the corresponding JDK wrapper type, e.g. [Integer](http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html)._**
+**在从 Guava 查找原生类型方法之前，可以先查查 [Arrays](http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Arrays.html) 类，或者对应的基础类型包装类，如 [Integer](http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html)。**
 
-These types cannot be used as objects or as type parameters to generic types, which means that many general-purpose utilities cannot be applied to them.  Guava provides a number of these general-purpose utilities, ways of interfacing between primitive arrays and collection APIs, conversion from types to byte array representations, and support for unsigned behaviors on certain types.
+原生类型不能当作对象或泛型的类型参数使用，这意味着许多通用方法都不能应用于它们。Guava 提供了一些通用工具，包括原生类型数组与集合 API 的交互，从原生类型和字节数组的相互转换，以及对某些原生类型的无符号形式的支持。
 
-| Primitive Type | Guava Utilities (all in `com.google.common.primitives`) |
+| 原生类型 | Guava 工具类 (都在`com.google.common.primitives` 包) |
 | :------------- | :--------------------------------------- |
 | `byte`         | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/Bytes.html'><code>Bytes</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/SignedBytes.html '><code>SignedBytes</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedBytes.html'><code>UnsignedBytes</code></a> |
 | `short`        | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/Shorts.html'><code>Shorts</code></a> |
@@ -20,47 +20,47 @@ These types cannot be used as objects or as type parameters to generic types, wh
 | `char`         | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/Chars.html'><code>Chars</code></a> |
 | `boolean`      | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/Booleans.html'><code>Booleans</code></a> |
 
-Methods that differ in behavior for signed and unsigned bytes are completely skipped in `Bytes`, but only present in the `SignedBytes` and `UnsignedBytes` utilities, since the signedness of bytes is somewhat more ambiguous than the signedness of other types.
+Bytes 工具类没有定义任何区分有符号和无符号字节的方法，而是把它们都放到了 `SignedBytes` 和 `UnsignedBytes` 工具类中，因为字节类型的符号性比起其它类型要略微含糊一些。
 
-Unsigned variants of methods on `int` and `long` are provided in the `UnsignedInts` and `UnsignedLongs` classes, but since most uses of those types are signed, the `Ints` and `Longs` classes treat their inputs as signed.
+`unsignedInts`和`UnsignedLongs`类中提供了`int`和`long`方法的无符号变量，但由于这些类型的大多数用法都是有符号的，Ints 和 Longs 类按照有符号形式处理方法的输入参数。
 
-Additionally, Guava provides "wrapper types" for unsigned `int` and `long` values, `UnsignedInteger` and `UnsignedLong`, to help you use the type system to enforce distinctions between signed and unsigned values, in exchange for a small performance cost.  These classes directly support simple arithmetic operations in the style of `BigInteger`.
+此外，Guava 为 `int` 和 `long` 的无符号形式提供了包装类，即 `UnsignedInteger` 和 `UnsignedLong`，以帮助你使用类型系统，以极小的性能消耗对有符号和无符号值进行强制转换。 这些类直接支持`BigInteger`风格的简单算术运算。
 
-All method signatures use `Wrapper` to refer to the corresponding JDK wrapper type, and `prim` to refer to the primitive type.  (`Prims`, where applicable, refers to the corresponding Guava utilities class.)
+在本章下面描述的方法签名中，我们用 `Wrapper` 表示 JDK 包装类，`prim` 表示原生类型。（`Prims` 表示相应的Guava 工具类。）
 
-# Primitive array utilities
-Primitive arrays are the most efficient way (in both memory and performance) to work with primitive types in aggregate.  Guava provides a variety of utilities to work with these methods.
+# 原生类型数组工具
+原生类型数组是处理原生类型集合的最有效方式（从内存和性能双方面考虑）。Guava 为此提供了许多工具方法。
 
-| Signature                                | Description                              | Collection analogue                      | Availability        |
+| 方法签名                                | 描述                              | 类似方法                      | 可用性        |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :------------------ |
-| `List<Wrapper> asList(prim... backingArray)` | Wraps a primitive array as a `List` of the corresponding wrapper type. | [Arrays.asList](http://docs.oracle.com/javase/6/docs/api/java/util/Arrays.html#asList(T...)) | Sign-independent`*` |
-| `prim[] toArray(Collection<Wrapper> collection)` | Copies a collection into a new `prim[]`.  This method is as thread-safe as `collection.toArray()`. | [Collection.toArray()](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#toArray()) | Sign-independent    |
-| `prim[] concat(prim[]... arrays)`        | Concatenate several primitive arrays.    | [Iterables.concat](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)) | Sign-independent    |
-| `boolean contains(prim[] array, prim target)` | Determines if the specified element is in the specified array. | [Collection.contains](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#contains(java.lang.Object)) | Sign-independent    |
-| `int indexOf(prim[] array, prim target)` | Finds the index of the first appearance of the value `target` in `array`, or returns `-1` if no such value exists. | [List.indexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#indexOf(java.lang.Object)) | Sign-independent    |
-| `int lastIndexOf(prim[] array, prim target)` | Finds the index of the last appearance of the value `target` in `array`, or returns `-1` if no such value exists. | [List.lastIndexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#lastIndexOf(java.lang.Object)) | Sign-independent    |
-| `prim min(prim... array)`                | Returns the minimum _element_ of the array. | [Collections.min](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#min(java.util.Collection)) | Sign-dependent`**`  |
-| `prim max(prim... array)`                | Returns the maximum _element_ of the array. | [Collections.max](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#max(java.util.Collection)) | Sign-dependent      |
-| `String join(String separator, prim... array)` | Constructs a string containing the elements of `array`, separated by `separator`. | [Joiner.on(separator).join](https://github.com/google/guava/wiki/StringsExplained#joiner) | Sign-dependent      |
-| `Comparator<prim[]> lexicographicalComparator()` | A comparator which compares primitive arrays lexicographically. | [Ordering.natural().lexicographical()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Ordering.html#lexicographical()) | Sign-dependent      |
+| `List<Wrapper> asList(prim... backingArray)` | 将原始数组封装为相应包装类型的`List`。 | [Arrays.asList](http://docs.oracle.com/javase/6/docs/api/java/util/Arrays.html#asList(T...)) | 符号无关`*` |
+| `prim[] toArray(Collection<Wrapper> collection)` | 将集合复制到一个新的prim []中。 和`collection.toArray()`一样是线程安全的。 | [Collection.toArray()](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#toArray()) | 符号无关    |
+| `prim[] concat(prim[]... arrays)`        | 串联多个原生类型数组    | [Iterables.concat](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)) | 符号无关    |
+| `boolean contains(prim[] array, prim target)` | 判断原生类型数组是否包含给定值 | [Collection.contains](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#contains(java.lang.Object)) | 符号无关    |
+| `int indexOf(prim[] array, prim target)` | 在`array`中找到值`target`的第一次出现的索引，如果没有这样的值，则返回-1。 | [List.indexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#indexOf(java.lang.Object)) | 符号无关    |
+| `int lastIndexOf(prim[] array, prim target)` | 给定值在数组最后出现的索引，若不包含此值返回-1 | [List.lastIndexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#lastIndexOf(java.lang.Object)) | 符号无关    |
+| `prim min(prim... array)`                | 数组中最小的值 | [Collections.min](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#min(java.util.Collection)) | 符号相关`**`  |
+| `prim max(prim... array)`                | 数组中最大的值 | [Collections.max](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#max(java.util.Collection)) | 符号相关      |
+| `String join(String separator, prim... array)` | 构造一个包含`array`元素的字符串，用`separator`分隔。 | [Joiner.on(separator).join](https://github.com/google/guava/wiki/StringsExplained#joiner) | 符号相关     |
+| `Comparator<prim[]> lexicographicalComparator()` | 按字典序比较原生类型数组的 Comparator  | [Ordering.natural().lexicographical()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Ordering.html#lexicographical()) | 符号相关      |
 
-`*` Sign-independent methods are present in: `Bytes`, `Shorts`, `Ints`, `Longs`, `Floats`, `Doubles`, `Chars`, `Booleans`.  _Not_ `UnsignedInts`, `UnsignedLongs`, `SignedBytes`, or `UnsignedBytes`.
+`*` 符号无关方法存在于： `Bytes`, `Shorts`, `Ints`, `Longs`, `Floats`, `Doubles`, `Chars`, `Booleans`.  而 `UnsignedInts`, `UnsignedLongs`, `SignedBytes`, 或`UnsignedBytes`不存在。
 
-`**` Sign-dependent methods are present in: `SignedBytes`, `UnsignedBytes`, `Shorts`, `Ints`, `Longs`, `Floats`, `Doubles`, `Chars`, `Booleans`, `UnsignedInts`, `UnsignedLongs`.  _Not_ `Bytes`.
+`**` Sign-dependent methods are present in: `SignedBytes`, `UnsignedBytes`, `Shorts`, `Ints`, `Longs`, `Floats`, `Doubles`, `Chars`, `Booleans`, `UnsignedInts`, `UnsignedLongs`.  而 `Bytes`不存在。
 
-# General utility methods
-Guava provides a number of basic utilities which were not part of JDK 6.  Some of these methods, however, are available in JDK 7.
+# 通用工具方法
+Guava提供了一些不属于JDK 6的基本实用程序。然而，这些方法中的一些在JDK 7中可用。
 
-| Signature                        | Description                              | Availability                             |
+| 方法签名                        | 描述                              | 可用性                            |
 | :------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| `int compare(prim a, prim b)`    | A traditional `Comparator.compare` method, but on the primitive types.  _Provided in the JDK wrapper classes as of JDK 7._ | Sign-dependent                           |
-| `prim checkedCast(long value)`   | Casts the specified value to `prim`, _unless_ the specified value does not fit into a `prim`, in which case an `IllegalArgumentException` is thrown. | Sign-dependent for integral types only`*` |
-| `prim saturatedCast(long value)` | Casts the specified value to `prim`, unless the specified value does not fit into a `prim`, in which case the closest `prim` value is used. | Sign-dependent for integral types only   |
+| `int compare(prim a, prim b)`    | 传统的 `Comparator.compare` 方法，但针对原生类型。JDK7 的原生类型包装类也提供这样的方法 | 符号相关                           |
+| `prim checkedCast(long value)`   | 把给定 long 值转为某一原生类型，若给定值不符合该原生类型，则抛出 `IllegalArgumentException` | 仅适用于符号相关的整型`*` |
+| `prim saturatedCast(long value)` | 把给定 long 值转为某一原生类型，若给定值不符合则使用最接近的原生类型值 | 仅适用于符号相关的整型   |
 
 
-`*`Here, integral types include `byte`, `short`, `int`, `long`.  Integral types do _not_ include `char`, `boolean`, `float`, or `double`.
+`*`这里的整型包括  `byte`, `short`, `int`, `long`。不包括 `char`, `boolean`, `float`, 或 `double`.
 
-_Note:_ Rounding from `double` is provided in `com.google.common.math.DoubleMath`, and supports a variety of rounding modes.  See [[the article|MathExplained#floating-point-arithmetic]] for details.
+注：`com.google.common.math.DoubleMath` 提供了舍入 `double` 的方法，支持多种舍入模式。请参阅[[文章| MathExplained＃floating-point-arithmetic]]。
 
 # Byte conversion methods
 Guava provides methods to convert primitive types to and from byte array representations **in big-endian order**.  All methods are sign-independent, except that `Booleans` provides none of these methods.
