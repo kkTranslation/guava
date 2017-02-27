@@ -62,38 +62,39 @@ Guava提供了一些不属于JDK 6的基本实用程序。然而，这些方法�
 
 注：`com.google.common.math.DoubleMath` 提供了舍入 `double` 的方法，支持多种舍入模式。请参阅[[文章| MathExplained＃floating-point-arithmetic]]。
 
-# Byte conversion methods
-Guava provides methods to convert primitive types to and from byte array representations **in big-endian order**.  All methods are sign-independent, except that `Booleans` provides none of these methods.
+# 字节转换方法
+Guava 提供了若干方法，用来把原生类型按**大字节序**与字节数组相互转换。所有这些方法都是符号无关的，此外Booleans 没有提供任何下面的方法。
 
-| Signature                               | Description                              |
+| 方法或字段签名                                | 描述                              |
 | :-------------------------------------- | :--------------------------------------- |
-| `int BYTES`                             | Constant representing the number of bytes needed to represent a `prim` value. |
-| `prim fromByteArray(byte[] bytes)`      | Returns the `prim` value whose big-endian representation is the first `Prims.BYTES` bytes in the array `bytes`.  Throws an `IllegalArgumentException` if `bytes.length <= Prims.BYTES`. |
-| `prim fromBytes(byte b1, ..., byte bk)` | Takes `Prims.BYTES` byte arguments.  Returns the `prim` value whose byte representation is the specified bytes in big-endian order. |
-| `byte[] toByteArray(prim value)`        | Returns an array containing the big-endian byte representation of `value`. |
+| `int BYTES`                             | 常量：表示该原生类型需要的字节数 |
+| `prim fromByteArray(byte[] bytes)`      | 使用字节数组的前 Prims.BYTES 个字节，按大字节序返回原生类型值；如果 `bytes.length <= Prims.BYTES`，抛出IllegalArgumentException  |
+| `prim fromBytes(byte b1, ..., byte bk)` | 接受 `Prims.BYTES` 个字节参数，按大字节序返回原生类型值 |
+| `byte[] toByteArray(prim value)`        | 按大字节序返回 `value `的字节数组 |
 
-# Unsigned support
-The `UnsignedInts` and `UnsignedLongs` utility classes provide some of the generic utilities that Java provides for signed types in their wrapper classes.  `UnsignedInts` and `UnsignedLongs` deal with the primitive type directly: it is up to you to make sure that only unsigned values are passed to these utilities.
+# 无符号支持
+JDK 原生类型包装类提供了针对有符号类型的方法，而 `UnsignedInts` 和 `UnsignedLongs` 工具类提供了相应的无符号通用方法。`UnsignedInts` 和 `UnsignedLongs` 直接处理原生类型：使用时，由你自己保证只传入了无
+符号类型的值。
 
-Additionally, for `int` and `long`, Guava provides "unsigned" wrapper types ([UnsignedInteger](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInteger.html) and [UnsignedLong](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLong.html)) to help you enforce distinctions between unsigned and signed values in the type system, in exchange for a small performance penalty.
+此外，对 int 和 long，Guava 提供了无符号包装类([UnsignedInteger](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInteger.html) 和 [UnsignedLong](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLong.html)) ，来帮助你以极小的性能消耗，对有符号和无符号类型进行强制转换。
 
-## Generic utilities
-These methods' signed analogues are provided in the wrapper classes in the JDK.
+## 无符号通用工具方法
+JDK 的原生类型包装类提供了有符号形式的类似方法。
 
-| Signature | Explanation |
+| 方法签名 | 说明 |
 |:----------|:------------|
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#parseUnsignedInt(java.lang.String)'><code>int UnsignedInts.parseUnsignedInt(String)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#parseUnsignedLong(java.lang.String)'><code>long UnsignedLongs.parseUnsignedLong(String)</code></a> <table><thead><th> Parses an unsigned value from a string in base 10. </th></thead><tbody>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#parseUnsignedInt(java.lang.String, int)'><code>int UnsignedInts.parseUnsignedInt(String string, int radix)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#parseUnsignedLong(java.lang.String)'><code>long UnsignedLongs.parseUnsignedLong(String string, int radix)</code></a> </td><td> Parses an unsigned value from a string in the specified base. </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#toString(int)'><code>String UnsignedInts.toString(int)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#toString(long)'><code>String UnsignedLongs.toString(long)</code></a> </td><td> Returns a string representation of the unsigned value in base 10. </td></tr>
-<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#toString(int, int)'><code>String UnsignedInts.toString(int value, int radix)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#toString(long, int)'><code>String UnsignedLongs.toString(long value, int radix)</code></a> </td><td> Returns a string representation of the unsigned value in the specified base.</td></tr></tbody></table>
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#parseUnsignedInt(java.lang.String)'><code>int UnsignedInts.parseUnsignedInt(String)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#parseUnsignedLong(java.lang.String)'><code>long UnsignedLongs.parseUnsignedLong(String)</code></a> <table><thead><th> 按无符号十进制解析字符串 </th></thead><tbody>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#parseUnsignedInt(java.lang.String, int)'><code>int UnsignedInts.parseUnsignedInt(String string, int radix)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#parseUnsignedLong(java.lang.String)'><code>long UnsignedLongs.parseUnsignedLong(String string, int radix)</code></a> </td><td> 按无符号的特定进制解析字符串 </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#toString(int)'><code>String UnsignedInts.toString(int)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#toString(long)'><code>String UnsignedLongs.toString(long)</code></a> </td><td> 数字按无符号十进制转为字符串 </td></tr>
+<tr><td> <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedInts.html#toString(int, int)'><code>String UnsignedInts.toString(int value, int radix)</code></a><br><a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/primitives/UnsignedLongs.html#toString(long, int)'><code>String UnsignedLongs.toString(long value, int radix)</code></a> </td><td> 数字按无符号特定进制转为字符串</td></tr></tbody></table>
 
-<h2>Wrapper</h2>
-The provided unsigned wrapper types include a number of methods to make their use and conversion easier.<br>
+<h2>无符号包装类</h2>
+无符号包装类包含了若干方法，让使用和转换更容易。<br>
 <br>
-<table><thead><th> Signature </th><th> Explanation </th></thead><tbody>
-<tr><td> <code>UnsignedPrim plus(UnsignedPrim)</code>, <code>minus</code>, <code>times</code>, <code>dividedBy</code>, <code>mod</code> </td><td> Simple arithmetic operations. </td></tr>
-<tr><td> <code>UnsignedPrim valueOf(BigInteger)</code> </td><td> Returns the value from a <code>BigInteger</code> as an <code>UnsignedPrim</code>, or throw an <code>IAE</code> if the specified <code>BigInteger</code> is negative or does not fit. </td></tr>
+<table><thead><th> 方法签名 </th><th> 说明 </th></thead><tbody>
+<tr><td> <code>UnsignedPrim plus(UnsignedPrim)</code>, <code>minus</code>, <code>times</code>, <code>dividedBy</code>, <code>mod</code> </td><td> 简单的算术运算。 </td></tr>
+<tr><td> <code>UnsignedPrim valueOf(BigInteger)</code> </td><td> 按给定 <code>BigInteger</code> 返回无符号对象，若 <code>BigInteger</code>为负或不匹配，抛出 <code>IAE</code> </td></tr>
 <tr><td> <code>UnsignedPrim valueOf(long)</code> </td><td> Returns the value from the <code>long</code> as an <code>UnsignedPrim</code>, or throw an <code>IAE</code> if the specified <code>long</code> is negative or does not fit. </td></tr>
-<tr><td> <code>UnsignedPrim fromPrimBits(prim value)</code> </td><td> View the given value as unsigned.  For example, <code>UnsignedInteger.fromIntBits(1 &lt;&lt; 31)</code> has the value 2<sup>31</sup>, even though <code>1 &lt;&lt; 31</code> is negative as an <code>int</code>. </td></tr>
-<tr><td> <code>BigInteger bigIntegerValue()</code> </td><td> Get the value of this <code>UnsignedPrim</code> as a <code>BigInteger</code>. </td></tr>
-<tr><td> <code>toString()</code>, <code>toString(int radix)</code> </td><td> Returns a string representation of this unsigned value. </td></tr>
+<tr><td> <code>UnsignedPrim fromPrimBits(prim value)</code> </td><td> 将给定值视为无符号。 例如，UnsignedInteger.fromIntBits（1 << 31）的值为 2<sup>31</sup>，即使1 << 31为负数。</td></tr>
+<tr><td> <code>BigInteger bigIntegerValue()</code> </td><td> 将此<code>UnsignedPrim</code>的值作为<code>BigInteger</code>获取。 </td></tr>
+<tr><td> <code>toString()</code>, <code>toString(int radix)</code> </td><td> 返回此无符号值的字符串表示形式。 </td></tr>
