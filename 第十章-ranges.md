@@ -1,6 +1,6 @@
 TODO: lots more examples
 
-# Example
+# 示例
 ```java
 
 List<Double> scores;
@@ -12,10 +12,11 @@ for(int grade : ContiguousSet.create(validGrades, DiscreteDomain.integers())) {
 }
 ```
 
-# Introduction
-A range, sometimes known as an interval, is a convex (informally, "contiguous" or "unbroken") portion of a particular domain. Formally, convexity means that for any `a <= b <= c`, `range.contains(a) && range.contains(c)` implies that `range.contains(b)`.
+# 简介
+区间，有时也称为范围，是特定域中的凸性（非正式说法为连续的或不中断的）部分。在形式上，凸性表示对
+`a<=b<=c`, `range.contains(a) && range.contains(c)`意味着 `range.contains(b)`。
 
-Ranges may "extend to infinity" -- for example, the range "x > 3" contains arbitrarily large values -- or may be finitely constrained, for example "2 <= x < 5".  We will use the more compact notation, familiar to programmers with a math background:
+区间可以延伸至无限——例如，范围”x>3″包括任意大于3的值——也可以被限制为有限，如” 2<=x<5″。Guava 用更紧凑的方法表示范围，有数学背景的程序员对此是耳熟能详的：
 
 * (a..b) = {x | a < x < b}
 * [a..b] = {x | a <= x <= b}
@@ -27,16 +28,16 @@ Ranges may "extend to infinity" -- for example, the range "x > 3" contains arbit
     * (-∞..b] = {x | x <= b}
     * (-∞..+∞) = all values
 
-The values a and b used above are called endpoints.  To improve consistency, Guava's notion of `Range` requires that the upper endpoint may not be less than the lower endpoint. The endpoints may be equal only if at least one of the bounds is closed:
+上面的 a、b 称为端点 。为了提高一致性，Guava 中的 `Range` 要求上端点不能小于下端点。只有当边界中的至少一个被关闭时，端点才可以是相等的：
 
-* [a..a] : singleton range
-* [a..a); (a..a] : empty, but valid
-    * (a..a) : invalid
+* [a..a] : 单元素区间
+* [a..a); (a..a] : 空区间，但它们是有效的
+    * (a..a) : 无效区间
 
-A range in Guava has the type [Range&lt;C&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html).  All ranges are _immutable_.
+Guava 用类型[Range&lt;C&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html)表示区间。所有区间实现都是不可变类型。
 
-# Building Ranges
-Ranges can be obtained from the static methods on [Range](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html):
+# 构建区间
+区间实例可以由 [Range](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html)类的静态方法获取： 
 
 | (a..b)     | [open(C, C)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#open(java.lang.Comparable,java.lang.Comparable)) |
 | :--------- | :--------------------------------------- |
@@ -51,23 +52,23 @@ Ranges can be obtained from the static methods on [Range](http://google.github.i
 
 ```java
 
-Range.closed("left", "right"); // all strings lexographically between "left" and "right" inclusive
-Range.lessThan(4.0); // double values strictly less than 4
+Range.closed("left", "right"); // 字典序在"left"和"right"之间的字符串，闭区间
+Range.lessThan(4.0); // 严格小于4.0的double值
 ```
 
-Additionally, Range instances can be constructed by passing the bound types explicitly:
+另外，Range实例可以通过显式传递绑定类型来构造：
 
-| Bounded on both ends                     | [range(C, BoundType, C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#range(java.lang.Comparable,com.google.common.collect.BoundType,java.lang.Comparable,com.google.common.collect.BoundType)) |
+| 有界区间                     | [range(C, BoundType, C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#range(java.lang.Comparable,com.google.common.collect.BoundType,java.lang.Comparable,com.google.common.collect.BoundType)) |
 | :--------------------------------------- | :--------------------------------------- |
-| Unbounded on top ((a..+∞) or `[`a..+∞))  | [downTo(C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#downTo(java.lang.Comparable,com.google.common.collect.BoundType)) |
-| Unbounded on bottom ((-∞..b) or (-∞..b]) | [upTo(C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upTo(java.lang.Comparable,com.google.common.collect.BoundType)) |
+| 无上界区间： ((a..+∞) 或 `[`a..+∞))  | [downTo(C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#downTo(java.lang.Comparable,com.google.common.collect.BoundType)) |
+| 无下界区间： ((-∞..b) or (-∞..b]) | [upTo(C, BoundType)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upTo(java.lang.Comparable,com.google.common.collect.BoundType)) |
 
-Here, [BoundType](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BoundType.html) is an enum containing the values `CLOSED` and `OPEN`.
+这里的[BoundType](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/BoundType.html) 是一个枚举类型，包含 `CLOSED` 和`OPEN`两个值。
 
 ```java
 
-Range.downTo(4, boundType); // allows you to decide whether or not you want to include 4
-Range.range(1, CLOSED, 4, OPEN); // another way of writing Range.closedOpen(1, 4)
+Range.downTo(4, boundType); // (a..+∞)或[a..+∞)，取决于boundType
+Range.range(1, CLOSED, 4, OPEN); // [1..4)，等同于Range.closedOpen(1, 4)
 ```
 
 # Operations

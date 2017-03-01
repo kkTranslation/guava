@@ -25,7 +25,7 @@
 * [第八章 Networking](第八章-networking.md)
     * [InternetDomainName](internetdomainname.md)
 * [第九章 原生类型](第九章-primitives.md)
-* [第十章 Ranges](第十章-ranges.md)
+* [第十章 区间](第十章-ranges.md)
 * [第十一章 I\/O](第十一章-io.md)
 * [第十二章 Hashing](第十二章-hashing.md)
 * [第十三章 EventBus](第十三章-eventbus.md)
