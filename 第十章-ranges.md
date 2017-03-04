@@ -71,8 +71,8 @@ Range.downTo(4, boundType); // (a..+∞)或[a..+∞)，取决于boundType
 Range.range(1, CLOSED, 4, OPEN); // [1..4)，等同于Range.closedOpen(1, 4)
 ```
 
-# Operations
-The fundamental operation of a `Range` is its [contains(C)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#contains(C)) methods, which behaves exactly as you might expect.  Additionally, a `Range` may be used as a `Predicate`, and used in [[functional idioms|FunctionalExplained]].  Any `Range` also supports `containsAll(Iterable<? extends C>)`.
+# 区间运算
+`Range` 的基本运算是它的 [contains(C)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#contains(C) 方法，和你期望的一样。此外，`Range` 实例也可以当作 Predicate，并且在函数式编程中使用（译者注：见第 4 章）。任何 `Range` 实例也都支持  `containsAll(Iterable<? extends C>)`方法：
 
 ```java
 
@@ -82,13 +82,13 @@ Range.lessThan(5).contains(5); // returns false
 Range.closed(1, 4).containsAll(Ints.asList(1, 2, 3)); // returns true
 ```
 
-## Query Operations
+## 查询运算
 
-To look at the endpoints of a range, `Range` exposes the following methods:
-* [hasLowerBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasLowerBound()) and [hasUpperBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasUpperBound()), which check if the range has the specified endpoints, or goes on "through infinity."
-* [lowerBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerBoundType()) and [upperBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperBoundType()) return the `BoundType` for the corresponding endpoint, which can be either `CLOSED` or `OPEN`.  If this range does not have the specified endpoint, the method throws an `IllegalStateException`.
-    * [lowerEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerEndpoint()) and [upperEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperEndpoint()) return the endpoints on the specified end, or throw an `IllegalStateException` if the range does not have the specified endpoint.
-    * [isEmpty()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#isEmpty()) tests if the range is empty, that is, it has the form `[`a,a) or (a,a`]`.
+`Range` 类提供了以下方法来 查看区间的端点：
+* [hasLowerBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasLowerBound() 和 [hasUpperBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasUpperBound()：判断区间是否有特定边界，或是无限的；
+* [lowerBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerBoundType() 和 [upperBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperBoundType() 返回对应端点的`BoundType`，可以是`CLOSED`或`OPEN`。如果区间没有对应的边界，抛出`IllegalStateException`.
+    * [lowerEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerEndpoint() 和 [upperEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperEndpoint() 返回区间的端点值；如果区间没有对应的边界，抛出 `IllegalStateException`；
+    * [isEmpty()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#isEmpty()) 测试范围是否为空，即，它具有形式 `[`a,a) 或 (a,a`]`.
 
 ```java
 
@@ -103,25 +103,26 @@ Range.closed(3, 10).lowerBoundType(); // returns CLOSED
 Range.open(3, 10).upperBoundType(); // returns OPEN
 ```
 
-## Interval Operations
+## 关系运算
 ### `encloses`
-The most basic relation on ranges is <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#encloses(com.google.common.collect.Range)'><code>encloses(Range)</code></a>, which is true if the bounds of the inner range do not extend outside the bounds of the outer range.  This is solely dependent on comparisons between the endpoints!
+区间之间的最基本关系就是包含 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#encloses(com.google.common.collect.Range)'><code>encloses(Range)</code></a>, 如果内区间的边界没有超出外区间的边界，则外区间包含
+内区间。包含判断的结果完全取决于区间端点的比较！
 
-* [3..6] encloses [4..5]
-* (3..6) encloses (3..6)
-    * [3..6] encloses [4..4) (even though the latter is empty)
-    * (3..6] does not enclose [3..6]
-    * [4..5] does not enclose (3..6) **even though it contains every value contained by the latter range**, although use of discrete domains can address this (see below)
-    * [3..6] does not enclose (1..1] **even though it contains every value contained by the latter range**
+* [3..6] 包含 [4..5]
+* (3..6) 包含 (3..6)
+    * [3..6] 包含 [4..4) (虽然后者是空区间)
+    * (3..6] 不包含 [3..6]
+    * [4..5] 不包含 (3..6) 虽然前者包含了后者的所有值，离散域[discrete domains]可以解决这个问题（见下面）
+    * [3..6] does not enclose (1..1] **虽然前者包含了后者的所有值。**
 
-`encloses` is a [[partial ordering|GuavaTermsExplained#partial-ordering]].
+`encloses` 是一个 [[partial ordering|GuavaTermsExplained#partial-ordering]].
 
-Given this, `Range` provides the following operations:
+鉴于此，`Range`提供以下操作：
 
 ### `isConnected`
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#isConnected(com.google.common.collect.Range)'><code>Range.isConnected(Range)</code></a>, which tests if these ranges are _connected_.  Specifically, `isConnected` tests if there is some range enclosed by both of these ranges, but this is equivalent to the mathematical definition that the union of the ranges must form a connected set (except in the special case of empty ranges).
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#isConnected(com.google.common.collect.Range)'><code>Range.isConnected(Range)</code></a>, 判断区间是否是相连的。具体来说，`isConnected` 测试是否有区间同时包含于这两个区间，这等同于数学上的定义”两个区间的并集是连续集合的形式”（空区间的特殊情况除外）。
 
-`isConnected` is a [[reflexive|GuavaTermsExplained#reflexive]], [[symmetric|GuavaTermsExplained#symmetric]] [[relation|GuavaTermsExplained#relation]].
+`isConnected` 是一个 [[reflexive|GuavaTermsExplained#reflexive]], [[symmetric|GuavaTermsExplained#symmetric]] [[relation|GuavaTermsExplained#relation]].
 
 ```java
 
@@ -133,9 +134,9 @@ Range.closed(1, 5).isConnected(Range.closed(6, 10)); // returns false
 ```
 
 ### `intersection`
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#intersection(com.google.common.collect.Range)'><code>Range.intersection(Range)</code></a> returns the maximal range enclosed by both this range and other (which exists iff these ranges are connected), or if no such range exists, throws an `IllegalArgumentException`.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#intersection(com.google.common.collect.Range)'><code>Range.intersection(Range)</code></a> 返回两个区间的交集：既包含于第一个区间，又包含于另一个区间的最大区间。当且仅当两个区间是相连的，它们才有交集。如果两个区间没有交集，该方法将抛出 `IllegalArgumentException`.
 
-`intersection` is a [[commutative|GuavaTermsExplained#commutative]], [[associative|GuavaTermsExplained#associative]] [[operation|GuavaTermsExplained#binary-operation]].
+`intersection` 是一个[[commutative|GuavaTermsExplained#commutative]], [[associative|GuavaTermsExplained#associative]] [[operation|GuavaTermsExplained#binary-operation]].
 
 ```java
 
@@ -147,7 +148,7 @@ Range.closed(1, 5).intersection(Range.closed(6, 10)); // throws IAE
 ```
 
 ### `span`
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#span(com.google.common.collect.Range)'><code>Range.span(Range)</code></a> returns the minimal range that encloses both this range and other.  If the ranges are both connected, this is their union.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#span(com.google.common.collect.Range)'><code>Range.span(Range)</code></a> 返回”同时包括两个区间的最小区间”，如果两个区间相连，那就是它们的并集。
 
 `span` is a [[commutative|GuavaTermsExplained#commutative]], [[associative|GuavaTermsExplained#associative]], and [[closed|GuavaTermsExplained#closed]] [[operation|GuavaTermsExplained#binary-operation]].
 
@@ -160,21 +161,21 @@ Range.open(3, 5).span(Range.open(5, 10)); // returns (3, 10)
 Range.closed(1, 5).span(Range.closed(6, 10)); // returns [1, 10]
 ```
 
-# Discrete Domains
-Some types, but not all Comparable types, are _discrete_, meaning that ranges bounded on both sides can be enumerated.
+# 离散域
+部分（但不是全部）可比较类型是离散的，即区间的上下边界都是可枚举的。
 
-In Guava, a [DiscreteDomain&lt;C&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html) implements discrete operations for type `C`.  A discrete domain always represents the entire set of values of its type; it cannot represent partial domains such as "prime integers", "strings of length 5," or "timestamps at midnight."
+在 Guava 中，用 [DiscreteDomain&lt;C&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html) 实现类型 C 的离散形式操作。一个离散域总是代表某种类型值的全集；它不能代表类似”素数”、”长度为 5 的字符串”或”午夜的时间戳”这样的局部域。
 
-The [DiscreteDomain](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html) class provides `DiscreteDomain` instances:
+ [DiscreteDomain](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html) 提供的离散域实例包括：
 
-| Type      | DiscreteDomain                           |
+| 类型      | 离散域                          |
 | :-------- | :--------------------------------------- |
 | `Integer` | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html#integers()'><code>integers()</code></a> |
 | `Long`    | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/DiscreteDomain.html#longs()'><code>longs()</code></a> |
 
-Once you have a `DiscreteDomain`, you can use the following `Range` operations:
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ContiguousSet.html#create(com.google.common.collect.Range, com.google.common.collect.DiscreteDomain)'><code>ContiguousSet.create(range, domain)</code></a>: view a `Range<C>` as an `ImmutableSortedSet<C>`, with a few extra operations thrown in.  (Does not work for unbounded ranges, unless the type itself is bounded.)
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#canonical(com.google.common.collect.DiscreteDomain)'><code>canonical(domain)</code></a>: put ranges in a "canonical form."  If `ContiguousSet.create(a, domain).equals(ContiguousSet.create(b, domain))` and `!a.isEmpty()`, then `a.canonical(domain).equals(b.canonical(domain))`.  (This does _not_, however, imply `a.equals(b)`.)
+一旦获取了 `DiscreteDomain` 实例，你就可以使用下面的 `Range`运算方法：
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/ContiguousSet.html#create(com.google.common.collect.Range, com.google.common.collect.DiscreteDomain)'><code>ContiguousSet.create(range, domain)</code></a>: 将范围<C>视为`ImmutableSortedSet `<C>，抛出一些额外的操作。（对于无界范围不起作用，除非类型本身是有界的。）
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#canonical(com.google.common.collect.DiscreteDomain)'><code>canonical(domain)</code></a>: 将范围设置为“规范形式”，如果`ContiguousSet.create(a, domain).equals(ContiguousSet.create(b, domain))` 和`!a.isEmpty()`, 则有 `a.canonical(domain).equals(b.canonical(domain))`.  (这并不意味着 `a.equals(b)`.)
 
 ```java
 ImmutableSortedSet<Integer> set = ContiguousSet.create(Range.open(1, 5), DiscreteDomain.integers());
@@ -183,19 +184,18 @@ ImmutableSortedSet<Integer> set = ContiguousSet.create(Range.open(1, 5), Discret
 ContiguousSet.create(Range.greaterThan(0), DiscreteDomain.integers());
 // set contains [1, 2, ..., Integer.MAX_VALUE]
 ```
-Note that `ContiguousSet.create` does not _actually_ construct the entire range, but instead returns a view of the range as a set.
+注意， `ContiguousSet.create`  并没有真的构造了整个集合，而是返回了 set 形式的区间视图。
+## 你自己的离散域
 
-## Your Own DiscreteDomains
+你可以创建自己的离散域，但必须记住 `DiscreteDomain `契约的几个重要方面。
 
-You can make your own `DiscreteDomain` objects, but there are several important aspects of the `DiscreteDomain` contract that you _must_ remember.
+* 一个离散域总是代表某种类型值的全集；它不能代表类似”素数”或”长度为 5 的字符串”这样的局部域。所以举例来说，你无法构造一个 DiscreteDomain 以表示精确到秒的 JODA DateTime 日期集合：因为那将无法包含 JODA DateTime 的所有值。
+* A `DiscreteDomain` 可能是无限的——比如 BigInteger DiscreteDomain。这种情况下，你应当用 `minValue()`和 `maxValue()`的默认实现，它们会抛出 NoSuchElementException。但 Guava 禁止把无限区间传入`ContiguousSet.create`——译者注：那明显得不到一个可枚举的集合。
 
-* A discrete domain always represents the entire set of values of its type; it cannot represent partial domains such as "prime integers" or "strings of length 5."  So you cannot, for example, construct a `DiscreteDomain` to view a set of days in a range, with a JODA `DateTime` that includes times up to the second: because this would not contain all elements of the type.
-* A `DiscreteDomain` may be infinite -- a `BigInteger` `DiscreteDomain`, for example.  In this case, you should use the default implementation of `minValue()` and `maxValue()`, which throw a `NoSuchElementException`.  This forbids you from using the `ContiguousSet.create` method on an infinite range, however!
+# 如果我需要一个`Comparator`?
+我们想要在 `Range `的可用性与 API 复杂性之间找到特定的平衡，这部分导致了我们没有提供基于 `Comparator`的接口：我们不需要操心区间是怎样基于不同 `Comparator `互动的；所有 API 签名都是简单明确的；这样更好。
 
-# What if I need a `Comparator`?
-We wanted to strike a very specific balance in `Range` between power and API complexity, and part of that involved not providing a `Comparator`-based interface: we don't need to worry about how ranges based on different comparators interact; the API signatures are all significantly simplified; things are just nicer.
+另一方面，如果你需要任意 `Comparator`，可以按下列其中一项来做：
 
-On the other hand, if you think you want an arbitrary `Comparator`, you can do one of the following:
-
-* Use a general `Predicate` and not `Range`.  (Since `Range` implements the `Predicate` interface, you can use `Predicates.compose(range, function)` to get a `Predicate`.)
-* Use a wrapper class around your objects that defines the desired ordering.
+* 使用通用的 `Predicate` 接口，而不是 `Range` 类。（`Range` 现了 `Predicate` 接口，因此可以用`Predicates.compose(range, function)`获取 `Predicate` 实例）
+* 使用包装类以定义期望的排序。
