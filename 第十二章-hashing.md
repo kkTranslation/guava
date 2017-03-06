@@ -1,13 +1,12 @@
-# Overview
+# 概述
 
-Java's baked-in concept of hash codes is constrained to 32 bits, and provides no separation between hash algorithms and the data they act on, so alternate hash algorithms can't be easily substituted. Also, implementations of hashCode tend to be poor-quality, in part because they end up depending on other existing poor-quality hashCode implementations, including those in many JDK classes.
+Java 内建的散列码[hash code]概念被限制为 32 位，并且没有分离散列算法和它们所作用的数据，因此很难用备选算法进行替换。此外，使用 Java 内建方法实现的散列码通常是劣质的，部分是因为它们最终都依赖于 JDK类中已有的劣质散列码。
 
-Object.hashCode implementations tend to be very fast, but have weak collision prevention and no expectation of bit dispersion. This leaves them perfectly suitable for use in hash tables, because extra collisions cause only a slight performance hit, while poor bit dispersion is easily corrected using a secondary hash function (which all reasonable hash table implementations in Java use). For the many uses of hash functions beyond simple hash tables, however, Object.hashCode almost always falls short -- hence, [com.google.common.hash](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/package-summary.html).
+`Object.hashCode` 往往很快，但是在预防碰撞上却很弱，也没有对分散性的预期。这使得它们很适合在散列表中运用，因为额外碰撞只会带来轻微的性能损失，同时差劲的分散性也可以容易地通过再散列来纠正（Java 中所有合理的散列表都用了再散列方法）。然而，在简单散列表以外的散列运用中，`Object.hashCode` 几乎总是达不到要求——因此，有了[com.google.common.hash](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/package-summary.html)包。
 
-# Organization
-Looking at the package Javadoc, we see a lot of different types, but it's not obvious how they fit together.
-
-Let's look at a sample piece of code using this library.
+# 散列包的组成
+在这个包的 Java doc 中，我们可以看到很多不同的类，但是文档中没有明显地表明它们是怎样 一起配合工作
+的。在介绍散列包中的类之前，让我们先来看下面这段代码范例：
 ```java
 
 HashFunction hf = Hashing.md5();
@@ -19,14 +18,14 @@ HashCode hc = hf.newHasher()
 ```
 
 ### HashFunction
-[HashFunction](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashFunction.html) is a pure (referentially transparent), stateless function that maps an arbitrary block of data to a fixed number of bits, with the property that equal inputs always yield equal outputs, and unequal inputs yield unequal outputs as often as possible.
+[HashFunction](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashFunction.html) 是一个单纯的（引用透明的）、无状态的方法，它把任意的数据块映射到固定数目的位指，并且保证相同的输入一定产生相同的输出，不同的输入尽可能产生不同的输出。
 ### Hasher
-A `HashFunction` can be asked for a stateful [Hasher](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hasher.html), which provides fluent syntax to add data to the hash and then retrieve the hash value.  A `Hasher` can accept any primitive input, byte arrays, slices of byte arrays, character sequences, character sequences in some charset, and so on, or any other `Object`, provided with an appropriate `Funnel`.
+`HashFunction` 的实例可以提供有状态的 [Hasher](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hasher.html)，`Hasher` 提供了流畅的语法把数据添加到散列运算，然后获取散列值。`Hasher` 可以接受所有原生类型、字节数组、字节数组的片段、字符序列、特定字符集的字符序列等等，或者任何给定了 `Funnel` 实现的对象。
 
-`Hasher` implements the `PrimitiveSink` interface, which specifies a fluent API for an object that accepts a stream of primitive values.
+`Hasher` 实现了 `PrimitiveSink` 接口，这个接口为接受原生类型流的对象定义了 `fluent` 风格的 API
 
 ### Funnel
-A [Funnel](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Funnel.html) describes how to decompose a particular object type into primitive field values.  For example, if we had
+[Funnel](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Funnel.html) 描述了如何把一个具体的对象类型分解为原生字段值，从而写入 `PrimitiveSink`。比如，如果我们有这样一个类：
 ```java
 
 class Person {
@@ -36,7 +35,7 @@ class Person {
   final int birthYear;
 }
 ```
-our `Funnel` might look like
+它对应的 `Funnel` 实现可能是：
 ```java
 Funnel<Person> personFunnel = new Funnel<Person>() {
   @Override
@@ -50,14 +49,15 @@ Funnel<Person> personFunnel = new Funnel<Person>() {
 };
 ```
 
-_Note:_ `putString("abc", Charsets.UTF_8).putString("def", Charsets.UTF_8)` is fully equivalent to `putString("ab", Charsets.UTF_8).putString("cdef", Charsets.UTF_8)`, because they produce the same byte sequence.  This can cause unintended hash collisions.  Adding separators of some kind can help eliminate unintended hash collisions.
+注：`putString(“abc”, Charsets.UTF_8).putString(“def”, Charsets.UTF_8)`完全等同于 `putString(“ab”, Charsets.UTF_8).putString(“cdef”, Charsets.UTF_8)`，因为它们提供了相同的字节序列。这可能带来预料之外的散列冲突。增加某种形式的分隔符有助于消除散列冲突。
 ### HashCode
-Once a `Hasher` has been given all its input, its <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hasher.html#hash()'><code>hash()</code></a> method can be used to retrieve a [HashCode](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html).  (The behavior of `hash()` is unspecified if called more than once.)  `HashCode` supports equality testing and such, as well as <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asInt()'><code>asInt()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asLong()'><code>asLong()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asBytes()'><code>asBytes()</code></a> methods, and additionally, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#writeBytesTo(byte[], int, int)'><code>writeBytesTo(array, offset, maxLength)</code></a>, which writes the first `maxLength` bytes of the hash into the array.
+一旦 `Hasher` 被赋予了所有输入，就可以通过 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hasher.html#hash()'><code>hash()</code></a> 方法获取 [HashCode](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html)实例（多次调用 `hash()`方法的结果是不确定的）。`HashCode` 可以通过<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asInt()'><code>asInt()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asLong()'><code>asLong()</code></a>, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#asBytes()'><code>asBytes()</code></a> 方法来做相等性检测，此外， <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/HashCode.html#writeBytesTo(byte[], int, int)'><code>writeBytesTo(array, offset, maxLength)</code></a>把散列值的前 `maxLength`字节写入字节数组。
 
-## BloomFilter
-Bloom filters are a lovely application of hashing that cannot be done simply using `Object.hashCode()`.  Briefly, Bloom filters are a probabilistic data structure, allowing you to test if an object is _definitely_ not in the filter, or was _probably_ added to the Bloom filter.  The [Wikipedia page](http://en.wikipedia.org/wiki/Bloom_filter) is fairly comprehensive, and we recommend [this tutorial](http://llimllib.github.com/bloomfilter-tutorial/).
+## 布鲁姆过滤器 BloomFilter
+布鲁姆过滤器是哈希运算的一项优雅运用，它可以简单地基于 `Object.hashCode()`实现。简而言之，布鲁姆过滤
+器是一种概率数据结构，它允许你检测某个对象是一定不在过滤器中，还是可能已经添加到过滤器了。 [布鲁姆过滤器的维基页面](http://en.wikipedia.org/wiki/Bloom_filter) 对此作了全面的介绍，同时我们推荐 github 中的一个 [教程](http://llimllib.github.com/bloomfilter-tutorial/).
 
-Our hashing library has a built-in Bloom filter implementation, which requires only that you implement a `Funnel` to decompose your type into primitive types.  You can obtain a fresh [BloomFilter&lt;T&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html) with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#create(com.google.common.hash.Funnel, int, double)'><code>create(Funnel funnel, int expectedInsertions, double falsePositiveProbability)</code></a>, or just accept the default false probability of 3%.  `BloomFilter<T>` offers the methods <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#mightContain(T)'><code>boolean mightContain(T)</code></a> and <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#put(T)'><code>void put(T)</code></a>, which are self-explanatory enough.
+Guava 散列包有一个内建的布鲁姆过滤器实现，你只要提供 Funnel 就可以使用它。你可以使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#create(com.google.common.hash.Funnel, int, double)'><code>create(Funnel funnel, int expectedInsertions, double falsePositiveProbability)</code></a>方法获取[BloomFilter&lt;T&gt;](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html), 或者只接受默认的3％的概率。`BloomFilter<T>` 提供了 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#mightContain(T)'><code>boolean mightContain(T)</code></a> 和 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html#put(T)'><code>void put(T)</code></a>, 它们的含义都不言自明了。
 
 ```java
 BloomFilter<Person> friends = BloomFilter.create(personFunnel, 500, 0.01);
@@ -66,22 +66,25 @@ for(Person friend : friendsList) {
 }
 // much later
 if (friends.mightContain(dude)) {
-  // the probability that dude reached this place if he isn't a friend is 1%
-  // we might, for example, start asynchronously loading things for dude while we do a more expensive exact check
+  //dude不是friend还运行到这里的概率为1%
+//在这儿，我们可以在做进一步精确检查的同时触发一些异步加载
 }
 ```
 
 # `Hashing`
-The `Hashing` utility class provides a number of stock hash functions and utilities to operate on `HashCode` objects.
+`Hashing` 类提供了若干散列函数，以及运算 `HashCode` 对象的工具方法。
 
-## Provided Hash Functions
+## 已提供的散列函数
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#md5()'><code>md5()</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#murmur3_128()'><code>murmur3_128()</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#murmur3_32()'><code>murmur3_32()</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#sha1()'><code>sha1()</code></a> |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#sha256()'><code>sha256()</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#sha512()'><code>sha512()</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#goodFastHash(int)'><code>goodFastHash(int bits)</code></a> |                                          |
 
-## `HashCode` Operations
-| Method                                   | Description                              |
+## `HashCode`  运算
+| 方法                                   | 描述                              |
 | :--------------------------------------- | :--------------------------------------- |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#combineOrdered(java.lang.Iterable)'><code>HashCode combineOrdered(Iterable&lt;HashCode&gt;)</code></a> | Combines hash codes in an ordered fashion, so that if two hashes obtained from this method are the same, then it is likely that each was computed from the same hashes in the same order. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#combineUnordered(java.lang.Iterable)'><code>HashCode combineUnordered(Iterable&lt;HashCode&gt;)</code></a> | Combines hash codes in an unordered fashion, so that if two hashes obtained from this method are the same, then it is likely that each was computed from the same hashes in some order. |
-| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#consistentHash(com.google.common.hash.HashCode, int)'><code>int consistentHash(HashCode, int buckets)</code></a> | Assigns the hash code a consistent "bucket" which minimizes the need for remapping as the number of buckets grows. See <a href='http://en.wikipedia.org/wiki/Consistent_hashing'>Wikipedia</a> for details. |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#combineOrdered(java.lang.Iterable)'><code>HashCode combineOrdered(Iterable&lt;HashCode&gt;)</code></a> | 以有序方式联接散列码，如果两个散列集合用该方法联接出的散列码相
+同，那么散列集合的元素可能是顺序相等的 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#combineUnordered(java.lang.Iterable)'><code>HashCode combineUnordered(Iterable&lt;HashCode&gt;)</code></a> | 以无序方式联接散列码，如果两个散列集合用该方法联接出的散列码相
+同，那么散列集合的元素可能在某种排序下是相等的 |
+| <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/hash/Hashing.html#consistentHash(com.google.common.hash.HashCode, int)'><code>int consistentHash(HashCode, int buckets)</code></a> | 为给定的”桶”大小返回一致性哈希值。当”桶”增长时，该方法保证
+最小程度的一致性哈希值变化。详见 <a href='http://en.wikipedia.org/wiki/Consistent_hashing'>Wikipedia</a>  |
