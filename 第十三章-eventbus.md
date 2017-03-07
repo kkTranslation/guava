@@ -1,11 +1,12 @@
-`EventBus` allows publish-subscribe-style communication between components without requiring the components to explicitly register with one another (and thus be aware of each other).  It is designed exclusively to replace traditional Java in-process event distribution using explicit registration. It is _not_ a general-purpose publish-subscribe system, nor is it intended for interprocess communication.
+`EventBus` 允许组件之间发布 - 订阅式通信，而不需要组件彼此之间显式地注册（并且因此意识到彼此）。 它专门用于使用显式注册来代替传统的Java进程内事件分发。 它不是通用型的发布-订阅实现，不适用于进程间通信。
 
-# Example
+# 范例
 ```java
 
-// Class is typically registered by the container.
+// Class通常由容器注册。
 class EventBusChangeRecorder {
-  @Subscribe public void recordCustomerChange(ChangeEvent e) {
+  @Subscribe 
+  public void recordCustomerChange(ChangeEvent e) {
     recordChange(e.getChange());
   }
 }
@@ -19,43 +20,43 @@ public void changeCustomer() {
 ```
 
 
-# One-Minute Guide
+# 一分钟指南
 
-Converting an existing `EventListener`-based system to use the `EventBus` is easy.
+将现有的基于`EventListener`的系统转换为使用`EventBus`很容易。
 
-## For Listeners
+## 事件监听者[Listeners]
 
-To listen for a specific flavor of event (say, a `CustomerChangeEvent`)...
+监听特定事件：(如， `CustomerChangeEvent`)...
 
-* **...in traditional Java events:** implement an interface defined with the event -- such as `CustomerChangeEventListener`.
-* **...with `EventBus`:** create a method that accepts `CustomerChangeEvent` as its sole argument, and mark it with the [`@Subscribe`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/Subscribe.html) annotation.
+* **...在传统的Java事件中:** 定义相应的事件监听者类，如 `CustomerChangeEventListener`.
+* **...`EventBus` 实现:** 以`CustomerChangeEvent` 为唯一参数创建方法，并用 [`@Subscribe`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/Subscribe.html) 注解标记。
 
-To register your listener methods with the event producers...
+把事件监听者注册到事件生产者：
 
-* **...in traditional Java events:** pass your object to each producer's `registerCustomerChangeEventListener` method.  These methods are rarely defined in common interfaces, so in addition to knowing every possible producer, you must also know its type.
-* **...with `EventBus`:** pass your object to the [`EventBus.register(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#register(java.lang.Object)) method on an `EventBus`.  You'll need to make sure that your object shares an `EventBus` instance with the event producers.
+* **...在传统的Java事件中:** 调用事件生产者的 `registerCustomerChangeEventListener` 方法；这些方法很少定义在公共接口中，因此开发者必须知道所有事件生产者的类型，才能正确地注册监听者；
+* **...`EventBus`实现:** 在 `EventBus` 实例上调用 [`EventBus.register(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#register(java.lang.Object) 方法；请保证事件生产者和监听者共享相同的 `EventBus`实例。
 
-To listen for a common event supertype (such as `EventObject` or `Object`)...
+按事件超类监听 (如，`EventObject` 或 `Object`)...
 
-* **...in traditional Java events:** not easy.
-* **...with `EventBus`:** events are automatically dispatched to listeners of any supertype, allowing listeners for interface types or "wildcard listeners" for `Object`.
+* **...在传统的Java事件中:** 很困难，需要开发者自己去实现匹配逻辑；
+* **...`EventBus`实现:** EventBus 自动把事件分发给事件超类的监听者，并且允许监听者声明监听接口类型和泛型的通配符类型
 
-To listen for and detect events that were dispatched without listeners...
+检测没有监听者的事件：
 
-* **...in traditional Java events:** add code to each event-dispatching method (perhaps using AOP).
-* **...with `EventBus`:** subscribe to [`DeadEvent`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/DeadEvent.html).  The `EventBus` will notify you of any events that were posted but not delivered.  (Handy for debugging.)
+* **...在传统的Java事件中:** 在每个事件分发方法中添加逻辑代码（也可能适用 AOP）；
+* **...`EventBus`实现:** 监听 [`DeadEvent`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/DeadEvent.html)；`EventBus` 会把所有发布后没有监听者处理的事件包装为`DeadEvent`（对调试很便利）。
 
-## For Producers
-To keep track of listeners to your events...
+## 事件生产者[Producers]
+管理和追踪监听者：
 
-* **...in traditional Java events:** write code to manage a list of listeners to your object, including synchronization, or use a utility class like `EventListenerList`.
-* **...with `EventBus`:** `EventBus` does this for you.
+* **...在传统的Java事件中:** 列表管理监听者，还要考虑线程同步；或者使用工具类，如`EventListenerList`；`EventBus`实现：EventBus 内部已经实现了监听者管理。
+* **...`EventBus`实现:** `EventBus` 为你做这个。
 
 
-To dispatch an event to listeners...
+向监听者分发事件：
 
-* **...in traditional Java events:** write a method to dispatch events to each event listener, including error isolation and (if desired) asynchronicity.
-* **...with `EventBus`:** pass the event object to an `EventBus`'s [`EventBus.post(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#post(java.lang.Object)) method.
+* **...在传统的Java事件中:** 编写一个方法来将事件分派给每个事件监听器，包括事件类型匹配、异常处理、异步分发
+* **...`EventBus`实现:** 把事件传递给 [`EventBus.post(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#post(java.lang.Object) 方法。异步分发可以直接用 `EventBus` 的子类 `AsyncEventBus`。
 
 
 # Glossary

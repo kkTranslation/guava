@@ -28,7 +28,7 @@
 * [第十章 区间](第十章-ranges.md)
 * [第十一章 I\/O](第十一章-io.md)
 * [第十二章 散列](第十二章-hashing.md)
-* [第十三章 EventBus](第十三章-eventbus.md)
+* [第十三章 事件总线](第十三章-eventbus.md)
     * [Math](math.md)
     * [Reflection](reflection.md)
 * [附：版本清单](附：版本清单.md)
