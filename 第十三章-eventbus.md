@@ -34,7 +34,7 @@ public void changeCustomer() {
 把事件监听者注册到事件生产者：
 
 * **...在传统的Java事件中:** 调用事件生产者的 `registerCustomerChangeEventListener` 方法；这些方法很少定义在公共接口中，因此开发者必须知道所有事件生产者的类型，才能正确地注册监听者；
-* **...`EventBus`实现:** 在 `EventBus` 实例上调用 [`EventBus.register(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#register(java.lang.Object) 方法；请保证事件生产者和监听者共享相同的 `EventBus`实例。
+* **...`EventBus`实现:** 在 `EventBus` 实例上调用 [`EventBus.register(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#register(java.lang.Object)) 方法；请保证事件生产者和监听者共享相同的 `EventBus`实例。
 
 按事件超类监听 (如，`EventObject` 或 `Object`)...
 
@@ -56,49 +56,51 @@ public void changeCustomer() {
 向监听者分发事件：
 
 * **...在传统的Java事件中:** 编写一个方法来将事件分派给每个事件监听器，包括事件类型匹配、异常处理、异步分发
-* **...`EventBus`实现:** 把事件传递给 [`EventBus.post(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#post(java.lang.Object) 方法。异步分发可以直接用 `EventBus` 的子类 `AsyncEventBus`。
+* **...`EventBus`实现:** 把事件传递给 [`EventBus.post(Object)`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/EventBus.html#post(java.lang.Object)) 方法。异步分发可以直接用 `EventBus` 的子类 `AsyncEventBus`。
 
 
-# Glossary
+# 术语表
 
-The `EventBus` system and code use the following terms to discuss event distribution:
+`EventBus`系统和代码使用以下术语来讨论事件分发：
 
-| Event            | Any object that may be <em>posted</em> to a bus. |
+| 事件            | 可以向事件总线发布的对象 |
 | :--------------- | :--------------------------------------- |
-| Subscribing      | The act of registering a <em>listener</em> with an `EventBus`, so that its <em>handler methods</em> will receive events. |
-| Listener         | An object that wishes to receive events, by exposing <em>handler methods</em>. |
-| Handler method   | A public method that the `EventBus` should use to deliver <em>posted</em> events.  Handler methods are marked by the [`@Subscribe`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/Subscribe.html "annotation in com.google.common.eventbus") annotation. |
-| Posting an event | Making the event available to any <em>listeners</em> through the `EventBus`. |
+| 订阅      | 向事件总线注册<em>监听者</em>以接受事件的行为 |
+| 监听者         | 提供一个<em>处理方法</em>，希望接受和处理事件的对象 |
+| 处理方法   | 监听者提供的公共方法，事件总线使用该方法向监听者发送事件；该方法应该用[`@Subscribe`](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/eventbus/Subscribe.html "annotation in com.google.common.eventbus") 注解 |
+| 发布消息 | 通过事件总线向所有匹配的<em>监听者</em>提供事件 |
 
-# FAQ
-### Why must I create my own Event Bus, rather than using a singleton?
-`EventBus` doesn't specify how you use it; there's nothing stopping your application from having separate `EventBus` instances for each component, or using separate instances to separate events by context or topic.  This also makes it trivial to set up and tear down `EventBus` objects in your tests.
+# 常见问题解答[FAQ]
+### 为什么一定要创建 EventBus 实例，而不是使用单例模式？
+`EventBus`没有指定如何使用它; 你可以在应用程序中按照不同的组件、上下文或业务主题分别使用不同的事件总线。这也使得在测试中设置和拆除`EventBus`对象变得很简单。
 
-Of course, if you'd like to have a process-wide `EventBus` singleton, there's nothing stopping you from doing it that way.  Simply have your container (such as Guice) create the `EventBus` as a singleton at global scope (or stash it in a static field, if you're into that sort of thing).
+当然，如果你想在进程范围内使用唯一的事件总线，你也可以自己这么做。比如在容器中声明 `EventBus` 为全局单例，或者用一个静态字段存放 `EventBus`，如果你喜欢的话。
 
-In short, `EventBus` is not a singleton because we'd rather not make that decision for you.  Use it how you like.
+简而言之，`EventBus` 不是单例模式，是因为我们不想为你做这个决定。你喜欢怎么用就怎么用吧。
 
-### Can I unregister a listener from the Event Bus?
-Yes, using `EventBus.unregister`, but we find this is needed only rarely:
+### 我可以从事件总线中注销监听者吗？
+是的，使用`EventBus.unregister`，但我们发现这只是很少需要：
 
-* Most listeners are registered on startup or lazy initialization, and persist for the life of the application.
-* Scope-specific `EventBus` instances can handle temporary event distribution (e.g. distributing events among request-scoped objects)
-    * For testing, `EventBus` instances can be easily created and thrown away, removing the need for explicit unregistration.
+* 大多数监听者都是在启动或者模块懒加载时注册的，并且在应用程序的整个生命周期都存在；
+* 范围特定的EventBus实例可以处理临时事件分发（例如，在请求范围[request-scoped]内的对象之间分发事件）
+    * 对于测试，`EventBus`实例可以很容易地创建和抛弃，消除了显式注销的需要。
 
-### Why use an annotation to mark handler methods, rather than requiring the listener to implement an interface?
+### 为什么使用注解标记处理方法，而不是要求监听者实现接口？
 
-We feel that the Event Bus's `@Subscribe` annotation conveys your intentions just as explicitly as implementing an interface (or perhaps more so), while leaving you free to place event handler methods wherever you wish and give them intention-revealing names.
+我们觉得`@Subscribe` 注解和实现接口一样传达了明确的语义，甚至可能更好。同时，使用注解也允许你把处理方法放到任何地方，和使用业务意图清晰的方法命名。
 
-Traditional Java Events use a listener interface which typically sports only a handful of methods -- typically one.  This has a number of disadvantages:
+传统的 Java 实现中，监听者使用方法很少的接口——通常只有一个方法。这样做有一些缺点:
 
-* Any one class can only implement a single response to a given event.
-* Listener interface methods may conflict.
-    * The method must be named after the event (e.g. `handleChangeEvent`), rather than its purpose (e.g. `recordChangeInJournal`).
-    * Each event usually has its own interface, without a common parent interface for a family of events (e.g. all UI events).
+* 监听者类对给定事件类型，只能有单一处理逻辑；
+* 监听器接口方法可能会发生冲突。
+    * 方法命名只和事件相关（`handleChangeEvent`），不能表达意图（例如 `recordChangeInJournal`）；
+    * 事件通常有自己的接口，而没有按类型定义的公共父接口（如所有的UI事件接口）。
 
-The difficulties in implementing this cleanly has given rise to a pattern, particularly common in Swing apps, of using tiny anonymous classes to implement event listener interfaces.
+接口实现监听者的方式很难做到简洁，这甚至引出了一个模式，尤其是在 Swing 应用中，那就是用匿名类实现事
+件监听者的接口。
 
-Compare these two cases:
+比较以下两种实现：
+
 ```java
 
    class ChangeRecorder {
@@ -111,10 +113,10 @@ Compare these two cases:
      }
    }
 ```
-versus
+与
 ```java
 
-   // Class is typically registered by the container.
+   // 这个监听者类通常由容器注册给事件总线
    class EventBusChangeRecorder {
      @Subscribe public void recordCustomerChange(ChangeEvent e) {
        recordChange(e.getChange());
@@ -122,59 +124,58 @@ versus
    }
 ```
 
-> The intent is actually clearer in the second case: there's less noise code, and the event handler has a clear and meaningful name.
+> 第二种实现的业务意图明显更加清晰：没有多余的代码，并且处理方法的名字是清晰和有意义的。
 
-### What about a generic `Handler<T>` interface?
-> Some have proposed a generic `Handler<T>` interface for `EventBus` listeners.  This runs into issues with Java's use of type erasure, not to mention problems in usability.
+### 通用的监听者接口 `Handler<T>` 怎么样？
+> 一些人为`EventBus`监听器提出了一个通用的`Handler <T>`接口。 这遇到了Java使用类型擦除的问题，更不用说可用性的问题。
 
-Let's say the interface looked something like the following:
+假设我们有如下这个接口：
 ```java
 interface Handler<T> {
   void handleEvent(T event);
 }
 ```
 
-> Due to erasure, no single class can implement a generic interface more than once with different type parameters.  This is a giant step backwards from traditional Java Events, where even if `actionPerformed` and `keyPressed` aren't very meaningful names, at least you can implement both methods!
+> 由于擦除，没有单个类可以多次使用不同类型参数实现通用接口。 这是传统Java事件的一个巨大的倒退，即使`actionPerformed`和`keyPressed`不是非常有意义的名称，至少你可以实现这两种方法！
 
-### Doesn't `EventBus` destroy static typing and eliminate automated refactoring support?
-Some have freaked out about `EventBus`'s `register(Object)` and `post(Object)` methods' use of the `Object` type.
+### `EventBus`不会破坏静态类型并消除自动重构支持吗？
+有些人被 EventBus 的 `register(Object)` 和 `post(Object)` 方法直接使用 `Object` 做参数吓坏了。
 
-`Object` is used here for a good reason: the Event Bus library places no restrictions on the types of either your event listeners (as in `register(Object)`) or the events themselves (in `post(Object)`).
+这里使用 `Object` 参数有一个很好的理由：`EventBus` 对事件监听者类型(如在 `register(Object)`)和事件本身的类型 (在`post(Object)`)都不作任何限制。
 
-Event handler methods, on the other hand, must explicitly declare their argument type -- the type of event desired (or one of its supertypes).  Thus, searching for references to an event class will instantly find all handler methods for that event, and renaming the type will affect all handler methods within view of your IDE (and any code that creates the event).
+另一方面，处理方法必须要明确地声明参数类型——期望的事件类型（或事件的父类型）。因此，搜索一个事件的类型引用，可以马上找到针对该事件的处理方法，对事件类型的重命名也会在 IDE （以及创建事件的任何代码）中自动更新所有的处理方法。
 
-It's true that you can rename your `@Subscribed` event handler methods at will; Event Bus will not stop this or do anything to propagate the rename because, to Event Bus, the names of your handler methods are irrelevant.  Test code that calls the methods directly, of course, will be affected by your renaming -- but that's what your refactoring tools are for.  We see this as a feature, not a bug: being able to rename your handler methods at will lets you make their meaning clearer.
+在 EventBus 的架构下，你可以任意重命名`@Subscribe` 注解的处理方法，并且这类重命名不会被传播（即不会引起其他类的修改），因为对 EventBus 来说，处理方法的名字是无关紧要的。如果测试代码中直接调用了处理方法，那么当然，重命名处理方法会引起测试代码的变动，但使用 EventBus 触发处理方法的代码就不会发生变
+更。我们认为这是 EventBus 的特性，而不是漏洞：能够任意重命名处理方法，可以让你的处理方法命名更清晰。
 
-### What happens if I `register` a listener without any handler methods?
-Nothing at all.
+### 如果我注册了一个没有任何处理方法的监听者，会发生什么？
+什么也不会发生。
 
-The Event Bus was designed to integrate with containers and module systems, with Guice as the prototypical example.  In these cases, it's convenient to have the container/factory/environment pass _every_ created object to an `EventBus`'s `register(Object)` method.
+`EventBus` 旨在与容器和模块系统整合，Guice 就是个典型的例子。在这种情况下，可以方便地让容器/工厂/运行环境传递任意创建好的对象给 `EventBus` 的 `register(Object)`方法。
 
-This way, any object created by the container/factory/environment can hook into the system's event model simply by exposing handler methods.
+这样，任何容器/工厂/运行环境创建的对象都可以简便地通过暴露处理方法挂载到系统的事件模块。
+### 编译时能检测到 EventBus 的哪些问题？
+Java 类型系统可以明白地检测到的任何问题。比如，为一个不存在的事件类型定义处理方法。
 
-### What Event Bus problems can be detected at compile time?
-Any problem that can be unambiguously detected by Java's type system.  For example, defining a handler method for a nonexistent event type.
+### 运行时往 EventBus 注册监听者，可以立即检测到哪些问题？
+一旦调用了 `register(Object)` 方法，`EventBus` 就会检查监听者中的处理方法是否结构正确的[well-formednes
+s]。具体来说，就是每个用`@Subscribe` 注解的方法都只能有一个参数。
 
-### What Event Bus problems can be detected immediately at registration?
-Immediately upon invoking `register(Object)` , the listener being registered is checked for the _well-formedness_ of its handler methods. Specifically, any methods marked with `@Subscribe` must take only a single argument.
+违反这条规则将引起 `IllegalArgumentException`（这条规则检测也可以用 APT 在编译时完成，不过我们还在研究中）。
 
-Any violations of this rule will cause an `IllegalArgumentException` to be thrown.
+### 哪些问题只能在之后事件传播的运行时才会被检测到？
+如果组件传播了一个事件，但找不到相应的处理方法，`EventBus` 可能会指出一个错误（通常是指出`@Subscribe`注解的缺失，或没有加载监听者组件）。
+请注意这个指示并不一定表示应用有问题。一个应用中可能有好多场景会故意忽略某个事件，尤其当事件来源于不可控代码时
 
-(This check could be moved to compile-time using APT, a solution we're researching.)
+你可以注册一个处理方法专门处理 DeadEvent 类型的事件。每当 EventBus 收到没有对应处理方法的事件，它都会将其转化为 DeadEvent，并且传递给你注册的 DeadEvent 处理方法——你可以选择记录或修复该事件。
 
-### What `EventBus` problems may only be detected later, at runtime?
-If a component posts events with no registered listeners, it _may_ indicate an error (typically an indication that you missed a `@Subscribe` annotation, or that the listening component is not loaded).
+### 怎么测试监听者和它们的处理方法？
+因为监听者的处理方法都是普通方法，你可以简便地在测试代码中模拟 `EventBus` 调用这些方法。
 
-(Note that this is _not necessarily_ indicative of a problem.  There are many cases where an application will deliberately ignore a posted event, particularly if the event is coming from code you don't control.)
+## 为什么我不能在 EventBus 上使用<泛型魔法>？
+`EventBus`旨在很好地处理一大类用例。我们更喜欢针对大多数用例直击要害，而不是在所有用例上都保持体
+面。
 
-To handle such events, register a handler method for the `DeadEvent` class.  Whenever `EventBus` receives an event with no registered handlers, it will turn it into a `DeadEvent` and pass it your way -- allowing you to log it or otherwise recover.
+此外，泛型也让 `EventBus` 的可扩展性——让它有益、高效地扩展，同时我们对 `EventBus` 的增补不会和你们的扩展相冲突——成为一个非常棘手的问题。
 
-### How do I test event listeners and their handler methods?
-Because handler methods on your listener classes are normal methods, you can simply call them from your test code to simulate the `EventBus`.
-
-## Why can't I do <magic thing> with `EventBus`?
-`EventBus` is designed to deal with a large class of use cases really, really well.  We prefer hitting the nail on the head for most use cases to doing decently on all use cases.
-
-Additionally, making `EventBus` extensible -- and making it useful and productive to extend, while _still_ allowing ourselves to make additions to the core `EventBus` API that don't conflict with any of your extensions -- is an extremely difficult problem.
-
-If you really, really need magic thing X, that `EventBus` can't currently provide, you should file an issue, and then design your own alternative.
+如果你真的很想用泛型，`EventBus` 目前还不能提供，你可以提交一个问题并且设计自己的替代方案。

@@ -72,7 +72,7 @@ Range.range(1, CLOSED, 4, OPEN); // [1..4)，等同于Range.closedOpen(1, 4)
 ```
 
 # 区间运算
-`Range` 的基本运算是它的 [contains(C)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#contains(C) 方法，和你期望的一样。此外，`Range` 实例也可以当作 Predicate，并且在函数式编程中使用（译者注：见第 4 章）。任何 `Range` 实例也都支持  `containsAll(Iterable<? extends C>)`方法：
+`Range` 的基本运算是它的 [contains(C)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#contains(C)) 方法，和你期望的一样。此外，`Range` 实例也可以当作 Predicate，并且在函数式编程中使用（译者注：见第 4 章）。任何 `Range` 实例也都支持  `containsAll(Iterable<? extends C>)`方法：
 
 ```java
 
@@ -85,9 +85,9 @@ Range.closed(1, 4).containsAll(Ints.asList(1, 2, 3)); // returns true
 ## 查询运算
 
 `Range` 类提供了以下方法来 查看区间的端点：
-* [hasLowerBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasLowerBound() 和 [hasUpperBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasUpperBound()：判断区间是否有特定边界，或是无限的；
-* [lowerBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerBoundType() 和 [upperBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperBoundType() 返回对应端点的`BoundType`，可以是`CLOSED`或`OPEN`。如果区间没有对应的边界，抛出`IllegalStateException`.
-    * [lowerEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerEndpoint() 和 [upperEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperEndpoint() 返回区间的端点值；如果区间没有对应的边界，抛出 `IllegalStateException`；
+* [hasLowerBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasLowerBound()) 和 [hasUpperBound()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#hasUpperBound())：判断区间是否有特定边界，或是无限的；
+* [lowerBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerBoundType()) 和 [upperBoundType()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperBoundType()) 返回对应端点的`BoundType`，可以是`CLOSED`或`OPEN`。如果区间没有对应的边界，抛出`IllegalStateException`.
+    * [lowerEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#lowerEndpoint()) 和 [upperEndpoint()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#upperEndpoint()) 返回区间的端点值；如果区间没有对应的边界，抛出 `IllegalStateException`；
     * [isEmpty()](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/collect/Range.html#isEmpty()) 测试范围是否为空，即，它具有形式 `[`a,a) 或 (a,a`]`.
 
 ```java
