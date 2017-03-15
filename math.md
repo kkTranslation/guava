@@ -13,17 +13,18 @@ BigInteger sideLength = BigIntegerMath.sqrt(area, CEILING);
 ```
 
 # Why?
-* Guava's math utilities are already exhaustively tested for unusual overflow conditions.  Overflow semantics, if relevant, are clearly specified in the associated documentation.  When a precondition fails, it fails fast.
-* Guava's math utilities have been painstakingly benchmarked and optimized.  While performance inevitably varies depending on particular hardware details, their speed is competitive with -- and in some cases, significantly better than -- analogous functions in Apache Commons `MathUtils`.
-    * Guava's math utilities are designed to encourage readable, correct programming habits.  The meaning of `IntMath.log2(x, CEILING)` is unambiguous and obvious even on a casual read-through.  The meaning of `32 - Integer.numberOfLeadingZeros(x - 1)` is not.
+* Guava Math 已经针对异常溢出情况进行了全面测试。对溢出语义，Guava 在相关文档中有明确的说明；如果运算的溢出检查不能通过，将导致快速失败；
+* Guava Math 经过精心的基准测试和优化。 虽然性能不可避免地取决于特定的硬件细节，它们的速度与Apache Commons `MathUtils`中的类似功能相比，并且在某些情况下显著更好。
+    * Guava Math 在设计上考虑了可读性和正确的编程习惯。 `IntMath.log2(x，CEILING)`的意义是明确和明显的，即使在随意的通读。 `32 - Integer.numberOfLeadingZeros(x - 1)`的意思不是。
+    
+注意：Guava Math 与GWT不是特别兼容，也没有针对GWT进行优化，因为不同的溢出逻辑。
 
-_Note: Guava's math utilities are not especially compatible with GWT, nor are they optimized for GWT, due to differing overflow logic._
+# 整数运算
+Guava Math 主要处理三种整数类型：`int`，`long`和`BigInteger`。 这些运算工具方便地命名为[IntMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html), [LongMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html) 和 [BigIntegerMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html)。
 
-# Math on Integral Types
-Guava's math utilities deal primarily with three integral types: `int`, `long`, and `BigInteger`.  The math utilities on these types are conveniently named [IntMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html), [LongMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html), and [BigIntegerMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html).
+## 检查运算
 
-## Checked Arithmetic
-Guava provides arithmetic methods for `IntMath` and `LongMath` that fail fast on overflow instead of silently ignoring it.
+Guava为`IntMath`和`LongMath`提供算术方法，在溢出时快速失败，而不是默默忽略它。
 
 | `IntMath`                                | `LongMath`                               |
 | :--------------------------------------- | :--------------------------------------- |
@@ -37,45 +38,45 @@ Guava provides arithmetic methods for `IntMath` and `LongMath` that fail fast on
 IntMath.checkedAdd(Integer.MAX_VALUE, Integer.MAX_VALUE); // throws ArithmeticException
 ```
 
-# Real-valued methods
+# 实数运算
 
-`IntMath`, `LongMath`, and `BigIntegerMath` have support for a variety of methods with a "precise real value," but that round their result to an integer. These methods accept a [java.math.RoundingMode](http://docs.oracle.com/javase/7/docs/api/java/math/RoundingMode.html).  This is the same `RoundingMode` used in the JDK, and is an enum with the following values:
-* `DOWN`: round towards 0.  (This is the behavior of Java division.)
-* `UP`: round away from 0.
-    * `FLOOR`: round towards negative infinity.
-    * `CEILING`: round towards positive infinity.
-    * `UNNECESSARY`: rounding should not be necessary; if it is, fail fast by throwing an `ArithmeticException`.
-    * `HALF_UP`: round to the nearest half, rounding `x.5` away from 0.
-    * `HALF_DOWN`: round to the nearest half, rounding `x.5` towards 0.
-    * `HALF_EVEN`: round to the nearest half, rounding `x.5` to its nearest even neighbor.
+`IntMath`，`LongMath`和`BigIntegerMath`支持具有“精确实值”的各种方法，但将其结果四舍五入为整数。 这些方法接受[java.math.RoundingMode](http://docs.oracle.com/javase/7/docs/api/java/math/RoundingMode.html)。 这与JDK中使用的`RoundingMode`相同，并且是具有以下值的枚举：
+* `DOWN`: 向0舍入（这是Java格式的特性。）
+* `UP`: 从0开始。
+    * `FLOOR`: 向负无限大方向舍入
+    * `CEILING`: 向正无限大方向舍入
+    * `UNNECESSARY`: 不需要舍入，如果用此模式进行舍入，应直接抛出 `ArithmeticException`
+    * `HALF_UP`:向最近的整数舍入，其中 x.5 远离零方向舍入
+    * `HALF_DOWN`: 向最近的整数舍入，其中 x.5 向零方向舍入
+    * `HALF_EVEN`: 向最近的整数舍入，其中 x.5 向相邻的偶数舍入
 
-These methods are meant to be readable when used: for example, `divide(x, 3, CEILING)` is completely unambiguous even on a casual read-through.
+这些方法旨在提高代码的可读性，例如，`divide(x, 3, CEILING)` 即使在快速阅读时也是清晰。
 
-Additionally, each of these functions internally use only integer arithmetic, except in constructing initial approximations for use in `sqrt`.
+另外，这些函数中的每一个在内部只使用整数运算，除了在构造用于`sqrt`的初始近似值之外。
 
-| Operation         | `IntMath`                                | `LongMath`                               | `BigIntegerMath`                         |
+| 运算         | `IntMath`                                | `LongMath`                               | `BigIntegerMath`                         |
 | :---------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| Division          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#divide(int, int, java.math.RoundingMode)'><code>divide(int, int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#divide(long, long, java.math.RoundingMode)'><code>divide(long, long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#divide(java.math.BigInteger, java.math.BigInteger, java.math.RoundingMode)'><code>divide(BigInteger, BigInteger, RoundingMode)</code></a> |
-| Base-2 logarithm  | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#log2(int, java.math.RoundingMode)'><code>log2(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#log2(long, java.math.RoundingMode)'><code>log2(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#log2(java.math.BigInteger, java.math.RoundingMode)'><code>log2(BigInteger, RoundingMode)</code></a> |
-| Base-10 logarithm | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#log10(int, java.math.RoundingMode)'><code>log10(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#log10(long, java.math.RoundingMode)'><code>log10(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#log10(java.math.BigInteger, java.math.RoundingMode)'><code>log10(BigInteger, RoundingMode)</code></a> |
-| Square root       | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#sqrt(int, java.math.RoundingMode)'><code>sqrt(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#sqrt(long, java.math.RoundingMode)'><code>sqrt(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#sqrt(java.math.BigInteger, java.math.RoundingMode)'><code>sqrt(BigInteger, RoundingMode)</code></a> |
+| 除法          | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#divide(int, int, java.math.RoundingMode)'><code>divide(int, int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#divide(long, long, java.math.RoundingMode)'><code>divide(long, long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#divide(java.math.BigInteger, java.math.BigInteger, java.math.RoundingMode)'><code>divide(BigInteger, BigInteger, RoundingMode)</code></a> |
+| 2为底的对数  | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#log2(int, java.math.RoundingMode)'><code>log2(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#log2(long, java.math.RoundingMode)'><code>log2(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#log2(java.math.BigInteger, java.math.RoundingMode)'><code>log2(BigInteger, RoundingMode)</code></a> |
+| 10为底的对数 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#log10(int, java.math.RoundingMode)'><code>log10(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#log10(long, java.math.RoundingMode)'><code>log10(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#log10(java.math.BigInteger, java.math.RoundingMode)'><code>log10(BigInteger, RoundingMode)</code></a> |
+| 平方根       | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#sqrt(int, java.math.RoundingMode)'><code>sqrt(int, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#sqrt(long, java.math.RoundingMode)'><code>sqrt(long, RoundingMode)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#sqrt(java.math.BigInteger, java.math.RoundingMode)'><code>sqrt(BigInteger, RoundingMode)</code></a> |
 
 ```java
 BigIntegerMath.sqrt(BigInteger.TEN.pow(99), RoundingMode.HALF_EVEN);
    // returns 31622776601683793319988935444327185337195551393252
 ```
 
-## Additional functions
-We provide support for a few other mathematical functions we've found useful.
+## 附加功能
+Guava 还另外提供了一些其他有用的运算函数
 
-| Operation                                | `IntMath`                                | `LongMath`                               | `BigIntegerMath`                         |
+| 运算                                | `IntMath`                                | `LongMath`                               | `BigIntegerMath`                         |
 | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- | :--------------------------------------- |
-| Greatest common divisor                  | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#gcd(int, int)'><code>gcd(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#gcd(long, long)'><code>gcd(long, long)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#gcd(java.math.BigInteger)'><code>BigInteger.gcd(BigInteger)</code></a> |
-| Modulus (always nonnegative, -5 mod 3 is 1) | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#mod(int, int)'><code>mod(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#mod(long, long)'><code>mod(long, long)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#mod(java.math.BigInteger)'><code>BigInteger.mod(BigInteger)</code></a> |
-| Exponentiation (may overflow)            | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#pow(int, int)'><code>pow(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#pow(long, int)'><code>pow(long, int)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#pow(int)'><code>BigInteger.pow(int)</code></a> |
-| Power-of-two testing                     | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#isPowerOfTwo(int)'><code>isPowerOfTwo(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#isPowerOfTwo(long)'><code>isPowerOfTwo(long)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#isPowerOfTwo(java.math.BigInteger)'><code>isPowerOfTwo(BigInteger)</code></a> |
-| Factorial (returns `MAX_VALUE` if input too big) | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#factorial(int)'><code>factorial(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#factorial(int)'><code>factorial(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#factorial(int)'><code>factorial(int)</code></a> |
-| Binomial coefficient (returns `MAX_VALUE` if too big) | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> |
+| 最大公约数                 | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#gcd(int, int)'><code>gcd(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#gcd(long, long)'><code>gcd(long, long)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#gcd(java.math.BigInteger)'><code>BigInteger.gcd(BigInteger)</code></a> |
+| 取模（总是非负的，-5模3是1） | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#mod(int, int)'><code>mod(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#mod(long, long)'><code>mod(long, long)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#mod(java.math.BigInteger)'><code>BigInteger.mod(BigInteger)</code></a> |
+| 指数（可能溢出）            | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#pow(int, int)'><code>pow(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#pow(long, int)'><code>pow(long, int)</code></a> | In JDK: <a href='http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#pow(int)'><code>BigInteger.pow(int)</code></a> |
+| 功率二测试                  | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#isPowerOfTwo(int)'><code>isPowerOfTwo(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#isPowerOfTwo(long)'><code>isPowerOfTwo(long)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#isPowerOfTwo(java.math.BigInteger)'><code>isPowerOfTwo(BigInteger)</code></a> |
+| 阶乘（如果输入太大则返回“MAX_VALUE”） | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#factorial(int)'><code>factorial(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#factorial(int)'><code>factorial(int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#factorial(int)'><code>factorial(int)</code></a> |
+| 二项式系数（如果太大则返回“MAX_VALUE”） | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/IntMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/LongMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> | <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/BigIntegerMath.html#binomial(int, int)'><code>binomial(int, int)</code></a> |
 
 # Floating-point arithmetic
 Floating point arithmetic is pretty thoroughly covered by the JDK, but we added a few useful methods to [DoubleMath](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/math/DoubleMath.html).
