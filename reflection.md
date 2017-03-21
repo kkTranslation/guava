@@ -1,8 +1,9 @@
 # `TypeToken`
 
-Due to type erasure, you can't pass around generic `Class` objects at runtime -- you might be able to cast them and pretend they're generic, but they really aren't.
+由于类型擦除，你不能够在运行时传递泛型类对象——你可能想强制转换它们，并假装这些对象是有泛型的，但
+实际上它们没有。
 
-For example:
+举例:
 
 ```java
 ArrayList<String> stringList = Lists.newArrayList();
@@ -11,17 +12,17 @@ System.out.println(stringList.getClass().isAssignableFrom(intList.getClass()));
   // returns true, even though ArrayList<String> is not assignable from ArrayList<Integer>
 ```
 
-**Guava provides**<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/TypeToken.html'><code>TypeToken</code></a>, which uses reflection-based tricks to allow you to manipulate and query generic types, even at runtime.**Think of a `TypeToken` as a way of creating, manipulating, and querying `Type` (and, implicitly `Class`) objects in a way that respects generics.**
+**Guava provides**<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/TypeToken.html'><code>TypeToken</code></a>, 它使用基于反射的技巧，允许你操纵和查询通用类型，即使在运行时.`Think`的`TypeToken`作为一种创建，操作和查询类型（和隐式`Class`）对象的方法。
 
-Note to Guice users: `TypeToken` is similar to [Guice](https://github.com/google/guice)'s [`TypeLiteral`](https://google.github.io/guice/api-docs/latest/javadoc/com/google/inject/TypeLiteral.html) class, but with one important difference: it supports non-reified types such as `T`, `List<T>` or even `List<? extends Number>`; while `TypeLiteral` does not. `TypeToken` is also serializable and offers numerous additional utility methods.
+注意Guice用户：`TypeToken`类似于 [Guice](https://github.com/google/guice)的 [`TypeLiteral`](https://google.github.io/guice/api-docs/latest/javadoc/com/google/inject/TypeLiteral.html)类，但有一个重要的区别：它支持非限定类型，如T，`List<T>`或 `List<? extends Number>`; 而TypeLiteral没有。 `TypeToken`也是可序列化的，并提供了许多其他实用程序方法。
 
-### Background: Type Erasure and Reflection
+### 背景：类型擦除和反射
 
-Java doesn't retain generic type information for _objects_ at runtime.  If you have an `ArrayList<String>` object at runtime, you cannot determine that it had the generic type `ArrayList<String>` -- and you can, with unsafe raw types, cast it to `ArrayList<Object>`.
+Java在运行时不保留对象的通用类型信息。 如果在运行时有一个`ArrayList <String>`对象，你不能确定它有通用类型`ArrayList <String>` - 并且你可以用不安全的原始类型将它转换为`ArrayList <Object>`。
 
-However, reflection allows you to detect the generic types of methods and classes.  If you implement a method that returns a `List<String>`, and you use reflection to obtain the return type of that method, you get back a <a href='http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ParameterizedType.html'><code>ParameterizedType</code></a> representing `List<String>`.
+但是，反射允许您检测通用类型的方法和类。 如果实现一个返回`List <String>`的方法，并且使用反射来获得该方法的返回类型，您将返回一个表示`List <String>`的 <a href='http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ParameterizedType.html'><code>ParameterizedType</code></a> .
 
-The `TypeToken` class uses this workaround to allow the manipulation of generic types with a minimum of syntactic overhead.
+`TypeToken`类使用此解决方法允许以最小的语法开销操作泛型类型。
 
 ### Introduction
 Obtaining a `TypeToken` for a basic, raw class is as simple as
