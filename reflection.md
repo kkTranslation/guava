@@ -1,7 +1,6 @@
 # `TypeToken`
 
-由于类型擦除，你不能够在运行时传递泛型类对象——你可能想强制转换它们，并假装这些对象是有泛型的，但
-实际上它们没有。
+由于类型擦除，你不能够在运行时传递泛型类对象——你可能想强制转换它们，并假装这些对象是有泛型的，但实际上它们没有。
 
 举例:
 
@@ -24,8 +23,8 @@ Java在运行时不保留对象的通用类型信息。 如果在运行时有一
 
 `TypeToken`类使用此解决方法允许以最小的语法开销操作泛型类型。
 
-### Introduction
-Obtaining a `TypeToken` for a basic, raw class is as simple as
+### 介绍
+获取一个基本的，原始类`TypeToken`是简单的
 
 ```java
 
@@ -33,21 +32,21 @@ TypeToken<String> stringTok = TypeToken.of(String.class);
 TypeToken<Integer> intTok = TypeToken.of(Integer.class);
 ```
 
-To obtain a `TypeToken` for a type with generics -- when you know the generic type arguments at compile time -- you use an empty anonymous inner class:
+为了获得`TypeToken`与泛型类型 - 当您在编译时知道泛型类型参数时，您将使用一个空的匿名内部类：
 
 ```java
 
 TypeToken<List<String>> stringListTok = new TypeToken<List<String>>() {};
 ```
 
-Or if you want to deliberately refer to a wildcard type:
+或者如果您想故意引用通配符类型：
 
 ```java
 
 TypeToken<Map<?, ?>> wildMapTok = new TypeToken<Map<?, ?>>() {};
 ```
 
-`TypeToken` provides a way to dynamically resolve generic type arguments, like this:
+`TypeToken`提供了一种动态解析泛型类型参数的方式，如下所示：
 
 ```java
 
@@ -65,7 +64,7 @@ TypeToken<Map<Integer, Queue<String>>> complexToken = mapToken(
    new TypeToken<Queue<String>>() {});
 ```
 
-Note that if `mapToken` just returned `new TypeToken<Map<K, V>>()`, it could not actually reify the types assigned to `K` and `V`, so for example
+请注意，刚刚如果`mapToken`返回`new TypeToken<Map<K, V>>()`，它实际上不能重新分配给`K`和`V`的类型，所以例如
 
 ```java
 
@@ -79,7 +78,7 @@ System.out.println(Util.<String, BigInteger>incorrectMapToken());
 // just prints out "java.util.Map<K, V>"
 ```
 
-Alternately, you can capture a generic type with a (usually anonymous) subclass and resolve it against a context class that knows what the type parameters are.
+或者，您可以捕获具有（通常是匿名）子类的泛型类型，并根据知道类型参数的上下文类来解析它。
 
 ```java
 
@@ -87,31 +86,31 @@ abstract class IKnowMyType<T> {
   TypeToken<T> type = new TypeToken<T>(getClass()) {};
 }
 ...
-new IKnowMyType<String>() {}.type; // returns a correct TypeToken<String>
+new IKnowMyType<String>() {}.type; // 返回一个正确的TypeToken <String>
 ```
 
-With this technique, you can, for example, get classes that know their element types.
+利用这种技术，你可以，例如，获取知道他们的元素类型的类。
 
 ## Queries
 
-`TypeToken` supports many of the queries supported by `Class`, but with generic constraints properly taken into account.
+`TypeToken`支持`Class`所支持的许多查询，但是通用约束被恰当地考虑在内。
 
-Supported query operations include:
+支持的查询操作包括：
 
-| Method                    | Description                              |
+| 方法                    | 描述                              |
 | :------------------------ | :--------------------------------------- |
-| `getType()`               | Returns the wrapped `java.lang.reflect.Type`. |
-| `getRawType()`            | Returns the most-known runtime class.    |
-| `getSubtype(Class<?>)`    | Returns some subtype of `this` that has the specified raw class.  For example, if this is `Iterable<String>` and the argument is `List.class`, the result will be `List<String>`. |
-| ` getSupertype(Class<?>)` | Generifies the specified raw class to be a supertype of this type.  For example, if this is `Set<String>` and the argument is `Iterable.class`, the result will be `Iterable<String>`. |
-| `isAssignableFrom(type)`  | Returns `true` if this type is assignable from the given type, taking into account generic parameters. `List<? extends Number>` is assignable from `List<Integer>`, but `List<String>` is not. |
-| `getTypes()`              | Returns the set of all classes and interfaces that this type is or is a subtype of.  The returned `Set` also provides methods `classes()` and `interfaces()` to let you view only the superclasses and superinterfaces. |
-| `isArray()`               | Checks if this type is known to be an array, such as `int[]` or even `<? extends A[]>`. |
-| `getComponentType()`      | Returns the array component type.        |
+| `getType()`               | 返回包装的`java.lang.reflect.Type`。 |
+| `getRawType()`            | 返回最著名的运行时类。    |
+| `getSubtype(Class<?>)`    | 返回一些具有指定raw类的`this`子类型。 例如，如果这是`Iterable <String>`，参数是`List.class`，结果将是`List <String>`。 |
+| ` getSupertype(Class<?>)` | 将指定的raw类生成为此类型的超类型。 例如，如果这是`Set <String>`，参数是`Iterable.class`，结果将是`Iterable <String>`。 |
+| `isAssignableFrom(type)`  | 如果此类型可以从给定类型分配，则返回`true`，并考虑到通用参数。 `List<? extends Number>`可以从`List <Integer>`中分配，但`List <String>`不是。 |
+| `getTypes()`              | 返回此类型为或类型的所有类和接口的集合。 返回的`Set`还提供了方法`classes()`和`interfaces()`，让你只查看超类和超级界面。 |
+| `isArray()`               | 检查这个类型是否已知是一个数组，如`int []`甚至`<? extends A[]>`。 |
+| `getComponentType()`      | 返回数组组件类型。        |
 
 ### `resolveType`
 
-`resolveType` is a powerful but complex query operation that can be used to "substitute" type arguments from the context token.  For example,
+`resolveType`是一个功能强大而又复杂的查询操作，可用于从上下文标记中“substitute”类型参数。 例如，
 ```java
 
 TypeToken<Function<Integer, String>> funToken = new TypeToken<Function<Integer, String>>() {};
@@ -120,8 +119,7 @@ TypeToken<?> funResultToken = funToken.resolveType(Function.class.getTypeParamet
   // returns a TypeToken<String>
 ```
 
-`TypeToken` unifies the `TypeVariable`s provided by Java with the values of those type variables from the "context" token.  This can be used to generically deduce the return types of methods on a type:
-
+`TypeToken`将Java提供的`TypeVariable`与“context”标记中的那些类型变量的值相统一。 这可以用于一般地推导出类型的方法的返回类型：
 ```java
 
 TypeToken<Map<String, Integer>> mapToken = new TypeToken<Map<String, Integer>>() {};
