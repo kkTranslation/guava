@@ -130,9 +130,9 @@ TypeToken<?> entrySetToken = mapToken.resolveType(Map.class.getMethod("entrySet"
 
 # `Invokable`
 
-Guava <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Invokable.html'><code>Invokable</code></a> is a fluent wrapper of java.lang.reflect.Method and java.lang.reflect.Constructor. It simplifies common reflective code using either. Some usage examples follow:
+Guava <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Invokable.html'><code>Invokable</code></a> 是java.lang.reflect.Method和java.lang.reflect.Constructor的流畅包装。 它可以简化通用的反射代码。 一些使用示例如下：
 
-### `Is the method public?`
+### `方法是公开的吗？`
 
 JDK:
 ```java
@@ -146,7 +146,7 @@ Invokable:
 invokable.isPublic()
 ```
 
-### `Is the method package private?`
+### `方法包是否私有？`
 
 JDK:
 ```java
@@ -160,7 +160,7 @@ Invokable:
 invokable.isPackagePrivate()
 ```
 
-### `Can the method be overridden by subclasses?`
+### `子类可以覆盖该方法吗？`
 
 JDK:
 ```java
@@ -177,7 +177,7 @@ Invokable:
 invokable.isOverridable()
 ```
 
-### `Is the first parameter of the method annotated with @Nullable?`
+### `该方法的第一个参数是用@Nullable注释的吗？`
 
 JDK:
 ```java
@@ -196,11 +196,11 @@ Invokable:
 invokable.getParameters().get(0).isAnnotationPresent(Nullable.class)
 ```
 
-### `How to share the same code for both constructors and factory methods?`
+### `如何为构造函数和工厂方法共享相同的代码？`
 
-Are you tempted to repeat yourself because your reflective code needs to work for both constructors and factory methods in the same way?
+你是不是想重复一遍，因为你的反射代码需要用同样的方法为构造函数和工厂方法工作？
 
-Invokable offers an abstraction. The following code works with either Method or Constructor:
+Invokable提供抽象。 以下代码与方法或构造函数一起使用：
 ```java
 
 invokable.isPublic();
@@ -208,20 +208,20 @@ invokable.getParameters();
 invokable.invoke(object, args);
 ```
 
-### `What's the return type of List.get(int) for List<String>?`
+### `List<String>的List.get(int)的返回类型是什么？`
 
-Invokable provides type resolution out of the box:
+Invokable提供了开箱即用的类型解析：
 ```java
 
 Invokable<List<String>, ?> invokable = new TypeToken<List<String>>() {}.method(getMethod);
 invokable.getReturnType(); // String.class
 ```
 
-# Dynamic Proxies
+# 动态代理
 
 ### `newProxy()`
 
-Utility method <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Reflection.html#newProxy(java.lang.Class, java.lang.reflect.InvocationHandler)'><code>Reflection.newProxy(Class, InvocationHandler)</code></a> is a type safer and more convenient API to create Java dynamic proxies when only a single interface type is to be proxied.
+实用方法 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Reflection.html#newProxy(java.lang.Class, java.lang.reflect.InvocationHandler)'><code>Reflection.newProxy(Class, InvocationHandler)</code></a> 是一种更安全，更方便的API，用于仅在单个界面类型被代理时创建Java动态代理。
 
 JDK:
 ```java
@@ -240,19 +240,19 @@ Foo foo = Reflection.newProxy(Foo.class, invocationHandler);
 
 ### `AbstractInvocationHandler`
 
-Sometimes you may want your dynamic proxy to support equals(), hashCode() and toString() in the intuitive way, that is:
-* A proxy instance is equal to another proxy instance if they are for the same interface types and have equal invocation handlers.
-* A proxy's toString() delegates to the invocation handler's toString() for easier customization.
+有时您可能希望您的动态代理以直观的方式支持`equals()`，`hashCode()`和`toString()`，即：
+* 代理实例等于另一个代理实例，如果它们是相同的接口类型并具有相等的调用处理程序。
+* 代理的`toString()`委托给调用处理程序的`toString()`，以便于自定义。
 
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/AbstractInvocationHandler.html'><code>AbstractInvocationHandler</code></a> implements this logic.
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/AbstractInvocationHandler.html'><code>AbstractInvocationHandler</code></a> 实现这个逻辑。
 
-In addition, `AbstractInvocationHandler` ensures that the argument array passed to <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/AbstractInvocationHandler.html#handleInvocation(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])'><code>handleInvocation(Object, Method, Object[])</code></a> is never null, thus less chance of `NullPointerException`.
+此外，`AbstractInvocationHandler`确保传递给 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/AbstractInvocationHandler.html#handleInvocation(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])'><code>handleInvocation(Object, Method, Object[])</code></a> 的参数数组从不为`null`，因此`NullPointerException`的可能性较小。
 
 # `ClassPath`
 
-Strictly speaking, Java has no platform-independent way to browse through classes or class path resources. It is however sometimes desirable to be able to go through all classes under a certain package or project, for example, to check that certain project convention or constraint is being followed.
+严格来说，Java没有平台无关的方式浏览类或类路径资源。 然而，有时希望能够通过某个包或项目下的所有类，例如，以检查是否遵循某些项目约定或约束。
 
-<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/ClassPath.html'><code>ClassPath</code></a> is a utility that offers best-effort class path scanning. Usage is simple:
+<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/ClassPath.html'><code>ClassPath</code></a> 是一种提供尽力而为的类路径扫描的实用程序。用法很简单：
 
 ```java
 ClassPath classpath = ClassPath.from(classloader); // scans the class path used by classloader
@@ -261,11 +261,11 @@ for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClasses("com.mycomp.my
 }
 ```
 
-In the above example, <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/ClassPath.ClassInfo.html'><code>ClassInfo</code></a> is a handle to the class to be loaded. It allows programmers to check the class name or package name and only load the class until necessary.
+在上面的例子中，<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/ClassPath.ClassInfo.html'><code>ClassInfo</code></a> 是要加载的类的句柄。 它允许程序员检查类名或程序包名称，并且仅在需要时加载该类。
 
-It's worth noting that `ClassPath` is a best-effort utility. It only scans classes in jar files or under a file system directory. Neither can it scan classes managed by custom class loaders that aren't URLClassLoader. So **don't use it for mission critical production tasks**.
+值得注意的是，`ClassPath`是尽力而为的实用工具。 它只扫描jar文件中的类或文件系统目录下的类。 它也不能扫描由不是URLClassLoader的自定义类加载器管理的类。 所以**不要把它用于任务关键的生产任务**。
 
 # Class Loading
-The utility method <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Reflection.html#initialize(java.lang.Class...)'><code>Reflection.initialize(Class...)</code></a> ensures that the specified classes are initialized -- for example, any static initialization is performed.
+实现方法 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/reflect/Reflection.html#initialize(java.lang.Class...)'><code>Reflection.initialize(Class...)</code></a> 确保初始化指定的类 - 例如，执行任何静态初始化。
 
-The use of this method is a code smell, because static state hurts system maintainability and testability. In cases when you have no choice while inter-operating with a legacy framework, this method helps to keep the code less ugly.
+使用这种方法是一种代码气息，因为静态会损害系统的可维护性和可测试性。 在与旧版框架进行互操作的情况下，这种方法有助于保持代码不那么丑陋。
