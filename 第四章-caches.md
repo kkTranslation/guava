@@ -16,28 +16,29 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
 
 # Applicability
 
-Caches are tremendously useful in a wide variety of use cases.  For example, you should consider using caches when a value is expensive to compute or retrieve, and you will need its value on a certain input more than once.
+Caches在各种用例中非常有用。 例如，当一个值计算或检索成本高昂时，您应该考虑使用高速缓存，并且您需要在某个输入上多次使用它的值。
 
-A `Cache` is similar to `ConcurrentMap`, but not quite the same.  The most fundamental difference is that a `ConcurrentMap` persists all elements that are added to it until they are explicitly removed. A `Cache` on the other hand is generally configured to evict entries automatically, in order to constrain its memory footprint. In some cases a `LoadingCache` can be useful even if it doesn't evict entries, due to its automatic cache loading.
+`Cache`类似于`ConcurrentMap`，但不完全相同。 最根本的区别是，ConcurrentMap会持续添加到其中的所有元素，直到它们被显式删除。 另一方面，`Cache`通常被配置为自动驱逐条目，以限制其内存占用。 在某些情况下，由于其自动缓存加载，所以`LoadCache`可能很有用。
 
-Generally, the Guava caching utilities are applicable whenever:
+通常，Guava缓存实用程序适用于以下情况：
 
-* You are willing to spend some memory to improve speed.
-* You expect that keys will sometimes get queried more than once.
-    * Your cache will not need to store more data than what would fit in RAM.  (Guava caches are **local** to a single run of your application.  They do not store data in files, or on outside servers.  If this does not fit your needs, consider a tool like [Memcached](http://memcached.org/).)
+* 你愿意花一些时间来提高速度。
+* 你期望keys有时会被多次查询。
+    * 您的缓存不需要存储比RAM内容更多的数据。 （Guava缓存是本地应用程序的单一运行，它们不会将数据存储在文件或外部服务器上，如果这不符合您的需要，请考虑使用[Memcached](http://memcached.org/)等工具。）
 
-If each of these apply to your use case, then the Guava caching utilities could be right for you!
+如果这些都适用于您的用例，那么Guava缓存实用程序可能适合您！
 
-Obtaining a `Cache` is done using the `CacheBuilder` builder pattern as demonstrated by the example code above, but customizing your cache is the interesting part.
+获取`Cache`是使用上面的示例代码所示的`CacheBuilder`构建器模式完成的，但是自定义缓存是有趣的部分。
 
-_Note:_ If you do not need the features of a `Cache`, `ConcurrentHashMap` is more memory-efficient -- but it is extremely difficult or impossible to duplicate most `Cache` features with any old `ConcurrentMap`.
+_注意:_ ：如果不需要`Cache`的功能，`ConcurrentHashMap`更具有内存效率 - 但是使用任何旧的`ConcurrentMap`来复制大多数`Cache`功能是非常困难或不可能的。
 
 # Population
 
-The first question to ask yourself about your cache is: is there some _sensible default_ function to load or compute a value associated with a key?  If so, you should use a `CacheLoader`.  If not, or if you need to override the default, but you still want atomic "get-if-absent-compute" semantics, you should pass a `Callable` into a `get` call.  Elements can be inserted directly, using `Cache.put`, but automatic cache loading is preferred as it makes it easier to reason about consistency across all cached content.
+问自己关于缓存的第一个问题是：是否有一些_sensible default_函数来加载或计算与一个键相关联的值？ 如果是这样，你应该使用一个`CacheLoader`。 如果没有，或者您需要覆盖默认值，但您仍然希望使用原子`get-if-absent-compute`语义，则应将`Callable`传递给`get`调用。 可以使用`Cache.put`直接插入元素，但是首选自动缓存加载，因为它可以更容易地理解所有缓存内容的一致性。
 
 ### From a [CacheLoader](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheLoader.html)
-A `LoadingCache` is a `Cache` built with an attached `CacheLoader`.  Creating a `CacheLoader` is typically as easy as implementing the method `V load(K key) throws Exception`.  So, for example, you could create a `LoadingCache` with the following code:
+
+`LoadCache`是使用附加的`CacheLoader`构建的`Cache`。 创建`CacheLoader`通常与实现方法`V load(K key) throws Exception`一样简单。 所以，例如，您可以使用以下代码创建一个`LoadCache`：
 
 ```java
 
@@ -58,7 +59,7 @@ try {
 }
 ```
 
-The canonical way to query a `LoadingCache` is with the method [get(K)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/LoadingCache.html#get(K)). This will either return an already cached value, or else use the cache's `CacheLoader` to atomically load a new value into the cache. Because `CacheLoader` might throw an `Exception`, `LoadingCache.get(K)` throws `ExecutionException`. If you have defined a `CacheLoader` that does _not_ declare any checked exceptions then you can perform cache lookups using `getUnchecked(K)`; however care must be taken not to call `getUnchecked` on caches whose `CacheLoader`s declare checked exceptions.
+查询`LoadCache`的规范方法是使用[get(K)](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/LoadingCache.html#get(K)).方法。 这将返回已经缓存的值，否则使用缓存的`CacheLoader`将新值原子加载到缓存中。 因为`CacheLoader`可能会抛出`Exception`，所以`LoadingCache.get(K)`抛出`ExecutionException`。 如果您定义了一个不声明任何检查异常的`CacheLoader`，那么可以使用`getUnchecked(K)`执行缓存查找; 但是请注意不要在`CacheLoader`声明检查异常的缓存上调用`getUnchecked`。
 
 ```java
 
@@ -75,13 +76,13 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
 return graphs.getUnchecked(key);
 ```
 
-Bulk lookups can be performed with the method `getAll(Iterable<? extends K>)`.  By default, `getAll` will issue a a separate call to `CacheLoader.load` for each key which is absent from the cache. When bulk retrieval is more efficient than many individual lookups, you can override <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheLoader.html#loadAll(java.lang.Iterable)'><code>CacheLoader.loadAll</code></a> to exploit this.  The performance of `getAll(Iterable)` will improve accordingly.
+可以使用`getAll(Iterable<? extends K>)`方法执行批量查找。 默认情况下，`getAll`将为高速缓存中缺少的每个键单独调用`CacheLoader.load`。 当批量检索比许多单独的查找更有效时，您可以覆盖<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheLoader.html#loadAll(java.lang.Iterable)'><code>CacheLoader.loadAll</code></a>来利用这一点。 `getAll(Iterable)`的性能将相应提高。
 
-Note that you can write a `CacheLoader.loadAll` implementation that loads values for keys that were not specifically requested.  For example, if computing the value of any key from some group gives you the value for all keys in the group, `loadAll` might load the rest of the group at the same time.
+请注意，您可以编写一个`CacheLoader.loadAll`实现，该实现加载未特别请求的键的值。 例如，如果从某个组计算任何key的值，您将获得组中所有keys的值，`loadAll`可能会同时加载该组的其余部分。
 
 ### From a <a href='http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Callable.html'><code>Callable</code></a>
 
-All Guava caches, loading or not, support the method <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#get(java.lang.Object,java.util.concurrent.Callable)'><code>get(K, Callable&lt;V&gt;)</code></a>.  This method returns the value associated with the key in the cache, or computes it from the specified `Callable` and adds it to the cache.  No observable state associated with this cache is modified until loading completes. This method provides a simple substitute for the conventional "if cached, return; otherwise create, cache and return" pattern.
+所有Guava缓存，加载或不加载，支持方法<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#get(java.lang.Object,java.util.concurrent.Callable)'><code>get(K, Callable&lt;V&gt;)</code></a>。 此方法返回与缓存中的key相关联的值，或者从指定的`Callable`计算它，并将其添加到缓存。 在加载完成之前，修改与此缓存关联的可观察状态。 该方法提供了传统的"if cached, return; otherwise create, cache and return"模式的简单替代。
 
 ```java
 
@@ -105,17 +106,17 @@ try {
 
 ### Inserted Directly
 
-Values may be inserted into the cache directly with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#put(K, V)'><code>cache.put(key, value)</code></a>.  This overwrites any previous entry in the cache for the specified key.  Changes can also be made to a cache using any of the `ConcurrentMap` methods exposed by the `Cache.asMap()` view. Note that no method on the `asMap` view will ever cause entries to be automatically loaded into the cache. Further, the atomic operations on that view operate outside the scope of automatic cache loading, so `Cache.get(K, Callable<V>)` should always be preferred over `Cache.asMap().putIfAbsent` in caches which load values using either `CacheLoader` or `Callable`.
+Values 可以直接用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#put(K, V)'><code>cache.put(key, value)</code></a>插入到缓存中。 这将覆盖指定key缓存中的任何先前entry。 也可以使用`Cache.asMap()`视图公开的任何`ConcurrentMap`方法对缓存进行更改。 请注意，`asMap`视图中的任何方法都不会导致entry自动加载到缓存中。 此外，该视图上的原子操作超出了自动缓存加载的范围，因此`Cache.get(K, Callable<V>)`应始终优于`Cache.asMap().putIfAbsent`在使用`CacheLoader`或 `Callable`。
 
 # Eviction
 
-The cold hard reality is that we almost _certainly_ don't have enough memory to cache everything we could cache.  You must decide: when is it not worth keeping a cache entry? Guava provides three basic types of eviction: size-based eviction, time-based eviction, and reference-based eviction.
+冷酷的现实是，我们几乎确实没有足够的内存来缓存我们可以缓存的所有东西。 你必须决定：什么时候不值得保存缓存entry？ Guava提供三种基本类型的eviction：基于size-based eviction, time-based eviction,和基于reference-based eviction。
 
 ## Size-based Eviction
 
-If your cache should not grow beyond a certain size, just use <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#maximumSize(long)'><code>CacheBuilder.maximumSize(long)</code></a>.  The cache will try to evict entries that haven't been used recently or very often. _Warning_: the cache may evict entries before this limit is exceeded -- typically when the cache size is approaching the limit.
+如果您的缓存不应超过一定大小，请使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#maximumSize(long)'><code>CacheBuilder.maximumSize(long)</code></a>。 缓存将尝试驱逐最近或经常未被使用的entries。 警告：超出此限制之前，缓存可能会超出entries - 通常当缓存大小接近极限时。
 
-Alternately, if different cache entries have different "weights" -- for example, if your cache values have radically different memory footprints -- you may specify a weight function with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weigher(com.google.common.cache.Weigher)'><code>CacheBuilder.weigher(Weigher)</code></a> and a maximum cache weight with <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#maximumWeight(long)'><code>CacheBuilder.maximumWeight(long)</code></a>.  In addition to the same caveats as `maximumSize` requires, be aware that weights are computed at entry creation time, and are static thereafter.
+或者，如果不同的缓存entries具有不同的 "weights" - 例如，如果您的缓存值具有完全不同的内存占用空间，则可以使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weigher(com.google.common.cache.Weigher)'><code>CacheBuilder.weigher(Weigher)</code></a>指定权重函数，并使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#maximumWeight(long)'><code>CacheBuilder.maximumWeight(long)</code></a>。 除了与`maxSize`相同的注意事项外，请注意，weights是在entry创建时计算的，此后将是静态的。
 
 ```java
 
