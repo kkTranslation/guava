@@ -137,38 +137,38 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
 
 ## Timed Eviction
 
-`CacheBuilder` provides two approaches to timed eviction:
+`CacheBuilder`提供了两种定时eviction的方法：
 
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#expireAfterAccess(long, java.util.concurrent.TimeUnit)'><code>expireAfterAccess(long, TimeUnit)</code></a> Only expire entries after the specified duration has passed since the entry was last accessed by a read or a write. Note that the order in which entries are evicted will be similar to that of [size-based eviction](#Size-based-Eviction).
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#expireAfterWrite(long, java.util.concurrent.TimeUnit)'><code>expireAfterWrite(long, TimeUnit)</code></a> Expire entries after the specified duration has passed since the entry was created, or the most recent replacement of the value. This could be desirable if cached data grows stale after a certain amount of time.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#expireAfterAccess(long, java.util.concurrent.TimeUnit)'><code>expireAfterAccess(long, TimeUnit)</code></a> 只有在从读取或写入上次访问该entry 以来，指定的持续时间已过去的entry 才会过期。 请注意，entry被逐出的顺序将类似于 [size-based eviction](#Size-based-Eviction).
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#expireAfterWrite(long, java.util.concurrent.TimeUnit)'><code>expireAfterWrite(long, TimeUnit)</code></a> 在创建entry后指定的持续时间过后或最近替换该值的过期entry。 如果缓存的数据在一段时间后变长，这可能是可取的。
 
-Timed expiration is performed with periodic maintenance during writes and occasionally during reads, as discussed below.
+Timed expiration 是在写入期间进行定期维护，偶尔在读取期间执行，如下所述。
 
 ### Testing Timed Eviction
 
-Testing timed eviction doesn't have to be painful...and doesn't actually have to take you two seconds to test a two-second expiration.  Use the [Ticker](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Ticker.html) interface and the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#ticker(com.google.common.base.Ticker)'><code>CacheBuilder.ticker(Ticker)</code></a> method to specify a time source in your cache builder, rather than having to wait for the system clock.
+测试timed eviction并不一定是痛苦的......而实际上并没有把你两秒测试两秒到期。 使用[Ticker](http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/base/Ticker.html) 接口和<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#ticker(com.google.common.base.Ticker)'><code>CacheBuilder.ticker(Ticker)</code></a> 方法在缓存生成器中指定时间源，而不必等待系统时钟。
 
 ## Reference-based Eviction
 
-Guava allows you to set up your cache to allow the garbage collection of entries, by using [weak references](http://docs.oracle.com/javase/6/docs/api/java/lang/ref/WeakReference.html) for keys or values, and by using [soft references](http://docs.oracle.com/javase/6/docs/api/java/lang/ref/SoftReference.html) for values.
+Guava可以让你设置你的缓存，让entries的垃圾收集，通过使用键或值，[弱引用](http://docs.oracle.com/javase/6/docs/api/java/lang/ref/WeakReference.html) 和使用值的 [软引用](http://docs.oracle.com/javase/6/docs/api/java/lang/ref/SoftReference.html) 。
 
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weakKeys()'><code>CacheBuilder.weakKeys()</code></a> stores keys using weak references.  This allows entries to be garbage-collected if there are no other (strong or soft) references to the keys.  Since garbage collection depends only on identity equality, this causes the whole cache to use identity (`==`) equality to compare keys, instead of `equals()`.
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weakValues()'><code>CacheBuilder.weakValues()</code></a> stores values using weak references.  This allows entries to be garbage-collected if there are no other (strong or soft) references to the values.  Since garbage collection depends only on identity equality, this causes the whole cache to use identity (`==`) equality to compare values, instead of `equals()`.
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#softValues()'><code>CacheBuilder.softValues()</code></a> wraps values in soft references.  Softly referenced objects are garbage-collected in a globally least-recently-used manner, _in response to memory demand_.  Because of the performance implications of using soft references, we generally recommend using the more predictable [maximum cache size](#Size-based-Eviction) instead.  Use of `softValues()` will cause values to be compared using identity (`==`) equality instead of `equals()`.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weakKeys()'><code>CacheBuilder.weakKeys()</code></a> 存储使用弱引用的键。 如果没有其他（强或软）对键的引用，则允许entries被垃圾回收。 由于垃圾收集仅取决于身份相等性，所以这导致整个缓存使用identity（`==`）相等来比较keys而不是 `equals()`.
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#weakValues()'><code>CacheBuilder.weakValues()</code></a> 使用弱引用存储值。 如果没有其他（强或软）对值的引用，则允许条目被垃圾回收。 由于垃圾收集仅取决于身份相等性，所以这导致整个缓存使用identity（`==`）相等来比较值而不是`equals()`.
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#softValues()'><code>CacheBuilder.softValues()</code></a> 在软引用中包装值。 响应于内存需求，软件引用的对象以全局最不近期使用的方式进行垃圾回收。 由于使用软引用的性能影响，我们通常建议使用更可预测的最大缓存大小。 使用`softValues()`将导致使用identity（`==`）相等而不是`equals()`来比较值。  
 
-## Explicit Removals
+## 明确删除
 
-At any time, you may explicitly invalidate cache entries rather than waiting for entries to be evicted.  This can be done:
+在任何时候，你可以明确地无效缓存entries，而不是等待被驱逐entries。 这可以做到：
 
-* individually, using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidate(java.lang.Object)'><code>Cache.invalidate(key)</code></a>
-* in bulk, using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidateAll(java.lang.Iterable)'><code>Cache.invalidateAll(keys)</code></a>
-    * to all entries, using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidateAll()'><code>Cache.invalidateAll()</code></a>
+* 单独使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidate(java.lang.Object)'><code>Cache.invalidate(key)</code></a>
+* 大量使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidateAll(java.lang.Iterable)'><code>Cache.invalidateAll(keys)</code></a>
+    * 对所有entries，使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#invalidateAll()'><code>Cache.invalidateAll()</code></a>
 
-## Removal Listeners
+## 移除 Listeners
 
-You may specify a removal listener for your cache to perform some operation when an entry is removed, via <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#removalListener(com.google.common.cache.RemovalListener)'><code>CacheBuilder.removalListener(RemovalListener)</code></a>.  The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalListener.html'><code>RemovalListener</code></a> gets passed a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalNotification.html'><code>RemovalNotification</code></a>, which specifies the <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalCause.html'><code>RemovalCause</code></a>, key, and value.
+您可以通过 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#removalListener(com.google.common.cache.RemovalListener)'><code>CacheBuilder.removalListener(RemovalListener)</code></a>为缓存指定删除监听器，以便在删除entry时执行某些操作。 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalListener.html'><code>RemovalListener</code></a> 通过一个 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalNotification.html'><code>RemovalNotification</code></a>，它指定了 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalCause.html'><code>RemovalCause</code></a>, key 和 value。
 
-Note that any exceptions thrown by the `RemovalListener` are logged (using `Logger`) and swallowed.
+请注意，`RemovalListener`抛出的任何异常都会被记录（使用`Logger`）并被吞噬。
 
 ```java
 CacheLoader<Key, DatabaseConnection> loader = new CacheLoader<Key, DatabaseConnection> () {
@@ -189,28 +189,28 @@ return CacheBuilder.newBuilder()
   .build(loader);
 ```
 
-**Warning**: removal listener operations are executed synchronously by default, and since cache maintenance is normally performed during normal cache operations, expensive removal listeners can slow down normal cache function! If you have an expensive removal listener, use <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalListeners.html#asynchronous(com.google.common.cache.RemovalListener, java.util.concurrent.Executor)'><code>RemovalListeners.asynchronous(RemovalListener, Executor)</code></a> to decorate a `RemovalListener` to operate asynchronously.
+警告：默认情况下同步执行删除侦听器操作，并且由于缓存维护通常在正常缓存操作期间执行，昂贵的删除监听器可能会降低正常缓存功能！ 如果您有一个昂贵的删除监听器，请使用 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/RemovalListeners.html#asynchronous(com.google.common.cache.RemovalListener, java.util.concurrent.Executor)'><code>RemovalListeners.asynchronous(RemovalListener, Executor)</code></a> 来装饰`RemovalListener`以异步运行。
 
 ## When Does Cleanup Happen?
 
-Caches built with `CacheBuilder` do _not_ perform cleanup and evict values "automatically," or instantly after a value expires, or anything of the sort.  Instead, it performs small amounts of maintenance during write operations, or during occasional read operations if writes are rare.
+使用`CacheBuilder`构建的缓存不会自动执行清除和排除值，或者在值过期后立即执行或任何排序。  相反，它在写操作期间执行少量维护，或在偶尔的读操作，如果写是罕见的。
 
-The reason for this is as follows: if we wanted to perform `Cache` maintenance continuously, we would need to create a thread, and its operations would be competing with user operations for shared locks.  Additionally, some environments restrict the creation of threads, which would make `CacheBuilder` unusable in that environment.
+原因如下：如果我们想持续执行`Cache`维护，我们需要创建一个线程，并且它的操作将与用户操作共享锁竞争。 另外，一些环境限制线程的创建，这将使`CacheBuilder`在该环境中不可用。
 
-Instead, we put the choice in your hands.  If your cache is high-throughput, then you don't have to worry about performing cache maintenance to clean up expired entries and the like.  If your cache does writes only rarely and you don't want cleanup to block cache reads, you may wish to create your own maintenance thread that calls <a href='http://google.github.io/guava/releases/11.0.1/api/docs/com/google/common/cache/Cache.html#cleanUp()'><code>Cache.cleanUp()</code></a> at regular intervals.
+相反，我们把选择放在你手中。 如果你的缓存是高吞吐量，那么你不必担心执行高速缓存维护，清理过期的entries等。 如果您的缓存只写很少，并且不希望清除来阻止缓存读取，那么您可能希望创建自己的维护线程，定期调用 <a href='http://google.github.io/guava/releases/11.0.1/api/docs/com/google/common/cache/Cache.html#cleanUp()'><code>Cache.cleanUp()</code></a> 。
 
-If you want to schedule regular cache maintenance for a cache which only rarely has writes, just schedule the maintenance using <a href='http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ScheduledExecutorService.html'><code>ScheduledExecutorService</code></a>.
+如果要为只有很少写入的缓存安排常规缓存维护，只需使用 <a href='http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ScheduledExecutorService.html'><code>ScheduledExecutorService</code></a>调度维护。
 
-## Refresh
+## 刷新
 
-Refreshing is not quite the same as eviction.  As specified in <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/LoadingCache.html#refresh(K)'><code>LoadingCache.refresh(K)</code></a>, refreshing a key loads a new value for the key, possibly asynchronously.  The old value (if any) is still returned while the key is being refreshed, in contrast to eviction, which forces retrievals to wait until the value is loaded anew.
+Refreshing 与eviction不一样。 如在 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/LoadingCache.html#refresh(K)'><code>LoadingCache.refresh(K)</code></a>, 中指定的，刷新键可能会异步加载键的新值。 在刷新key时仍旧返回旧值（如果有），与eviction相反，强制检索等待，直到重新加载该值。
 
-If an exception is thrown while refreshing, the old value is kept, and the exception is logged and swallowed.
+如果在刷新时抛出异常，则会保留旧值，并记录并吞入异常。
 
-A `CacheLoader` may specify smart behavior to use on a refresh by overriding <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheLoader.html#reload(K, V)'><code>CacheLoader.reload(K, V)</code></a>, which allows you to use the old value in computing the new value.
+`CacheLoader` 可以通过覆盖 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheLoader.html#reload(K, V)'><code>CacheLoader.reload(K, V)</code></a>来指定刷新时使用的智能行为，从而允许您在计算新值时使用旧值。
 
 ```java
-// Some keys don't need refreshing, and we want refreshes to be done asynchronously.
+// 一些键不需要刷新，我们希望刷新可以异步完成。
 LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
        .maximumSize(1000)
        .refreshAfterWrite(1, TimeUnit.MINUTES)
@@ -237,7 +237,7 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
            });
 ```
 
-Automatically timed refreshing can be added to a cache using <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#refreshAfterWrite(long, java.util.concurrent.TimeUnit)'><code>CacheBuilder.refreshAfterWrite(long, TimeUnit)</code></a>.  In contrast to `expireAfterWrite`, `refreshAfterWrite` will make a key _eligible_ for refresh after the specified duration, but a refresh will only be actually initiated when the entry is queried.  (If `CacheLoader.reload` is implemented to be asynchronous, then the query will not be slowed down by the refresh.)  So, for example, you can specify both `refreshAfterWrite` and `expireAfterWrite` on the same cache, so that the expiration timer on an entry isn't blindly reset whenever an entry becomes eligible for a refresh, so if an entry isn't queried after it comes eligible for refreshing, it is allowed to expire.
+可以使用<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheBuilder.html#refreshAfterWrite(long, java.util.concurrent.TimeUnit)'><code>CacheBuilder.refreshAfterWrite(long, TimeUnit)</code></a>将自动定时刷新添加到缓存中。 与`expireAfterWrite`相反，`refreshAfterWrite`将在指定的持续时间后使一个有资格刷新的key，但刷新将仅在查询entry时才实际启动。 （如果`CacheLoader.reload`被实现为异步，那么查询将不会被刷新减慢）。所以，例如，您可以在同一缓存上同时指定`refreshAfterWrite`和`expireAfterWrite`，以使entry的到期定时器为 只要entry有资格刷新，就会盲目重置，所以如果entry符合刷新条件后没有查询，则允许该entry过期。
 
 # Features
 
