@@ -243,31 +243,31 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
 
 ## Statistics
 
-By using <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/cache/CacheBuilder.html#recordStats()'><code>CacheBuilder.recordStats()</code></a>, you can turn on statistics collection for Guava caches. The <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#stats()'><code>Cache.stats()</code></a> method returns a <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html'><code>CacheStats</code></a> object, which provides statistics such as
+通过使用 <a href='http://google.github.io/guava/releases/12.0/api/docs/com/google/common/cache/CacheBuilder.html#recordStats()'><code>CacheBuilder.recordStats()</code></a>您可以打开Guava缓存的统计信息收集。<a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/Cache.html#stats()'><code>Cache.stats()</code></a> 方法返回一个 <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html'><code>CacheStats</code></a> 对象，它提供诸如
 
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#hitRate()'><code>hitRate()</code></a>, which returns the ratio of hits to requests
-* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#averageLoadPenalty()'><code>averageLoadPenalty()</code></a>, the average time spent loading new values, in nanoseconds
-    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#evictionCount()'><code>evictionCount()</code></a>, the number of cache evictions
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#hitRate()'><code>hitRate()</code></a>, 返回命中与请求的比例
+* <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#averageLoadPenalty()'><code>averageLoadPenalty()</code></a>, 以纳秒为单位的平均加载新值的时间
+    * <a href='http://google.github.io/guava/releases/snapshot/api/docs/com/google/common/cache/CacheStats.html#evictionCount()'><code>evictionCount()</code></a>, 缓存驱逐的次数
 
-and many more statistics besides.  These statistics are critical in cache tuning, and we advise keeping an eye on these statistics in performance-critical applications.
+还有更多的统计数字。 这些统计数据对于缓存调整至关重要，我们建议您在关键性能的应用程序中关注这些统计信息。
 
 ## `asMap`
-You can view any `Cache` as a `ConcurrentMap` using its `asMap` view, but how the `asMap` view interacts with the `Cache` requires some explanation.
+您可以使用其`asMap`视图将任何`Cache`视为`ConcurrentMap`，但是`asMap`视图与`Cache`的交互方式需要一些解释。
 
-* `cache.asMap()` contains all entries that are _currently loaded_ in the cache.  So, for example, `cache.asMap().keySet()` contains all the currently loaded keys.
-* `asMap().get(key)` is essentially equivalent to `cache.getIfPresent(key)`, and never causes values to be loaded.  This is consistent with the `Map` contract.
-    * Access time is reset by all cache read and write operations (including `Cache.asMap().get(Object)` and `Cache.asMap().put(K, V)`), but not by `containsKey(Object)`, nor by operations on the collection-views of `Cache.asMap()`.  So, for example, iterating through `cache.entrySet()` does not reset access time for the entries you retrieve.
+* `cache.asMap()`包含当前加载到缓存中的所有entries 。 因此，例如，`cache.asMap().keySet()`包含当前加载的所有键。
+* `asMap().get(key)`本质上等同于`cache.getIfPresent(key)`，并且不会导致加载值。 这与Map契约一致。
+    * 访问时间由所有缓存读写操作（包括`Cache.asMap().get(Object)`和`Cache.asMap().put(K, V)`）重置，而不是由`containsKey(Object)`, `Cache.asMap()`的集合视图。 因此，例如，通过`cache.entrySet()`迭代不会为您检索的entries重置访问时间。
 
 # Interruption
 
-Loading methods (like `get`) never throw `InterruptedException`. We could have designed these methods to support `InterruptedException`, but our support would have been incomplete, forcing its costs on all users but its benefits on only some. For details, read on.
+加载方法（如`get`）不会抛出`InterruptedException`。 我们可以设计这些方法来支持`InterruptedException`，但是我们的支持是不完整的，迫使所有用户的成本，但是仅仅是一些用户的收益。 有关详细信息，请阅读。
 
-`get` calls that request uncached values fall into two broad categories: those that load the value and those that await another thread's in-progress load. The two differ in our ability to support interruption. The easy case is waiting for another thread's in-progress load: Here we could enter an interruptible wait. The hard case is loading the value ourselves. Here we're at the mercy of the user-supplied `CacheLoader`. If it happens to support interruption, we can support interruption; if not, we can't.
+`get` 请求未缓存值的调用分为两大类：加载值和等待另一个线程正在进行加载的值。 两者在支持中断方面有所不同。 简单的情况是等待另一个线程正在进行的加载：这里我们可以输入可中断的等待。 困难的情况是自己加载value。在这里，我们正处在一个用户提供的`CacheLoader`的帮助。 如果它支持中断，我们可以支持中断; 如果没有，我们不能。
 
-So why not support interruption when the supplied `CacheLoader` does? In a sense, we do (but see below): If the `CacheLoader` throws `InterruptedException`, all `get` calls for the key will return promptly (just as with any other exception). Plus, `get` will restore the interrupt bit in the loading thread. The surprising part is that the `InterruptedException` is wrapped in an `ExecutionException`.
+那么为什么不提供`CacheLoader`支持中断呢？ 在某种意义上，我们做（但是请看下面）：如果`CacheLoader`抛出`InterruptedException`，那么所有获取key的调用将立即返回（就像任何其他异常一样）。 此外，`get`将恢复加载线程中的中断位。 令人惊讶的部分是`InterruptedException`被包裹在`ExecutionException`中。
 
-In principle, we could unwrap this exception for you. However, this forces all `LoadingCache` users to handle `InterruptedException`, even though the majority of `CacheLoader` implementations never throw it. Maybe that's still worthwhile when you consider that all _non-loading_ threads' waits could still be interrupted. But many caches are used only in a single thread. Their users must still catch the impossible `InterruptedException`. And even those users who share their caches across threads will be able to interrupt their `get` calls only _sometimes_, based on which thread happens to make a request first.
+原则上，我们可以为您解开这个exception。 但是，这迫使所有的`LoadCache`用户处理`InterruptedException`，即使大多数`CacheLoader`实现也不会抛出它。 也许这还是值得的，当你认为所有非加载线程的等待仍然可以中断。 但是，许多高速缓存仅在单个线程中使用。 他们的用户仍然必须抓住不可能的`InterruptedException`。 即使那些跨线程共享缓存的用户也只能有时候中断他们的`get`调用，基于哪个线程首先发出请求。
 
-Our guiding principle in this decision is for the cache to behave as though all values are loaded in the calling thread. This principle makes it easy to introduce caching into code that previously recomputed its values on each call. And if the old code wasn't interruptible, then it's probably OK for the new code not to be, either.
+我们在这个决定中的指导原则是缓存的行为就好像所有的值被加载在调用线程中一样。 这个原则使得将缓存引入到先前在每次调用中重新计算其值的代码变得容易。 而且如果旧的代码不可中断，那么新的代码也不行。
 
-I said that we support interruption "in a sense." There's another sense in which we don't, making `LoadingCache` a leaky abstraction. If the loading thread is interrupted, we treat this much like any other exception. That's fine in many cases, but it's not the right thing when multiple `get` calls are waiting for the value. Although the operation that happened to be computing the value was interrupted, the other operations that need the value might not have been. Yet all of these callers receive the `InterruptedException` (wrapped in an `ExecutionException`), even though the load didn't so much "fail" as "abort." The right behavior would be for one of the remaining threads to retry the load. We have [a bug filed for this](https://github.com/google/guava/issues/1122). However, a fix could be risky. Instead of fixing the problem, we may put additional effort into a proposed `AsyncLoadingCache`, which would return `Future` objects with correct interruption behavior.
+我说在某种意义上我们支持中断。 还有另一种感觉，我们没有，使得`LoadCache`泄漏抽象。 如果加载线程中断，我们就像任何其他异常一样对待它。 在许多情况下，这很好，但是当多个呼叫正在等待该值时，这不是正确的。 虽然正在计算该值的操作已中断，但其他需要该值的操作可能并不是这样。 然而，所有这些调用者都会收到`InterruptedException`（包含在`ExecutionException`中），即使负载没有太多“fail”为“abort”。 正确的行为将是剩下的一个线程重试加载。 我们[为此提交了一个错误](https://github.com/google/guava/issues/1122)。但是，修复可能是危险的。 而不是解决问题，我们可能会在提出的`AsyncLoadingCache`中加入更多的努力，这将返回`Future`对象具有正确的中断行为。
